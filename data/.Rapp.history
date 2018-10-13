@@ -1,0 +1,3 @@
+load("/Volumes/JOHNNYFIVE/Professional/Software/ExPosition-Family/Code/R/Development/SlimPosition/data/two.table.wine.rda")
+ls()
+wine

@@ -1,0 +1,89 @@
+#' @export
+#'
+#' @title \code{tolerance.svd}: automatically truncate spurious (tiny variance or negative or imaginary) components.
+#'
+#' @description \code{tolerance.svd} eliminates likely spurious components: any eigenvalue (squared singular value) below a tolerance level is elminated.
+#'    The (likely) spurious singular values and vectors are then eliminated from \code{$u}, \code{$d}, and \code{$v}.
+#'    Additionally, all values in \code{abs($u)} or \code{abs($v)} that fall below the \code{tol} are set to 0.
+#'
+#' @param x A data matrix of size for input to the singular value decomposition (\code{\link{svd}})
+#' @param nu The number of left singular vectors to be computed. Default is \code{min(dim(x))}
+#' @param nv The number of right singular vectors to be computed. Default is \code{min(dim(x))}
+#' @param tol Default is \code{.Machine$double.eps}. A parameter with two roles: A tolerance level for 1: eliminating (tiny variance or negative or imaginary) components and 2: converting all values < tol to 0 in \code{u} and \code{v}
+#'
+#' @return A list with three elements (like \code{svd}):
+#'  \item{d}{ A vector containing the singular values of x > \code{tol}.}
+#'  \item{u}{ A matrix whose columns contain the left singular vectors of x, present if nu > 0. Dimension \code{min(c(nrow(x), nu, length(d))}.}
+#'  \item{v}{ A matrix whose columns contain the right singular vectors of x, present if nv > 0. Dimension \code{min(c(ncol(x), nv, length(d))}.}
+#'
+#' @seealso \code{\link{svd}}
+#'
+#' @examples
+#'  data(wine)
+#'  X <- scale(as.matrix(wine$objective))
+#'  s_asis <- tolerance.svd(X)
+#'  s_sqrt.Machine <- tolerance.svd(X,tol=sqrt(.Machine$double.eps))
+#'  s_000001 <- tolerance.svd(X,tol=.000001)
+#'
+#' @author Derek Beaton
+#' @keywords multivariate, diagonalization, eigen
+
+tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double.eps) {	## consider increasing the tolerance.
+
+  ## the R SVD is much faster/happier when there are more rows than columns in a matrix
+    ## however, even though a transpose can speed up the SVD, there is a slow down to then set the U and V back to where it was
+    ## so I will remove this for now. I just need to keep it in mind.
+
+  # x.dims <- dim(x)
+  # x.is.transposed <- F
+  # if( (x.dims[1]*10) < x.dims[2]){ # * 10 to make it worth the transpose.
+  #   x.is.transposed <- T
+  #   x <- t(x)
+  # }
+
+  ## nu and nv are pass through values.
+  svd.res <- svd(x, nu = nu, nv = nv)
+  if(any(unlist(lapply(svd.res$d,is.complex)))){
+    stop("tolerance.svd: Singular values ($d) are complex.")
+  }
+  svs.to.keep <- which(!(svd.res$d^2 < tol))
+  svd.res$d <- svd.res$d[svs.to.keep]
+
+  if(nu >= length(svs.to.keep)){
+    svd.res$u <- as.matrix(svd.res$u[,svs.to.keep])
+  }else{
+    svd.res$u <- as.matrix(svd.res$u[,1:nu])
+  }
+
+  if(nv >= length(svs.to.keep)){
+    svd.res$v <- as.matrix(svd.res$v[,svs.to.keep])
+  }else{
+    svd.res$v <- as.matrix(svd.res$v[,1:nv])
+  }
+
+  svd.res$u[ abs(svd.res$u) < tol ] <- 0
+  svd.res$v[ abs(svd.res$v) < tol ] <- 0
+
+  # if(x.is.transposed){
+  #   temp <- svd.res$v
+  #   svd.res$v <- svd.res$u
+  #   svd.res$u <- temp
+  #   rm(temp)
+  #
+  #   rownames(svd.res$u) <- colnames(x)
+  #   rownames(svd.res$v) <- rownames(x)
+  # }else{
+  #   rownames(svd.res$u) <- rownames(x)
+  #   rownames(svd.res$v) <- colnames(x)
+  # }
+  rownames(svd.res$u) <- rownames(x)
+  rownames(svd.res$v) <- colnames(x)
+
+  ## force consistent directions as best as possible:
+  if( sign(svd.res$u[1,1]) == -1){
+    svd.res$u <- svd.res$u * -1
+    svd.res$v <- svd.res$v * -1
+  }
+
+  return(svd.res)
+}
