@@ -31,7 +31,7 @@ The `GSVD` package is not yet on CRAN but should be soon. For now, the simplest 
 
 ``` r
 # devtools install via github
-devtools::install_github("derekbeaton/ExPosition-Family",subdir="/ExPosition2/GSVD/Package")
+devtools::install_github("derekbeaton/GSVD")
 ```
 
 Usage
