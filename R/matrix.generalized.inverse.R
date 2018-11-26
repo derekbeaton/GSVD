@@ -56,5 +56,8 @@ matrix.generalized.inverse <- function(x, k=0, ...){
   #return( sweep(res$v[,comp.ret],2,res$d[comp.ret],"/") %*% t(res$u[,comp.ret]) )
 
   res <- tolerance.svd(x, nu = k, nv = k,...)
+  if(k > length(res$d)){
+    k <- length(res$d)
+  }
   return( sweep(res$v,2,res$d[1:k],"/") %*% t(res$u) )
 }

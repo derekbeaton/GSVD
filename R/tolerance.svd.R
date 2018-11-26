@@ -46,6 +46,10 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   if(any(unlist(lapply(svd.res$d,is.complex)))){
     stop("tolerance.svd: Singular values ($d) are complex.")
   }
+  if( (any(abs(svd.res$d) > tol) ) & (any(sign(svd.res$d) != 1)) ){
+    stop("tolerance.svd: Singular values ($d) are negative with a magnitude above 'tol'.")
+  }
+
   svs.to.keep <- which(!(svd.res$d^2 < tol))
   svd.res$d <- svd.res$d[svs.to.keep]
 
@@ -62,7 +66,9 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   }
 
   svd.res$u[ abs(svd.res$u) < tol ] <- 0
+    svd.res$u <- as.matrix(svd.res$u)
   svd.res$v[ abs(svd.res$v) < tol ] <- 0
+    svd.res$v <- as.matrix(svd.res$v)
 
   # if(x.is.transposed){
   #   temp <- svd.res$v
@@ -76,6 +82,7 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   #   rownames(svd.res$u) <- rownames(x)
   #   rownames(svd.res$v) <- colnames(x)
   # }
+
   rownames(svd.res$u) <- rownames(x)
   rownames(svd.res$v) <- colnames(x)
 
