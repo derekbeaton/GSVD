@@ -43,6 +43,16 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
 
   ## nu and nv are pass through values.
   svd.res <- svd(x, nu = nu, nv = nv)
+
+  # if tolerance is any of these values, just do nothing; send back the SVD results as is.
+  if( (is.null(tol) | is.infinite(tol) | is.na(tol) | is.nan(tol)) ){
+
+    return(svd.res)
+
+  }
+  ## once you go past this point you *want* the tolerance features.
+
+
   if(any(unlist(lapply(svd.res$d,is.complex)))){
     stop("tolerance.svd: Singular values ($d) are complex.")
   }
@@ -51,6 +61,10 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   }
 
   svs.to.keep <- which(!(svd.res$d^2 < tol))
+  if(length(svs.to.keep)==0){
+    stop("tolerance.svd: All (squared) singular values were below 'tol'")
+  }
+
   svd.res$d <- svd.res$d[svs.to.keep]
 
   if(nu >= length(svs.to.keep)){
