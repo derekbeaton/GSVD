@@ -66,9 +66,7 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   }
 
   svd.res$u[ abs(svd.res$u) < tol ] <- 0
-    svd.res$u <- as.matrix(svd.res$u)
   svd.res$v[ abs(svd.res$v) < tol ] <- 0
-    svd.res$v <- as.matrix(svd.res$v)
 
   # if(x.is.transposed){
   #   temp <- svd.res$v
@@ -87,7 +85,7 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   rownames(svd.res$v) <- colnames(x)
 
   ## force consistent directions as best as possible:
-  if( sign(svd.res$u[1,1]) == -1){
+  if( sign(svd.res$u[1]) == -1 ){
     svd.res$u <- svd.res$u * -1
     svd.res$v <- svd.res$v * -1
   }
