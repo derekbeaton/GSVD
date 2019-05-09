@@ -9,7 +9,7 @@
 #' @param x A data matrix of size for input to the singular value decomposition (\code{\link{svd}})
 #' @param nu The number of left singular vectors to be computed. Default is \code{min(dim(x))}
 #' @param nv The number of right singular vectors to be computed. Default is \code{min(dim(x))}
-#' @param tol Default is \code{.Machine$double.eps}. A parameter with two roles: A tolerance level for 1: eliminating (tiny variance or negative or imaginary) components and 2: converting all values < tol to 0 in \code{u} and \code{v}
+#' @param tol Default is \code{.Machine$double.eps}. A tolerance level for eliminating (tiny variance or negative or imaginary) components
 #'
 #' @return A list with three elements (like \code{svd}):
 #'  \item{d}{ A vector containing the singular values of x > \code{tol}.}
@@ -79,8 +79,9 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
     svd.res$v <- as.matrix(svd.res$v[,1:nv])
   }
 
-  svd.res$u[ abs(svd.res$u) < tol ] <- 0
-  svd.res$v[ abs(svd.res$v) < tol ] <- 0
+  ## I am removing this as it seems unnecessary/potentially problematic.
+  # svd.res$u[ abs(svd.res$u) < tol ] <- 0
+  # svd.res$v[ abs(svd.res$v) < tol ] <- 0
 
   # if(x.is.transposed){
   #   temp <- svd.res$v
