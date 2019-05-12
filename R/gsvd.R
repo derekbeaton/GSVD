@@ -2,7 +2,7 @@
 #'
 #' @description The generalized singular value decomposition (GSVD) generalizes the standard SVD (see \code{\link{svd}}) procedure through addition of (optional) constraints applied to the rows and/or columns of a matrix.
 #' @details While dedicated to the GSVD, this package also includes some nice features that are helpful for matrix analyses. For example there are tests to check if matrices are empty (\code{\link{is.empty.matrix}}) or identity (\code{\link{is.identity.matrix}}); also included are operations such as generalized inverse (\code{\link{matrix.generalized.inverse}}) and matrix exponents (\code{\link{matrix.exponent}} or \code{\link{\%^\%}}).
-#' @seealso \code{\link{gsvd}}, \code{\link{tolerance.svd}}, \code{\link{\%^\%}}
+#' @seealso \code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance.svd}}, \code{\link{\%^\%}}
 #' @examples
 #'  ## an example of correspondence analysis.
 #'  data(authors)
@@ -85,14 +85,16 @@
 #'
 #' @param DAT a data matrix to decompose
 #' @param LW \bold{L}eft \bold{W}eights -- the constraints applied to the left side (rows) of the matrix and thus left singular vectors.
-#' @param RW \bold{R}ight \bold{W}eights -- the constraints applied to the right side (rows) of the matrix and thus right singular vectors.
+#' @param RW \bold{R}ight \bold{W}eights -- the constraints applied to the right side (columns) of the matrix and thus right singular vectors.
 #' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
 #' @param tol default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.
 #'
 #' @return A list with nine elements:
-#' \item{d.orig}{A vector containing the singular values of DAT > \code{tol}.}
-#' \item{tau}{A vector that contains the (original) explained variance per component (eigenvalues derived from \code{$d.orig}.}
-#' \item{d}{A vector containing the singular values of x > \code{tol}. Length is \code{min(length(d.orig), k)}}
+#' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
+#' \item{l.orig}{A vector containing the eigen values of DATabove the tolerance threshold (\code{tol}).}
+#' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
+#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
+#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}
 #' \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(DAT)} by k.}
 #' \item{p}{Left (rows) generalized singular vectors. Dimensions are \code{nrow(DAT)} by k.}
 #' \item{fi}{Left (rows) component scores. Dimensions are \code{nrow(DAT)} by k.}
@@ -166,7 +168,9 @@
 #' @keywords multivariate, diagonalization, eigen
 
 
-gsvd <- function(DAT, LW, RW, k = 0, tol=.Machine$double.eps){
+### I need to do some PSD checks.
+
+gsvd <- function(DAT, LW, RW, k = 0, tol = .Machine$double.eps){
 
   # preliminaries
   DAT.dims <- dim(DAT)
@@ -174,7 +178,6 @@ gsvd <- function(DAT, LW, RW, k = 0, tol=.Machine$double.eps){
     stop("gsvd: DAT must have dim length of 2 (i.e., rows and columns)")
   }
   DAT <- as.matrix(DAT)
-  DAT[abs(DAT) < tol] <- 0
   RW.is.vector <- LW.is.vector <- RW.is.missing <- LW.is.missing <- F ##asuming everything is a matrix.
 
   ### These are here out of convenience for the tests below. They started to get too long.
@@ -269,10 +272,12 @@ gsvd <- function(DAT, LW, RW, k = 0, tol=.Machine$double.eps){
   }
   res <- tolerance.svd(DAT,nu=k,nv=k,tol=tol)
   res$d.orig <- res$d
-  res$tau <- (res$d.orig^2/sum(res$d.orig^2)) * 100
+  res$l.orig <- res$d.orig^2
+  res$tau <- (res$l.orig/sum(res$l.orig)) * 100
   components.to.return <- min(length(res$d.orig),k) #a safety check
   ## u and v should already be k vectors but: be safe.
   res$d <- res$d.orig[1:components.to.return]
+  res$l <- res$d^2
   res$u <- as.matrix(res$u[,1:components.to.return])
   res$v <- as.matrix(res$v[,1:components.to.return])
 

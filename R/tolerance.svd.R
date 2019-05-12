@@ -1,15 +1,19 @@
 #' @export
 #'
-#' @title \code{tolerance.svd}: automatically truncate spurious (tiny variance or negative or imaginary) components.
+#' @title \code{tolerance.svd}: An SVD to truncate potentially spurious (near machine precision) components.
 #'
 #' @description \code{tolerance.svd} eliminates likely spurious components: any eigenvalue (squared singular value) below a tolerance level is elminated.
 #'    The (likely) spurious singular values and vectors are then eliminated from \code{$u}, \code{$d}, and \code{$v}.
 #'    Additionally, all values in \code{abs($u)} or \code{abs($v)} that fall below the \code{tol} are set to 0.
+#'    The use of a real positive value for \code{tol} will eliminate any small valued components.
+#'    With \code{tol}, \code{tolerance.svd} will stop if any singular values are complex or negative.
 #'
 #' @param x A data matrix of size for input to the singular value decomposition (\code{\link{svd}})
 #' @param nu The number of left singular vectors to be computed. Default is \code{min(dim(x))}
 #' @param nv The number of right singular vectors to be computed. Default is \code{min(dim(x))}
-#' @param tol Default is \code{.Machine$double.eps}. A tolerance level for eliminating (tiny variance or negative or imaginary) components
+#' @param tol Default is \code{.Machine$double.eps}. A tolerance level for eliminating near machine precision components.
+#' Use of this parameter causes \code{tolerance.svd} to stop if negative or complex singular values are detected.
+#' The use of \code{tol < 0}, \code{NA}, \code{NaN}, \code{Inf}, \code{-Inf}, or \code{NULL} passes through to \code{\link{svd}}.
 #'
 #' @return A list with three elements (like \code{svd}):
 #'  \item{d}{ A vector containing the singular values of x > \code{tol}.}
@@ -45,7 +49,7 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   svd.res <- svd(x, nu = nu, nv = nv)
 
   # if tolerance is any of these values, just do nothing; send back the SVD results as is.
-  if( (is.null(tol) | is.infinite(tol) | is.na(tol) | is.nan(tol)) ){
+  if( (is.null(tol) | is.infinite(tol) | is.na(tol) | is.nan(tol) | tol < 0) ){
 
     return(svd.res)
 
@@ -82,19 +86,6 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   ## I am removing this as it seems unnecessary/potentially problematic.
   # svd.res$u[ abs(svd.res$u) < tol ] <- 0
   # svd.res$v[ abs(svd.res$v) < tol ] <- 0
-
-  # if(x.is.transposed){
-  #   temp <- svd.res$v
-  #   svd.res$v <- svd.res$u
-  #   svd.res$u <- temp
-  #   rm(temp)
-  #
-  #   rownames(svd.res$u) <- colnames(x)
-  #   rownames(svd.res$v) <- rownames(x)
-  # }else{
-  #   rownames(svd.res$u) <- rownames(x)
-  #   rownames(svd.res$v) <- colnames(x)
-  # }
 
   rownames(svd.res$u) <- rownames(x)
   rownames(svd.res$v) <- colnames(x)
