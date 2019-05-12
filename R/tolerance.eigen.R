@@ -41,7 +41,7 @@ tolerance.eigen <- function(x, tol=.Machine$double.eps, ...) {
   if(any(unlist(lapply(eigen_res$values,is.complex)))){
     stop("tolerance.eigen: eigen values ($values) are complex.")
   }
-  if( (any(abs(eigen_res$vales) > tol) ) & (any(sign(eigen_res$values) != 1)) ){
+  if( (any(abs(eigen_res$values) > tol) ) & (any(sign(eigen_res$values) != 1)) ){
     stop("tolerance.eigen: eigen values ($values) are negative with a magnitude above 'tol'.")
   }
 
@@ -50,4 +50,17 @@ tolerance.eigen <- function(x, tol=.Machine$double.eps, ...) {
     stop("tolerance.eigen: All eigen values were below 'tol'")
   }
 
+  eigen_res$values <- eigen_res$values[evs.to.keep]
+    ## this would happen if only.values=TRUE
+  if(!is.null(eigen_res$vectors)){
+    eigen_res$vectors <- eigen_res$vectors[,evs.to.keep]
+    rownames(eigen_res$vectors) <- colnames(x)
+
+    ## force consistent directions as best as possible:
+    if( sign(eigen_res$vectors[1]) == -1 ){
+      eigen_res$vectors <- eigen_res$vectors * -1
+    }
+  }
+
+  return(eigen_res)
 }

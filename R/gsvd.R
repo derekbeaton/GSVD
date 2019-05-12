@@ -91,7 +91,7 @@
 #'
 #' @return A list with nine elements:
 #' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
-#' \item{l.orig}{A vector containing the eigen values of DATabove the tolerance threshold (\code{tol}).}
+#' \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
 #' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
 #' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
 #' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}

@@ -3,21 +3,23 @@
 #' @title Generalized Eigenvalue decomposition
 #'
 #' @description
-#' \code{geigen} takes in right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT})
+#' \code{geigen} takes in right (\code{W}) constraints (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT})
 #'   Right constraints are used for the orthogonality conditions.
 #'
-#' @param DATA a data matrix to decompose
-#' @param RW \bold{R}ight \bold{W}eights -- the constraints applied to the right side of the matrix.
+#' @param DAT a data matrix to decompose
+#' @param W \bold{W}eights -- the constraints applied to the matrix and thus the eigen vectors.
 #' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
 #' @param tol default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.
 #'
 #' @return A list with nine elements:
-#' \item{values_orig}{A vector containing the eigen values > \code{tol}.}
-#' \item{tau}{A vector that contains the (original) explained variance per component (eigenvalues derived from \code{$d.orig}.}
-#' \item{values}{A vector containing the eigen values of x > \code{tol}. Length is \code{min(length(d.orig), k)}}
-#' \item{vectors}{Right (columns) singular vectors. Dimensions are \code{ncol(DAT)} by k.}
-#' \item{generalized_vectors}{Right (columns) generalized singular vectors. Dimensions are \code{ncol(DAT)} by k.}
-#' \item{scores}{Right (columns) component scores. Dimensions are \code{ncol(DAT)} by k.}
+#' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
+#' \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
+#' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
+#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
+#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}
+#' \item{v}{Eigenvectors. Dimensions are \code{ncol(DAT)} by k.}
+#' \item{q}{Generalized eigenvectors. Dimensions are \code{ncol(DAT)} by k.}
+#' \item{fj}{Component scores. Dimensions are \code{ncol(DAT)} by k.}
 #'
 #' @seealso \code{\link{tolerance.svd}}, \code{\link{gsvd}} and \code{\link{svd}}
 #'
@@ -27,57 +29,96 @@
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen
 
+geigen <- function(DAT, W, k = 0, tol=.Machine$double.eps, symmetric){
 
-## I need to figure out the names... I should homogenize the names across gsvd & geigen
-
-geigen <- function(DATA, RW, k = 0, tol=.Machine$double.eps){
-
+  # preliminaries
+  DAT.dims <- dim(DAT)
+  if(length(DAT.dims)!=2){
+    stop("gsvd: DAT must have dim length of 2 (i.e., rows and columns)")
+  }
   DAT <- as.matrix(DAT)
-  # DAT[abs(DAT) < tol] <- 0
-  RW.is.vector <- RW.is.missing <- F ##asuming everything is a matrix.
+  W.is.vector <- W.is.missing <- F ##asuming everything is a matrix.
 
   ### These are here out of convenience for the tests below. They started to get too long.
-  if( !missing(RW) ){
-    if(is.empty.matrix(RW)){
-      stop("geigen: RW is empty (i.e., all 0s")
+  if( !missing(W) ){
+    if(is.empty.matrix(W)){
+      stop("geigen: W is empty (i.e., all 0s")
     }
   }
 
-  if( missing(RW) ){
-    RW.is.missing <- T
+  if( missing(W) ){
+    W.is.missing <- T
   }else{ # it's here and we have to check!
 
-    if ( is.vector(RW) ) {
-      RW.is.vector <- T
-    }else if(!RW.is.vector){
+    if ( is.vector(W) ) {
+      W.is.vector <- T
+    }else if(!W.is.vector){
 
-      if( is.identity.matrix(RW) ){
-        RW.is.missing <- T
-        warning("gsvd: RW was an identity matrix. RW will not be used in the GSVD.")
-      }else if( is.diagonal.matrix(RW) ){
+      if( is.identity.matrix(W) ){
+        W.is.missing <- T
+        warning("gsvd: W was an identity matrix. W will not be used in the GSVD.")
+      }else if( is.diagonal.matrix(W) ){
 
-        RW <- diag(RW)
+        W <- diag(W)
 
-        if( length(RW) != DAT.dims[2] ){
-          stop("gsvd:length(RW) does not equal ncol(DAT)")
+        if( length(W) != DAT.dims[2] ){
+          stop("gsvd:length(W) does not equal ncol(DAT)")
         }else{
-          RW.is.vector <- T  #now it's a vector
+          W.is.vector <- T  #now it's a vector
         }
 
-      }else if( nrow(RW) != ncol(RW) | nrow(RW) != DAT.dims[2] ){
-        stop("gsvd:nrow(RW) does not equal ncol(RW) or ncol(DAT)")
+      }else if( nrow(W) != ncol(W) | nrow(W) != DAT.dims[2] ){
+        stop("gsvd:nrow(W) does not equal ncol(W) or ncol(DAT)")
       }
     }
   }
 
-    ### the sqrt here may not be correct...
-  if(!RW.is.missing){
-    if( RW.is.vector ){  ## replace with sweep
-      DAT <- sweep(DAT,2,sqrt(RW),"*")
+  if(!W.is.missing){
+    if( W.is.vector ){  ## replace with sweep
+      DAT <- sweep(sweep(DAT, 2, sqrt(W), "*"), 1, sqrt(W), "*")
     }else{
-      DAT <- DAT %*% (RW %^% (1/2))
+      DAT <- (W %^% (1/2)) %*% DAT %*% (W %^% (1/2))
     }
   }
 
+  if(k<=0){
+    k <- min(nrow(DAT),ncol(DAT))
+  }
+
+  if(missing(symmetric)){
+    symmetric <- isSymmetric(DAT)
+  }
+
+  res <- tolerance.eigen(DAT, tol=tol, symmetric=symmetric)
+
+
+  res$l.orig <- res$values
+    res$values <- NULL #ew
+  res$d.orig <- sqrt(res$l.orig)
+  res$tau <- (res$l.orig/sum(res$l.orig)) * 100
+
+  components.to.return <- min(length(res$d.orig),k) #a safety check
+
+  res$d <- res$d.orig[1:components.to.return]
+  res$l <- res$l.orig[1:components.to.return]
+  res$v <- as.matrix(res$vectors[,1:components.to.return])
+    res$vectors <- NULL #ew
+
+  if(!W.is.missing){
+    if(W.is.vector){
+      res$q <- sweep(res$v,1,1/sqrt(W),"*")
+      res$fj <- sweep(sweep(res$q,1,W,"*"),2,res$d,"*")
+    }else{
+      res$q <- (W %^% (-1/2)) %*% res$v
+      res$fj <- sweep((W %*% res$q),2,res$d,"*")
+    }
+  }else{
+    res$q <- res$v
+    res$fj <- sweep(res$q,2,res$d,"*")
+  }
+
+  rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(DAT)
+
+  return(res)
 
 }

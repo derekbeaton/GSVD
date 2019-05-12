@@ -71,6 +71,7 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
 
   svd.res$d <- svd.res$d[svs.to.keep]
 
+  ## are these checks necessary? problably...
   if(nu >= length(svs.to.keep)){
     svd.res$u <- as.matrix(svd.res$u[,svs.to.keep])
   }else{
@@ -82,10 +83,6 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double
   }else{
     svd.res$v <- as.matrix(svd.res$v[,1:nv])
   }
-
-  ## I am removing this as it seems unnecessary/potentially problematic.
-  # svd.res$u[ abs(svd.res$u) < tol ] <- 0
-  # svd.res$v[ abs(svd.res$v) < tol ] <- 0
 
   rownames(svd.res$u) <- rownames(x)
   rownames(svd.res$v) <- colnames(x)
