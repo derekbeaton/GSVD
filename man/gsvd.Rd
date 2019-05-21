@@ -11,7 +11,7 @@ gsvd(DAT, LW, RW, k = 0, tol = .Machine$double.eps)
 
 \item{LW}{\bold{L}eft \bold{W}eights -- the constraints applied to the left side (rows) of the matrix and thus left singular vectors.}
 
-\item{RW}{\bold{R}ight \bold{W}eights -- the constraints applied to the right side (rows) of the matrix and thus right singular vectors.}
+\item{RW}{\bold{R}ight \bold{W}eights -- the constraints applied to the right side (columns) of the matrix and thus right singular vectors.}
 
 \item{k}{total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.}
 
@@ -19,9 +19,11 @@ gsvd(DAT, LW, RW, k = 0, tol = .Machine$double.eps)
 }
 \value{
 A list with nine elements:
-\item{d.orig}{A vector containing the singular values of DAT > \code{tol}.}
-\item{tau}{A vector that contains the (original) explained variance per component (eigenvalues derived from \code{$d.orig}.}
-\item{d}{A vector containing the singular values of x > \code{tol}. Length is \code{min(length(d.orig), k)}}
+\item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
+\item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
+\item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
+\item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
+\item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}
 \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(DAT)} by k.}
 \item{p}{Left (rows) generalized singular vectors. Dimensions are \code{nrow(DAT)} by k.}
 \item{fi}{Left (rows) component scores. Dimensions are \code{nrow(DAT)} by k.}
