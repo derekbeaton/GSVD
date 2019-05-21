@@ -9,7 +9,8 @@
 #' @param DAT a data matrix to decompose
 #' @param W \bold{W}eights -- the constraints applied to the matrix and thus the eigen vectors.
 #' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
-#' @param tol default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.
+#' @param tol default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{v}.
+#' @param symmetric if \code{DAT} is symmetric, set as TRUE. See \code{\link{eigen}}.
 #'
 #' @return A list with nine elements:
 #' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
@@ -21,7 +22,7 @@
 #' \item{q}{Generalized eigenvectors. Dimensions are \code{ncol(DAT)} by k.}
 #' \item{fj}{Component scores. Dimensions are \code{ncol(DAT)} by k.}
 #'
-#' @seealso \code{\link{tolerance.svd}}, \code{\link{gsvd}} and \code{\link{svd}}
+#' @seealso \code{\link{tolerance.eigen}}, \code{\link{tolerance.svd}}, \code{\link{gsvd}} and \code{\link{svd}}
 #'
 #' @examples
 #'

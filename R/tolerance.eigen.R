@@ -1,21 +1,19 @@
 #' @export
 #'
-#' @title \code{tolerance.eigen}: An SVD to truncate potentially spurious (near machine precision) components.
+#' @title \code{tolerance.eigen}: An eigenvalue decomposition to truncate potentially spurious (near machine precision) components.
 #'
 #' @description \code{tolerance.eigen} eliminates likely spurious components: any eigenvalue (squared singular value) below a tolerance level is elminated.
-#'    The (likely) spurious singular values and vectors are then eliminated from \code{$u}, \code{$d}, and \code{$v}.
-#'    Additionally, all values in \code{abs($u)} or \code{abs($v)} that fall below the \code{tol} are set to 0.
+#'    The (likely) spurious eigen values and vectors are then eliminated from \code{$vectors} and \code{$values}.
 #'    The use of a real positive value for \code{tol} will eliminate any small valued components.
 #'    With \code{tol}, \code{tolerance.eigen} will stop if any singular values are complex or negative.
 #'
-#' @param x A data matrix of size for input to the singular value decomposition (\code{\link{svd}})
-#' @param nu The number of left singular vectors to be computed. Default is \code{min(dim(x))}
-#' @param nv The number of right singular vectors to be computed. Default is \code{min(dim(x))}
+#' @param x A data matrix of size for input to the eigen value decomposition (\code{\link{eigen}})
 #' @param tol Default is \code{.Machine$double.eps}. A tolerance level for eliminating near machine precision components.
-#' Use of this parameter causes \code{tolerance.eigen} to stop if negative or complex singular values are detected.
+#' Use of this parameter causes \code{tolerance.eigen} to stop if negative or complex eigen values are detected.
 #' The use of \code{tol < 0}, \code{NA}, \code{NaN}, \code{Inf}, \code{-Inf}, or \code{NULL} passes through to \code{\link{svd}}.
+#' @param ... Further arguments to \code{\link{eigen}}. See \code{\link{eigen}}.
 #'
-#' @return A list with three elements (like \code{svd}):
+#' @return A list with two elements (like \code{eigen}):
 #'  \item{values}{ A vector containing the eigen values of x > \code{tol}.}
 #'  \item{vectors}{ A matrix whose columns contain the right singular vectors of x, present if nv > 0. Dimension \code{min(c(ncol(x), nv, length(d))}.}
 #'

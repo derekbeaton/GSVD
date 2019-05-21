@@ -13,7 +13,9 @@ geigen(DAT, W, k = 0, tol = .Machine$double.eps, symmetric)
 
 \item{k}{total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.}
 
-\item{tol}{default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.}
+\item{tol}{default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{v}.}
+
+\item{symmetric}{if \code{DAT} is symmetric, set as TRUE. See \code{\link{eigen}}.}
 }
 \value{
 A list with nine elements:
@@ -35,7 +37,7 @@ A list with nine elements:
 
 }
 \seealso{
-\code{\link{tolerance.svd}}, \code{\link{gsvd}} and \code{\link{svd}}
+\code{\link{tolerance.eigen}}, \code{\link{tolerance.svd}}, \code{\link{gsvd}} and \code{\link{svd}}
 }
 \author{
 Derek Beaton
