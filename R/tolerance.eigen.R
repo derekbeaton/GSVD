@@ -39,7 +39,8 @@ tolerance.eigen <- function(x, tol=.Machine$double.eps, ...) {
   if(any(unlist(lapply(eigen_res$values,is.complex)))){
     stop("tolerance.eigen: eigen values ($values) are complex.")
   }
-  if( (any(abs(eigen_res$values) > tol) ) & (any(sign(eigen_res$values) != 1)) ){
+  # if( (any(abs(eigen_res$values) > tol) ) & (any(sign(eigen_res$values) != 1)) ){
+  if( (any(abs(eigen_res$values) > tol) ) ){
     stop("tolerance.eigen: eigen values ($values) are negative with a magnitude above 'tol'.")
   }
 
