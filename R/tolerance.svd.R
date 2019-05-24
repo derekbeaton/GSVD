@@ -32,7 +32,7 @@
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen
 
-tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol=.Machine$double.eps) {	## consider increasing the tolerance.
+tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = 1e-12) {
 
   ## the R SVD is much faster/happier when there are more rows than columns in a matrix
     ## however, even though a transpose can speed up the SVD, there is a slow down to then set the U and V back to where it was

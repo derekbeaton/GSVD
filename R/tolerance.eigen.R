@@ -22,10 +22,8 @@
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen
 
-tolerance.eigen <- function(x, tol=.Machine$double.eps, ...) {
+tolerance.eigen <- function(x, tol = 1e-12, ...) {
 
-
-  ## nu and nv are pass through values.
   eigen_res <- eigen(x, ...)
 
   # if tolerance is any of these values, just do nothing; send back the EVD results as is.
