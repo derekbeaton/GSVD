@@ -22,7 +22,7 @@
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen
 
-tolerance.eigen <- function(x, tol = 1e-12, ...) {
+tolerance.eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
 
   eigen_res <- eigen(x, ...)
 
@@ -38,7 +38,9 @@ tolerance.eigen <- function(x, tol = 1e-12, ...) {
     stop("tolerance.eigen: eigen values ($values) are complex.")
   }
   # if( (any(abs(eigen_res$values) > tol) ) & (any(sign(eigen_res$values) != 1)) ){
-  if( (any(abs(eigen_res$values) > tol) ) ){
+
+  # if( (any(abs(eigen_res$values) < tol) ) ){
+  if( any( (abs(eigen_res$values) < tol) & (sign(eigen_res$values)==-1) ) ){
     stop("tolerance.eigen: eigen values ($values) are negative with a magnitude above 'tol'.")
   }
 

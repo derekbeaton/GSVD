@@ -32,7 +32,7 @@
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen
 
-tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = 1e-12) {
+tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$double.eps) {
 
   ## the R SVD is much faster/happier when there are more rows than columns in a matrix
     ## however, even though a transpose can speed up the SVD, there is a slow down to then set the U and V back to where it was
@@ -61,7 +61,7 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = 1e-12) {
     stop("tolerance.svd: Singular values ($d) are complex.")
   }
   # if( (any(abs(svd.res$d) > tol) ) & (any(sign(svd.res$d) != 1)) ){
-  if( (any(abs(svd.res$d) > tol) ) ){
+  if( any( (svd.res$d^2 < tol) & (sign(svd.res$d)==-1) ) ){
     stop("tolerance.svd: Singular values ($d) are negative with a magnitude above 'tol'.")
   }
 
