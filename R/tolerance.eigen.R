@@ -40,7 +40,7 @@ tolerance.eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
   # if( (any(abs(eigen_res$values) > tol) ) & (any(sign(eigen_res$values) != 1)) ){
 
   # if( (any(abs(eigen_res$values) < tol) ) ){
-  if( any( (abs(eigen_res$values) < tol) & (sign(eigen_res$values)==-1) ) ){
+  if( any( (abs(eigen_res$values) > tol) & (sign(eigen_res$values)==-1) ) ){
     stop("tolerance.eigen: eigen values ($values) are negative with a magnitude above 'tol'.")
   }
 

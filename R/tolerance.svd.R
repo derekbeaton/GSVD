@@ -61,7 +61,7 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$doub
     stop("tolerance.svd: Singular values ($d) are complex.")
   }
   # if( (any(abs(svd.res$d) > tol) ) & (any(sign(svd.res$d) != 1)) ){
-  if( any( (svd.res$d^2 < tol) & (sign(svd.res$d)==-1) ) ){
+  if( any( (svd.res$d^2 > tol) & (sign(svd.res$d)==-1) ) ){
     stop("tolerance.svd: Singular values ($d) are negative with a magnitude above 'tol'.")
   }
 
