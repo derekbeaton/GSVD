@@ -120,6 +120,7 @@ geigen <- function(DAT, W, k = 0, tol=.Machine$double.eps, symmetric){
 
   rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(DAT)
 
+  class(res) <- c("list", "GSVD", "geigen")
   return(res)
 
 }

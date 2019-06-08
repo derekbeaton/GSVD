@@ -46,53 +46,54 @@ tolerance.svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$doub
   # }
 
   ## nu and nv are pass through values.
-  svd.res <- svd(x, nu = nu, nv = nv)
+  svd_res <- svd(x, nu = nu, nv = nv)
 
   # if tolerance is any of these values, just do nothing; send back the SVD results as is.
   if( (is.null(tol) | is.infinite(tol) | is.na(tol) | is.nan(tol) | tol < 0) ){
 
-    return(svd.res)
+    return(svd_res)
 
   }
   ## once you go past this point you *want* the tolerance features.
 
 
-  if(any(unlist(lapply(svd.res$d,is.complex)))){
+  if(any(unlist(lapply(svd_res$d,is.complex)))){
     stop("tolerance.svd: Singular values ($d) are complex.")
   }
-  # if( (any(abs(svd.res$d) > tol) ) & (any(sign(svd.res$d) != 1)) ){
-  if( any( (svd.res$d^2 > tol) & (sign(svd.res$d)==-1) ) ){
+  # if( (any(abs(svd_res$d) > tol) ) & (any(sign(svd_res$d) != 1)) ){
+  if( any( (svd_res$d^2 > tol) & (sign(svd_res$d)==-1) ) ){
     stop("tolerance.svd: Singular values ($d) are negative with a magnitude above 'tol'.")
   }
 
-  svs.to.keep <- which(!(svd.res$d^2 < tol))
+  svs.to.keep <- which(!(svd_res$d^2 < tol))
   if(length(svs.to.keep)==0){
     stop("tolerance.svd: All (squared) singular values were below 'tol'")
   }
 
-  svd.res$d <- svd.res$d[svs.to.keep]
+  svd_res$d <- svd_res$d[svs.to.keep]
 
   ## are these checks necessary? problably...
   if(nu >= length(svs.to.keep)){
-    svd.res$u <- as.matrix(svd.res$u[,svs.to.keep])
+    svd_res$u <- as.matrix(svd_res$u[,svs.to.keep])
   }else{
-    svd.res$u <- as.matrix(svd.res$u[,1:nu])
+    svd_res$u <- as.matrix(svd_res$u[,1:nu])
   }
 
   if(nv >= length(svs.to.keep)){
-    svd.res$v <- as.matrix(svd.res$v[,svs.to.keep])
+    svd_res$v <- as.matrix(svd_res$v[,svs.to.keep])
   }else{
-    svd.res$v <- as.matrix(svd.res$v[,1:nv])
+    svd_res$v <- as.matrix(svd_res$v[,1:nv])
   }
 
-  rownames(svd.res$u) <- rownames(x)
-  rownames(svd.res$v) <- colnames(x)
+  rownames(svd_res$u) <- rownames(x)
+  rownames(svd_res$v) <- colnames(x)
 
   ## force consistent directions as best as possible:
-  if( sign(svd.res$u[1]) == -1 ){
-    svd.res$u <- svd.res$u * -1
-    svd.res$v <- svd.res$v * -1
+  if( sign(svd_res$u[1]) == -1 ){
+    svd_res$u <- svd_res$u * -1
+    svd_res$v <- svd_res$v * -1
   }
 
-  return(svd.res)
+  class(svd_res) <- c("list", "GSVD", "svd")
+  return(svd_res)
 }
