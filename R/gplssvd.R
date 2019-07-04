@@ -8,6 +8,7 @@ gplssvd <- function(X, Y, XLW=rep(1, nrow(ZX)), YLW=rep(1, nrow(ZY)), XRW=rep(1,
 
 
   ## this and GSVD and GEIGEN need a bit of cleaning up.
+    ### probably functionalizing things and putting them in utils
 
   # preliminaries
   X.dims <- dim(X)
@@ -131,7 +132,7 @@ gplssvd <- function(X, Y, XLW=rep(1, nrow(ZX)), YLW=rep(1, nrow(ZY)), XRW=rep(1,
           YLW.is.vector <- T  #now it's a vector
         }
 
-      }else if( nrow(YLW) != ncol(YLW) | nrow(YLW) != X.dims[1] ){
+      }else if( nrow(YLW) != ncol(YLW) | nrow(YLW) != Y.dims[1] ){
         stop("gplssvd:nrow(YLW) does not equal ncol(YLW) or nrow(Y)")
       }
     }
@@ -159,7 +160,7 @@ gplssvd <- function(X, Y, XLW=rep(1, nrow(ZX)), YLW=rep(1, nrow(ZY)), XRW=rep(1,
           YRW.is.vector <- T  #now it's a vector
         }
 
-      }else if( nrow(YRW) != ncol(YRW) | nrow(YRW) != X.dims[2] ){
+      }else if( nrow(YRW) != ncol(YRW) | nrow(YRW) != Y.dims[2] ){
         stop("gplssvd:nrow(YRW) does not equal ncol(YRW) or ncol(Y)")
       }
     }
