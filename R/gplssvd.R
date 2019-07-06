@@ -1,14 +1,78 @@
-## this provides the basis of all GPLS algorithms. So this would move over into gplssvd as the companion to it.
-### but it possibly needs a new name...
+#' @export
+#'
+#' @title Generalized partial least squares singular value decomposition
+#'
+#' @description
+#' \code{gplssvd} takes in left (\code{XLW}, \code{YLW}) and right (\code{XRW}, \code{YRW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to each data matrix (\code{X} and \code{Y}) respectively
+#'   Right constraints for each data matrix are used for the orthogonality conditions.
+#'
+#' @param X a data matrix
+#' @param Y a data matrix
+#' @param XLW \bold{X}'s \bold{L}eft \bold{W}eights -- the constraints applied to the left side (rows) of the \code{X} matrix and thus left singular vectors.
+#' @param YLW \bold{Y}'s \bold{L}eft \bold{W}eights -- the constraints applied to the left side (rows) of the \code{Y} matrix and thus left singular vectors.
+#' @param XRW \bold{X}'s \bold{R}ight \bold{W}eights -- the constraints applied to the right side (columns) of the \code{X} matrix and thus right singular vectors.
+#' @param YRW \bold{Y}'s \bold{R}ight \bold{W}eights -- the constraints applied to the right side (columns) of the \code{Y} matrix and thus right singular vectors.
+#' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
+#' @param tol default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.
+#'
+#' @return A list with nine elements:
+#' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
+#' \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
+#' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
+#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values}
+#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values}
+#' \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(DAT)} by k.}
+#' \item{p}{Left (rows) generalized singular vectors.}
+#' \item{fi}{Left (rows) component scores.}
+#' \item{lx}{Latent variable scores for rows of \code{X}}
+#' \item{v}{Right (columns) singular vectors.}
+#' \item{q}{Right (columns) generalized singular vectors.}
+#' \item{fj}{Right (columns) component scores.}
+#' \item{lx}{Latent variable scores for rows of \code{Y}}
+#'
+#' @seealso \code{\link{tolerance.eigen}}, \code{\link{tolerance.svd}}, \code{\link{gsvd}}, \code{\link{geigen}}, and \code{\link{svd}}
+#'
+#' @examples
+#'
+#'  # Three "two-table" technique examples
+#'  data(wine)
+#'  X <- scale(wine$objective)
+#'  Y <- scale(wine$subjective)
+#'
+#'  ## an example of partial least squares (correlation)
+#'  pls.res <- gplssvd(X, Y)
+#'
+#'
+#'  ## an example of canonical correlation analysis (CCA)
+#'  ### NOTE:
+#'  #### This is not "traditional" CCA because of the generalized inverse.
+#'  #### However the results are the same as standard CCA when data are not rank deficient.
+#'  cca.res <- gplssvd(
+#'      X = X %^% (-1),
+#'      Y = Y %^% (-1),
+#'      XRW=crossprod(X),
+#'      YRW=crossprod(Y)
+#'  )
+#'
+#'
+#'  ## an example of reduced rank regression (RRR) a.k.a. redundancy analysis (RDA)
+#'  ### NOTE:
+#'  #### This is not "traditional" RRR because of the generalized inverse.
+#'  #### However the results are the same as standard RRR when data are not rank deficient.
+#'  rrr.res <- gplssvd(
+#'      X = X %^% (-1),
+#'      Y = Y,
+#'      XRW=crossprod(X)
+#'  )
+#'
+#' @author Derek Beaton
+#' @keywords multivariate, diagonalization, eigen, partial least squares
 
-### with just a small amount of preprocs, this needs to produce:
-### PLS, CCA, RRR, and PLS-CA
 
-gplssvd <- function(X, Y, XLW=rep(1, nrow(ZX)), YLW=rep(1, nrow(ZY)), XRW=rep(1, nrow(ZX)), YRW=rep(1, nrow(ZY)), k = 0, tol = .Machine$double.eps){
+### Should I do some PSD checks?
 
+gplssvd <- function(X, Y, XLW=rep(1, nrow(X)), YLW=rep(1, nrow(Y)), XRW=rep(1, nrow(X)), YRW=rep(1, nrow(Y)), k = 0, tol = .Machine$double.eps){
 
-  ## this and GSVD and GEIGEN need a bit of cleaning up.
-    ### probably functionalizing things and putting them in utils
 
   # preliminaries
   X.dims <- dim(X)

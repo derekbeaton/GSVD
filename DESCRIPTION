@@ -1,11 +1,11 @@
 Package: GSVD
 Type: Package
 Title: The generalized singular value decomposition
-Version: 0.3.0
+Version: 0.4.0
 Authors@R: c(person("Derek","Beaton",role=c("aut","cre"),email="exposition.software@gmail.com"))
 Author: Derek Beaton [aut, cre]
 Maintainer: Derek Beaton <exposition.software@gmail.com>
-Description: A dedicated package for the generalized singular value decomposition. 
+Description: A dedicated package for the generalized: eigen decomposition, singular value decomposition (SVD), and partial least squares SVD. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

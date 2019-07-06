@@ -2,12 +2,12 @@
 % Please edit documentation in R/geigen.R
 \name{geigen}
 \alias{geigen}
-\title{Generalized Eigenvalue decomposition}
+\title{Generalized eigenvalue decomposition}
 \usage{
 geigen(DAT, W, k = 0, tol = .Machine$double.eps, symmetric)
 }
 \arguments{
-\item{DAT}{a data matrix to decompose}
+\item{DAT}{a square, symmetric data matrix to decompose}
 
 \item{W}{\bold{W}eights -- the constraints applied to the matrix and thus the eigen vectors.}
 
@@ -29,11 +29,19 @@ A list with nine elements:
 \item{fj}{Component scores. Dimensions are \code{ncol(DAT)} by k.}
 }
 \description{
-\code{geigen} takes in right (\code{W}) constraints (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT})
-  Right constraints are used for the orthogonality conditions.
+\code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT})
+  Constraints are used for the orthogonality conditions.
 }
 \examples{
-
+Observed <- authors/sum(authors)
+row.w <- rowSums(Observed)
+row.W <- diag(1/row.w)
+col.w <- colSums(Observed)
+col.W <- diag(1/col.w)
+Expected <- row.w \%o\% col.w
+Deviations <- Observed - Expected
+ca.res_gsvd <- gsvd(Deviations,row.W,col.W)
+ca.res_geigen <- geigen(t(Deviations) \%*\% diag(1/row.w) \%*\% Deviations, col.W)
 
 }
 \seealso{

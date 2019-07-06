@@ -1,3 +1,4 @@
+
 #' @export
 #'
 #' @title \code{matrix.exponent}: raise matrix to a power and rebuild lower rank version
@@ -45,7 +46,7 @@ matrix.exponent <- function(x, power = 1, k = 0, ...){
     k <- min(nrow(x),ncol(x))
   }
 
-    ## should be tested for speed.
+  ## should be tested for speed.
 
   #res <- tolerance.svd(x,...)
   #comp.ret <- 1:min(length(res$d),k)
@@ -106,3 +107,5 @@ matrix.exponent <- function(x, power = 1, k = 0, ...){
 `%^%` <- function(x,power){
   matrix.exponent(x,power=power)
 }
+
+

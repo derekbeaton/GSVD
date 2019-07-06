@@ -2,6 +2,7 @@
 
 export("%^%")
 export(geigen)
+export(gplssvd)
 export(gsvd)
 export(is.diagonal.matrix)
 export(is.empty.matrix)

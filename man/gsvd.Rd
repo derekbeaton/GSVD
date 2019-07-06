@@ -2,7 +2,7 @@
 % Please edit documentation in R/gsvd.R
 \name{gsvd}
 \alias{gsvd}
-\title{Generalized SVD}
+\title{Generalized singular value decomposition}
 \usage{
 gsvd(DAT, LW, RW, k = 0, tol = .Machine$double.eps)
 }

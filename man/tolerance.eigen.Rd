@@ -4,7 +4,7 @@
 \alias{tolerance.eigen}
 \title{\code{tolerance.eigen}: An eigenvalue decomposition to truncate potentially spurious (near machine precision) components.}
 \usage{
-tolerance.eigen(x, tol = .Machine$double.eps, ...)
+tolerance.eigen(x, tol = sqrt(.Machine$double.eps), ...)
 }
 \arguments{
 \item{x}{A data matrix of size for input to the eigen value decomposition (\code{\link{eigen}})}
