@@ -84,7 +84,7 @@
 #' @title Generalized singular value decomposition
 #'
 #' @description
-#' \code{gsvd} takes in left (\code{LW}) and right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to the data (\code{DAT})
+#' \code{gsvd} takes in left (\code{LW}) and right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to the data (\code{DAT}).
 #'   Left and right constraints are used for the orthogonality conditions.
 #'
 #' @param DAT a data matrix to decompose

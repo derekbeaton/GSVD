@@ -3,7 +3,7 @@
 #' @title Generalized eigenvalue decomposition
 #'
 #' @description
-#' \code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT})
+#' \code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT}).
 #'   Constraints are used for the orthogonality conditions.
 #'
 #' @param DAT a square, symmetric data matrix to decompose

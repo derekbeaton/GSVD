@@ -3,7 +3,7 @@
 #' @title Generalized partial least squares singular value decomposition
 #'
 #' @description
-#' \code{gplssvd} takes in left (\code{XLW}, \code{YLW}) and right (\code{XRW}, \code{YRW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to each data matrix (\code{X} and \code{Y}) respectively
+#' \code{gplssvd} takes in left (\code{XLW}, \code{YLW}) and right (\code{XRW}, \code{YRW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to each data matrix (\code{X} and \code{Y}), respectively.
 #'   Right constraints for each data matrix are used for the orthogonality conditions.
 #'
 #' @param X a data matrix
