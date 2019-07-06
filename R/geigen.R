@@ -12,7 +12,7 @@
 #' @param tol default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{v}.
 #' @param symmetric if \code{DAT} is symmetric, set as TRUE. See \code{\link{eigen}}.
 #'
-#' @return A list with nine elements:
+#' @return A list with eight elements:
 #' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
 #' \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
 #' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}

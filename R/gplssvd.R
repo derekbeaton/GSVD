@@ -15,7 +15,7 @@
 #' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
 #' @param tol default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.
 #'
-#' @return A list with nine elements:
+#' @return A list with thirteen elements:
 #' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
 #' \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
 #' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
