@@ -190,7 +190,7 @@ gplssvd <- function(X, Y, XLW=rep(1, nrow(X)), YLW=rep(1, nrow(Y)), XRW=rep(1, n
 
         YLW <- diag(YLW)
 
-        if( length(YLW) != X.dims[1] ){
+        if( length(YLW) != Y.dims[1] ){
           stop("gplssvd:length(YLW) does not equal nrow(Y)")
         }else{
           YLW.is.vector <- T  #now it's a vector
@@ -218,7 +218,7 @@ gplssvd <- function(X, Y, XLW=rep(1, nrow(X)), YLW=rep(1, nrow(Y)), XRW=rep(1, n
 
         YRW <- diag(YRW)
 
-        if( length(YRW) != X.dims[2] ){
+        if( length(YRW) != Y.dims[2] ){
           stop("gplssvd:length(YRW) does not equal ncol(Y)")
         }else{
           YRW.is.vector <- T  #now it's a vector

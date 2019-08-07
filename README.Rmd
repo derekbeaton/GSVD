@@ -176,6 +176,10 @@ library(GSVD)
   plsca.res$d
   diag(t(plsca.res$lx) %*% plsca.res$ly)
   
+  
+  ## a completely unnecessary way of principal components analysis as a generalized PLS:
+  
+  
  
 ```
 
