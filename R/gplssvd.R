@@ -71,7 +71,7 @@
 
 ### Should I do some PSD checks?
 
-gplssvd <- function(X, Y, XLW=rep(1, nrow(X)), YLW=rep(1, nrow(Y)), XRW=rep(1, nrow(X)), YRW=rep(1, nrow(Y)), k = 0, tol = .Machine$double.eps){
+gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
 
   # preliminaries
