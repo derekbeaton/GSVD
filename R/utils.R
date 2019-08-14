@@ -131,3 +131,15 @@ is.identity.matrix <- function(x,tol=.Machine$double.eps){
 "authors"
 
 
+#' SNPs and drug Use
+#'
+#' Data used for illustrative purposes in Beaton, D., Filbey, F., & Abdi H. (2013). Integrating partial least squares correlation and correspondence analysis for nominal data. In Abdi, H., Chin, W., Esposito Vinzi, V., Russolillo, G., & Trinchera, L. (Eds.), New Perspectives in Partial Least Squares and Related Methods. New York: Springer Verlag. pp.81-94.
+#'
+#'@format A list called 'snps.druguse' with two matrices:
+#' \describe{
+#' \item{DATA1}{a 50 x 3 matrix of two-level categorical ("yes" or "no") variables.}
+#' \item{DATA2}{a 50 x 2 matrix of three-level categorical (genotypes) variables. Note: Some entries contains NAs.}
+#' }
+"snps.druguse"
+
+

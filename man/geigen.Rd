@@ -18,7 +18,7 @@ geigen(DAT, W, k = 0, tol = .Machine$double.eps, symmetric)
 \item{symmetric}{if \code{DAT} is symmetric, set as TRUE. See \code{\link{eigen}}.}
 }
 \value{
-A list with nine elements:
+A list with eight elements:
 \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
 \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
 \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
@@ -29,7 +29,7 @@ A list with nine elements:
 \item{fj}{Component scores. Dimensions are \code{ncol(DAT)} by k.}
 }
 \description{
-\code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT})
+\code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT}).
   Constraints are used for the orthogonality conditions.
 }
 \examples{

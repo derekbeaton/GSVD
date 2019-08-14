@@ -4,9 +4,7 @@
 \alias{gplssvd}
 \title{Generalized partial least squares singular value decomposition}
 \usage{
-gplssvd(X, Y, XLW = rep(1, nrow(X)), YLW = rep(1, nrow(Y)),
-  XRW = rep(1, nrow(X)), YRW = rep(1, nrow(Y)), k = 0,
-  tol = .Machine$double.eps)
+gplssvd(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps)
 }
 \arguments{
 \item{X}{a data matrix}
@@ -26,7 +24,7 @@ gplssvd(X, Y, XLW = rep(1, nrow(X)), YLW = rep(1, nrow(Y)),
 \item{tol}{default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.}
 }
 \value{
-A list with nine elements:
+A list with thirteen elements:
 \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
 \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
 \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
@@ -42,7 +40,7 @@ A list with nine elements:
 \item{lx}{Latent variable scores for rows of \code{Y}}
 }
 \description{
-\code{gplssvd} takes in left (\code{XLW}, \code{YLW}) and right (\code{XRW}, \code{YRW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to each data matrix (\code{X} and \code{Y}) respectively
+\code{gplssvd} takes in left (\code{XLW}, \code{YLW}) and right (\code{XRW}, \code{YRW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to each data matrix (\code{X} and \code{Y}), respectively.
   Right constraints for each data matrix are used for the orthogonality conditions.
 }
 \examples{

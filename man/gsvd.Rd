@@ -18,7 +18,7 @@ gsvd(DAT, LW, RW, k = 0, tol = .Machine$double.eps)
 \item{tol}{default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.}
 }
 \value{
-A list with nine elements:
+A list with eleven elements:
 \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
 \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
 \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
@@ -32,7 +32,7 @@ A list with nine elements:
 \item{fj}{Right (columns) component scores. Dimensions are \code{ncol(DAT)} by k.}
 }
 \description{
-\code{gsvd} takes in left (\code{LW}) and right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to the data (\code{DAT})
+\code{gsvd} takes in left (\code{LW}) and right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to the data (\code{DAT}).
   Left and right constraints are used for the orthogonality conditions.
 }
 \examples{
