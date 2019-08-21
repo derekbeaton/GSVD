@@ -28,7 +28,7 @@
 #' \item{v}{Right (columns) singular vectors.}
 #' \item{q}{Right (columns) generalized singular vectors.}
 #' \item{fj}{Right (columns) component scores.}
-#' \item{lx}{Latent variable scores for rows of \code{Y}}
+#' \item{ly}{Latent variable scores for rows of \code{Y}}
 #'
 #' @seealso \code{\link{tolerance.eigen}}, \code{\link{tolerance.svd}}, \code{\link{gsvd}}, \code{\link{geigen}}, and \code{\link{svd}}
 #'

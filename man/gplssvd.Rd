@@ -37,7 +37,7 @@ A list with thirteen elements:
 \item{v}{Right (columns) singular vectors.}
 \item{q}{Right (columns) generalized singular vectors.}
 \item{fj}{Right (columns) component scores.}
-\item{lx}{Latent variable scores for rows of \code{Y}}
+\item{ly}{Latent variable scores for rows of \code{Y}}
 }
 \description{
 \code{gplssvd} takes in left (\code{XLW}, \code{YLW}) and right (\code{XRW}, \code{YRW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to each data matrix (\code{X} and \code{Y}), respectively.
