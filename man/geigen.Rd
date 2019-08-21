@@ -4,7 +4,7 @@
 \alias{geigen}
 \title{Generalized eigenvalue decomposition}
 \usage{
-geigen(DAT, W, k = 0, tol = .Machine$double.eps, symmetric)
+geigen(DAT, W, k = 0, tol = sqrt(.Machine$double.eps), symmetric)
 }
 \arguments{
 \item{DAT}{a square, symmetric data matrix to decompose}
@@ -13,7 +13,7 @@ geigen(DAT, W, k = 0, tol = .Machine$double.eps, symmetric)
 
 \item{k}{total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.}
 
-\item{tol}{default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{v}.}
+\item{tol}{default is \code{sqrt(.Machine$double.eps)}. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.}
 
 \item{symmetric}{if \code{DAT} is symmetric, set as TRUE. See \code{\link{eigen}}.}
 }

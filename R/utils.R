@@ -142,4 +142,26 @@ is.identity.matrix <- function(x,tol=.Machine$double.eps){
 #' }
 "snps.druguse"
 
+#' Personal beer tasting notes
+#'
+#' Tasting notes, preferences, breweries and styles of 38 different craft beers from various breweries, across various styles.
+#'
+#'@format A list called 'beer.tasting.notes' with four matrices:
+#' \describe{
+#'  \item{data}{Data matrix. Tasting notes (ratings) of 38 different beers (rows) described by 16 different flavor profiles (columns).}
+#'  \item{brewery.design}{Design matrix. Source brewery of 38 different beers (rows) across 26 breweries (columns).}
+#'  \item{style.design}{Design matrix. Style of 38 different beers (rows) across 20 styles (columns) (styles as listed from Beer Advocate website).}
+#'  \item{sup.data}{Supplementary data matrix. ABV and overall preference ratings of 38 beers described by two features (ABV & overall) in original value and rounded value.}
+#' }
+#'
+#' @author Jenny Rieck and Derek Beaton
+#'
+#' @source
+#' Jenny Rieck and Derek Beaton laboriously ``collected'' these data for ``experimental purposes''.
+#'
+#' @references
+#' http://www.beeradvocate.com
+#'
+"beer.tasting.notes"
+
 

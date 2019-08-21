@@ -91,12 +91,12 @@
 #' @param LW \bold{L}eft \bold{W}eights -- the constraints applied to the left side (rows) of the matrix and thus left singular vectors.
 #' @param RW \bold{R}ight \bold{W}eights -- the constraints applied to the right side (columns) of the matrix and thus right singular vectors.
 #' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
-#' @param tol default is .Machine$double.eps. A parameter with two roles: A tolerance level for (1) eliminating (tiny variance or negative or imaginary) components and (2) converting all values < tol to 0 in \code{u} and \code{v}.
+#' @param tol default is .Machine$double.eps. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.
 #'
 #' @return A list with eleven elements:
 #' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
 #' \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
-#' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
+#' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}).}
 #' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
 #' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}
 #' \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(DAT)} by k.}

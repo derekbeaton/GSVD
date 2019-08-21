@@ -9,9 +9,9 @@ tolerance.eigen(x, tol = sqrt(.Machine$double.eps), ...)
 \arguments{
 \item{x}{A data matrix of size for input to the eigen value decomposition (\code{\link{eigen}})}
 
-\item{tol}{Default is \code{.Machine$double.eps}. A tolerance level for eliminating near machine precision components.
+\item{tol}{Default is \code{sqrt(.Machine$double.eps)}. A tolerance level for eliminating near machine precision components.
 Use of this parameter causes \code{tolerance.eigen} to stop if negative or complex eigen values are detected.
-The use of \code{tol < 0}, \code{NA}, \code{NaN}, \code{Inf}, \code{-Inf}, or \code{NULL} passes through to \code{\link{svd}}.}
+The use of \code{tol < 0}, \code{NA}, \code{NaN}, \code{Inf}, \code{-Inf}, or \code{NULL} passes through to \code{\link{eigen}}.}
 
 \item{...}{Further arguments to \code{\link{eigen}}. See \code{\link{eigen}}.}
 }

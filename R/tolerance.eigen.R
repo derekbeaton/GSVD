@@ -8,9 +8,9 @@
 #'    With \code{tol}, \code{tolerance.eigen} will stop if any singular values are complex or negative.
 #'
 #' @param x A data matrix of size for input to the eigen value decomposition (\code{\link{eigen}})
-#' @param tol Default is \code{.Machine$double.eps}. A tolerance level for eliminating near machine precision components.
+#' @param tol Default is \code{sqrt(.Machine$double.eps)}. A tolerance level for eliminating near machine precision components.
 #' Use of this parameter causes \code{tolerance.eigen} to stop if negative or complex eigen values are detected.
-#' The use of \code{tol < 0}, \code{NA}, \code{NaN}, \code{Inf}, \code{-Inf}, or \code{NULL} passes through to \code{\link{svd}}.
+#' The use of \code{tol < 0}, \code{NA}, \code{NaN}, \code{Inf}, \code{-Inf}, or \code{NULL} passes through to \code{\link{eigen}}.
 #' @param ... Further arguments to \code{\link{eigen}}. See \code{\link{eigen}}.
 #'
 #' @return A list with two elements (like \code{eigen}):
