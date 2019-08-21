@@ -207,7 +207,7 @@ gsvd <- function(DAT, LW, RW, k = 0, tol = .Machine$double.eps){
 
       if( is.identity.matrix(LW) ){
         LW.is.missing <- T
-        warning("gsvd: LW was an identity matrix. LW will not be used in the GSVD.")
+        # warning("gsvd: LW was an identity matrix. LW will not be used in the GSVD.")
       }else if( is.diagonal.matrix(LW) ){
 
         LW <- diag(LW)
@@ -235,7 +235,7 @@ gsvd <- function(DAT, LW, RW, k = 0, tol = .Machine$double.eps){
 
       if( is.identity.matrix(RW) ){
         RW.is.missing <- T
-        warning("gsvd: RW was an identity matrix. RW will not be used in the GSVD.")
+        # warning("gsvd: RW was an identity matrix. RW will not be used in the GSVD.")
       }else if( is.diagonal.matrix(RW) ){
 
         RW <- diag(RW)

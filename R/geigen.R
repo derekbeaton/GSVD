@@ -70,7 +70,7 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
       if( is.identity.matrix(W) ){
         W.is.missing <- T
-        warning("gsvd: W was an identity matrix. W will not be used in the GSVD.")
+        # warning("gsvd: W was an identity matrix. W will not be used in the GSVD.")
       }else if( is.diagonal.matrix(W) ){
 
         W <- diag(W)

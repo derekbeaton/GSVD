@@ -129,7 +129,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
       if( is.identity.matrix(XLW) ){
         XLW.is.missing <- T
-        warning("gplssvd: XLW was an identity matrix. XLW will not be used in the gplssvd.")
+        # warning("gplssvd: XLW was an identity matrix. XLW will not be used in the gplssvd.")
       }else if( is.diagonal.matrix(XLW) ){
 
         XLW <- diag(XLW)
@@ -157,7 +157,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
       if( is.identity.matrix(XRW) ){
         XRW.is.missing <- T
-        warning("gplssvd: XRW was an identity matrix. XRW will not be used in the gplssvd.")
+        # warning("gplssvd: XRW was an identity matrix. XRW will not be used in the gplssvd.")
       }else if( is.diagonal.matrix(XRW) ){
 
         XRW <- diag(XRW)
@@ -185,7 +185,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
       if( is.identity.matrix(YLW) ){
         YLW.is.missing <- T
-        warning("gplssvd: YLW was an identity matrix. YLW will not be used in the gplssvd.")
+        # warning("gplssvd: YLW was an identity matrix. YLW will not be used in the gplssvd.")
       }else if( is.diagonal.matrix(YLW) ){
 
         YLW <- diag(YLW)
@@ -213,7 +213,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
       if( is.identity.matrix(YRW) ){
         YRW.is.missing <- T
-        warning("gplssvd: YRW was an identity matrix. YRW will not be used in the gplssvd.")
+        # warning("gplssvd: YRW was an identity matrix. YRW will not be used in the gplssvd.")
       }else if( is.diagonal.matrix(YRW) ){
 
         YRW <- diag(YRW)
