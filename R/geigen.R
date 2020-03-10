@@ -56,11 +56,11 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
   DAT <- as.matrix(DAT)
 
+
   W.is.vector <- is.vector(W)
   W.is.missing <- missing(W)
 
 
-  ### These are here out of convenience for the tests below. They started to get too long.
   if( !W.is.missing ){
     if(is.empty.matrix(W)){
       stop("geigen: W is empty (i.e., all 0s")
@@ -83,11 +83,6 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
       W <- diag(W)
       W.is.vector <- T  #now it's a vector
 
-      # if( length(W) != DAT.dims[2] ){ ## I should be able to get rid of this because of above
-      #   stop("gsvd:length(W) does not equal ncol(DAT)")
-      # }else{
-      #   W.is.vector <- T  #now it's a vector
-      # }
     }
   }
 
@@ -97,10 +92,12 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
       sqrt_W <- sqrt(W)
       ## this assumes square & symmetric; but I need to account for when it isn't by transposing back or moving the division
-      DAT <- t(DAT / sqrt_W) / sqrt_W
+      DAT <- t(t(DAT * sqrt_W) * sqrt_W)
     }else{
+
       sqrt_W <- W %^% (1/2)
       DAT <- sqrt_W %*% DAT %*% sqrt_W
+
     }
   }
 
@@ -129,15 +126,22 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
   if(!W.is.missing){
     if(W.is.vector){
+
       res$q <- sweep(res$v,1,1/sqrt(W),"*") ## can replace this and also use sqrt_W
-      res$fj <- sweep(sweep(res$q,1,W,"*"),2,res$d,"*") ## can replace this
+      # res$fj <- sweep(sweep(res$q,1,W,"*"),2,res$d,"*") ## can replace this
+      res$fj <- sweep(res$q,1,W,"*") %*% diag(res$d) ## still need to get rid of sweep
+
     }else{
-      res$q <- (W %^% (-1/2)) %*% res$v
-      res$fj <- sweep((W %*% res$q),2,res$d,"*") ## can replace part of this
+
+      res$q <- (W %^% (-1/2)) %*% res$v  ## can replace this but can't use sqrt_W
+      # res$fj <- sweep((W %*% res$q),2,res$d,"*") ## can replace part of this
+      res$fj <- (W %*% res$q) %*% diag(res$d)
+
     }
   }else{
     res$q <- res$v
-    res$fj <- sweep(res$q,2,res$d,"*") ## can replace part of this
+    #res$fj <- sweep(res$q,2,res$d,"*") ## can replace part of this
+    res$fj <- res$q %*% diag(res$d)
   }
 
   rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(DAT)
