@@ -127,9 +127,11 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
   if(!W.is.missing){
     if(W.is.vector){
 
-      res$q <- sweep(res$v,1,1/sqrt(W),"*") ## can replace this and also use sqrt_W
+      # res$q <- sweep(res$v,1,1/sqrt_W,"*") ## can replace this and also use sqrt_W
+      res$q <- res$v / (sqrt_W)
       # res$fj <- sweep(sweep(res$q,1,W,"*"),2,res$d,"*") ## can replace this
-      res$fj <- sweep(res$q,1,W,"*") %*% diag(res$d) ## still need to get rid of sweep
+      # res$fj <- sweep(res$q,1,W,"*") %*% diag(res$d) ## still need to get rid of sweep
+      res$fj <- (W * res$q) %*% diag(res$d) ## still need to get rid of sweep
 
     }else{
 
