@@ -24,6 +24,7 @@
 
 tolerance.eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
 
+  ### this probably needs a try-catch
   eigen_res <- eigen(x, ...)
 
   # if tolerance is any of these values, just do nothing; send back the EVD results as is.
@@ -50,15 +51,22 @@ tolerance.eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
   }
 
   eigen_res$values <- eigen_res$values[evs.to.keep]
+
     ## this would happen if only.values=TRUE
   if(!is.null(eigen_res$vectors)){
     eigen_res$vectors <- eigen_res$vectors[,evs.to.keep]
     rownames(eigen_res$vectors) <- colnames(x)
 
     ## force consistent directions as best as possible:
-    if( sign(eigen_res$vectors[1]) == -1 ){
-      eigen_res$vectors <- eigen_res$vectors * -1
-    }
+    # if( sign(eigen_res$vectors[1]) == -1 ){
+    #   eigen_res$vectors <- eigen_res$vectors * -1
+    # }
+
+
+    ## new way inspired by FactoMineR but with some changes
+    vector_signs <- ifelse(colSums(eigen_res$vectors) < 0, -1, 1)
+    eigen_res$vectors <- t(t(eigen_res$vectors) * vector_signs)
+
   }
 
   class(eigen_res) <- c("list", "GSVD", "eigen")
