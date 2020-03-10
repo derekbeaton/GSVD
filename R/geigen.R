@@ -39,60 +39,58 @@
 #' @keywords multivariate, diagonalization, eigen
 
 
-### I have made changes, and these should really have formal tests
-
 
 geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
-  # preliminaries
-  DAT.dims <- dim(DAT)
-  if(length(DAT.dims)!=2){
+  # check that it has dimensions
+  DAT_dimensions <- dim(DAT)
+  if(length(DAT_dimensions)!=2){
     stop("gsvd: DAT must have dim length of 2 (i.e., rows and columns)")
   }
-  ## should check square-ness here.
-  if(DAT.dims[1] != DAT.dims[2]){
+
+  # check square-ness here.
+  if(DAT_dimensions[1] != DAT_dimensions[2]){
     stop("gsvd: DAT must be square (i.e., have the same number of rows and columns)")
   }
 
   DAT <- as.matrix(DAT)
 
 
-  W.is.vector <- is.vector(W)
-  W.is.missing <- missing(W)
+  W_is_vector <- is.vector(W)
+  W_is_missing <- missing(W)
 
 
-  if( !W.is.missing ){
+  if( !W_is_missing ){
     if(is.empty.matrix(W)){
       stop("geigen: W is empty (i.e., all 0s")
     }
   }
 
 
-  if(!W.is.vector){
+  if(!W_is_vector){
 
-    if( nrow(W) != ncol(W) | nrow(W) != DAT.dims[2] ){
+    if( nrow(W) != ncol(W) | nrow(W) != DAT_dimensions[2] ){
       stop("gsvd:nrow(W) does not equal ncol(W) or ncol(DAT)")
     }
 
     if( is.identity.matrix(W) ){
 
-      W.is.missing <- T
+      W_is_missing <- T
 
     }else if( is.diagonal.matrix(W) ){
 
       W <- diag(W)
-      W.is.vector <- T  #now it's a vector
+      W_is_vector <- T  #now it's a vector
 
     }
   }
 
-  if(!W.is.missing){
-    if( W.is.vector ){
-      # DAT <- sweep(sweep(DAT, 2, sqrt(W), "*"), 1, sqrt(W), "*")
+  if(!W_is_missing){
+    if( W_is_vector ){
 
       sqrt_W <- sqrt(W)
-      ## this assumes square & symmetric; but I need to account for when it isn't by transposing back or moving the division
       DAT <- t(t(DAT * sqrt_W) * sqrt_W)
+
     }else{
 
       sqrt_W <- W %^% (1/2)
@@ -109,41 +107,43 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
     symmetric <- isSymmetric(DAT)
   }
 
+
+
+
   res <- tolerance.eigen(DAT, tol=tol, symmetric=symmetric)
 
-
   res$l.orig <- res$values
-    res$values <- NULL #this is actually OK
+    res$values <- NULL
   res$d.orig <- sqrt(res$l.orig)
   res$tau <- (res$l.orig/sum(res$l.orig)) * 100
 
-  components.to.return <- min(length(res$d.orig),k) #a safety check
+  components_to_return <- min(length(res$d.orig),k)
 
-  res$d <- res$d.orig[1:components.to.return]
-  res$l <- res$l.orig[1:components.to.return]
-  res$v <- as.matrix(res$vectors[,1:components.to.return])
+  res$d <- res$d.orig[1:components_to_return]
+  res$l <- res$l.orig[1:components_to_return]
+  res$v <- res$vectors[,1:components_to_return, drop = FALSE]
     res$vectors <- NULL
 
-  if(!W.is.missing){
-    if(W.is.vector){
 
-      # res$q <- sweep(res$v,1,1/sqrt_W,"*") ## can replace this and also use sqrt_W
+
+
+  if(!W_is_missing){
+    if(W_is_vector){
+
       res$q <- res$v / (sqrt_W)
-      # res$fj <- sweep(sweep(res$q,1,W,"*"),2,res$d,"*") ## can replace this
-      # res$fj <- sweep(res$q,1,W,"*") %*% diag(res$d) ## still need to get rid of sweep
-      res$fj <- (W * res$q) %*% diag(res$d) ## still need to get rid of sweep
+      res$fj <- t(t(res$q * W) * res$d)
 
     }else{
 
-      res$q <- (W %^% (-1/2)) %*% res$v  ## can replace this but can't use sqrt_W
-      # res$fj <- sweep((W %*% res$q),2,res$d,"*") ## can replace part of this
-      res$fj <- (W %*% res$q) %*% diag(res$d)
+      res$q <- (W %^% (-1/2)) %*% res$v
+      res$fj <- t(t(W %*% res$q) * res$d)
 
     }
   }else{
+
     res$q <- res$v
-    #res$fj <- sweep(res$q,2,res$d,"*") ## can replace part of this
-    res$fj <- res$q %*% diag(res$d)
+    res$fj <- t(t(res$q) * res$d)
+
   }
 
   rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(DAT)
