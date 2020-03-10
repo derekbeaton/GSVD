@@ -39,7 +39,7 @@
 #' @keywords multivariate, diagonalization, eigen
 
 
-### Should I do some PSD checks?
+### I have made changes, and these should really have formal tests
 
 
 geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
@@ -49,49 +49,58 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
   if(length(DAT.dims)!=2){
     stop("gsvd: DAT must have dim length of 2 (i.e., rows and columns)")
   }
+  ## should check square-ness here.
+  if(DAT.dims[1] != DAT.dims[2]){
+    stop("gsvd: DAT must be square (i.e., have the same number of rows and columns)")
+  }
+
   DAT <- as.matrix(DAT)
 
-  W.is.vector <- W.is.missing <- F ##asuming everything is a matrix.
+  W.is.vector <- is.vector(W)
+  W.is.missing <- missing(W)
+
 
   ### These are here out of convenience for the tests below. They started to get too long.
-  if( !missing(W) ){
+  if( !W.is.missing ){
     if(is.empty.matrix(W)){
       stop("geigen: W is empty (i.e., all 0s")
     }
   }
 
-  if( missing(W) ){
-    W.is.missing <- T
-  }else{ # it's here and we have to check!
 
-    if ( is.vector(W) ) {
-      W.is.vector <- T
-    }else if(!W.is.vector){
+  if(!W.is.vector){
 
-      if( is.identity.matrix(W) ){
-        W.is.missing <- T
-        # warning("gsvd: W was an identity matrix. W will not be used in the GSVD.")
-      }else if( is.diagonal.matrix(W) ){
+    if( nrow(W) != ncol(W) | nrow(W) != DAT.dims[2] ){
+      stop("gsvd:nrow(W) does not equal ncol(W) or ncol(DAT)")
+    }
 
-        W <- diag(W)
+    if( is.identity.matrix(W) ){
 
-        if( length(W) != DAT.dims[2] ){
-          stop("gsvd:length(W) does not equal ncol(DAT)")
-        }else{
-          W.is.vector <- T  #now it's a vector
-        }
+      W.is.missing <- T
 
-      }else if( nrow(W) != ncol(W) | nrow(W) != DAT.dims[2] ){
-        stop("gsvd:nrow(W) does not equal ncol(W) or ncol(DAT)")
-      }
+    }else if( is.diagonal.matrix(W) ){
+
+      W <- diag(W)
+      W.is.vector <- T  #now it's a vector
+
+      # if( length(W) != DAT.dims[2] ){ ## I should be able to get rid of this because of above
+      #   stop("gsvd:length(W) does not equal ncol(DAT)")
+      # }else{
+      #   W.is.vector <- T  #now it's a vector
+      # }
     }
   }
 
   if(!W.is.missing){
-    if( W.is.vector ){  ## replace with sweep
-      DAT <- sweep(sweep(DAT, 2, sqrt(W), "*"), 1, sqrt(W), "*")
+    if( W.is.vector ){
+      # DAT <- sweep(sweep(DAT, 2, sqrt(W), "*"), 1, sqrt(W), "*")
+
+      sqrt_W <- sqrt(W)
+      ## this assumes square & symmetric; but I need to account for when it isn't by transposing back or moving the division
+      DAT <- t(DAT / sqrt_W) / sqrt_W
     }else{
-      DAT <- (W %^% (1/2)) %*% DAT %*% (W %^% (1/2))
+      sqrt_W <- W %^% (1/2)
+      DAT <- sqrt_W %*% DAT %*% sqrt_W
     }
   }
 
@@ -107,7 +116,7 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
 
   res$l.orig <- res$values
-    res$values <- NULL #ew
+    res$values <- NULL #this is actually OK
   res$d.orig <- sqrt(res$l.orig)
   res$tau <- (res$l.orig/sum(res$l.orig)) * 100
 
@@ -116,19 +125,19 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
   res$d <- res$d.orig[1:components.to.return]
   res$l <- res$l.orig[1:components.to.return]
   res$v <- as.matrix(res$vectors[,1:components.to.return])
-    res$vectors <- NULL #ew
+    res$vectors <- NULL
 
   if(!W.is.missing){
     if(W.is.vector){
-      res$q <- sweep(res$v,1,1/sqrt(W),"*")
-      res$fj <- sweep(sweep(res$q,1,W,"*"),2,res$d,"*")
+      res$q <- sweep(res$v,1,1/sqrt(W),"*") ## can replace this and also use sqrt_W
+      res$fj <- sweep(sweep(res$q,1,W,"*"),2,res$d,"*") ## can replace this
     }else{
       res$q <- (W %^% (-1/2)) %*% res$v
-      res$fj <- sweep((W %*% res$q),2,res$d,"*")
+      res$fj <- sweep((W %*% res$q),2,res$d,"*") ## can replace part of this
     }
   }else{
     res$q <- res$v
-    res$fj <- sweep(res$q,2,res$d,"*")
+    res$fj <- sweep(res$q,2,res$d,"*") ## can replace part of this
   }
 
   rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(DAT)
