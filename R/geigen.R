@@ -109,7 +109,6 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
 
 
-
   res <- tolerance.eigen(DAT, tol=tol, symmetric=symmetric)
 
   res$l.orig <- res$values
