@@ -172,7 +172,7 @@
 #' @keywords multivariate, diagonalization, eigen
 
 
-gsvd_2 <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
+gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
 
   # preliminaries
   X_dimensions <- dim(X)
