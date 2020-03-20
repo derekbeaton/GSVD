@@ -2,7 +2,7 @@
 #'
 #' @description The generalized singular value decomposition (GSVD) generalizes the standard SVD (see \code{\link{svd}}) procedure through addition of (optional) constraints applied to the rows and/or columns of a matrix.
 #' @details While dedicated to the GSVD, this package also includes some nice features that are helpful for matrix analyses. For example there are tests to check if matrices are empty (\code{\link{is.empty.matrix}}) or identity (\code{\link{is.identity.matrix}}); also included are operations such as generalized inverse (\code{\link{matrix.generalized.inverse}}) and matrix exponents (\code{\link{matrix.exponent}} or \code{\link{\%^\%}}).
-#' @seealso \code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance.svd}}, \code{\link{\%^\%}}
+#' @seealso \code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance_svd}}, \code{\link{\%^\%}}
 #' @examples
 #'  ## an example of correspondence analysis.
 #'  data(authors)
@@ -43,7 +43,7 @@
 #'  #### This is not "traditional" CCA because of the generalized inverse.
 #'  #### However results are the same as standard CCA when data are not rank deficient.
 #'  cca.res <- gsvd(
-#'      DAT=(crossprod(X) %^% -1) %*% R %*% (crossprod(Y) %^% -1),
+#'      X=(crossprod(X) %^% -1) %*% R %*% (crossprod(Y) %^% -1),
 #'      LW=crossprod(X),
 #'      RW=crossprod(Y)
 #'  )
@@ -55,7 +55,7 @@
 #'  #### This is not "traditional" RRR because of the generalized inverse.
 #'  #### However the results are the same as standard RRR when data are not rank deficient.
 #'  rrr.res <- gsvd(
-#'      DAT=(crossprod(X) %^% -1) %*% R,
+#'      X=(crossprod(X) %^% -1) %*% R,
 #'      LW=crossprod(X)
 #'  )
 #'  rrr.res$lx <- (X %*% rrr.res$p)
@@ -84,29 +84,29 @@
 #' @title Generalized singular value decomposition
 #'
 #' @description
-#' \code{gsvd} takes in left (\code{LW}) and right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to the data (\code{DAT}).
+#' \code{gsvd} takes in left (\code{LW}) and right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to the data (\code{X}).
 #'   Left and right constraints are used for the orthogonality conditions.
 #'
-#' @param DAT a data matrix to decompose
+#' @param X a data matrix to decompose
 #' @param LW \bold{L}eft \bold{W}eights -- the constraints applied to the left side (rows) of the matrix and thus left singular vectors.
 #' @param RW \bold{R}ight \bold{W}eights -- the constraints applied to the right side (columns) of the matrix and thus right singular vectors.
 #' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
 #' @param tol default is .Machine$double.eps. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.
 #'
 #' @return A list with eleven elements:
-#' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
-#' \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
+#' \item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
+#' \item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
 #' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}).}
-#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
-#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}
-#' \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(DAT)} by k.}
-#' \item{p}{Left (rows) generalized singular vectors. Dimensions are \code{nrow(DAT)} by k.}
-#' \item{fi}{Left (rows) component scores. Dimensions are \code{nrow(DAT)} by k.}
-#' \item{v}{Right (columns) singular vectors. Dimensions are \code{ncol(DAT)} by k.}
-#' \item{q}{Right (columns) generalized singular vectors. Dimensions are \code{ncol(DAT)} by k.}
-#' \item{fj}{Right (columns) component scores. Dimensions are \code{ncol(DAT)} by k.}
+#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
+#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
+#' \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(X)} by k.}
+#' \item{p}{Left (rows) generalized singular vectors. Dimensions are \code{nrow(X)} by k.}
+#' \item{fi}{Left (rows) component scores. Dimensions are \code{nrow(X)} by k.}
+#' \item{v}{Right (columns) singular vectors. Dimensions are \code{ncol(X)} by k.}
+#' \item{q}{Right (columns) generalized singular vectors. Dimensions are \code{ncol(X)} by k.}
+#' \item{fj}{Right (columns) component scores. Dimensions are \code{ncol(X)} by k.}
 #'
-#' @seealso \code{\link{tolerance.svd}} and \code{\link{svd}}
+#' @seealso \code{\link{tolerance_svd}} and \code{\link{svd}}
 #'
 #' @examples
 #'
@@ -149,7 +149,7 @@
 #'  #### This is not "traditional" CCA because of the generalized inverse.
 #'  #### However the results are the same as standard CCA when data are not rank deficient.
 #'  cca.res <- gsvd(
-#'      DAT=(crossprod(X) %^% -1) %*% R %*% (crossprod(Y) %^% -1),
+#'      X=(crossprod(X) %^% -1) %*% R %*% (crossprod(Y) %^% -1),
 #'      LW=crossprod(X),
 #'      RW=crossprod(Y)
 #'  )
@@ -162,7 +162,7 @@
 #'  #### This is not "traditional" RRR because of the generalized inverse.
 #'  #### However the results are the same as standard RRR when data are not rank deficient.
 #'  rrr.res <- gsvd(
-#'      DAT=(crossprod(X) %^% -1) %*% R,
+#'      X=(crossprod(X) %^% -1) %*% R,
 #'      LW=crossprod(X)
 #'  )
 #'  rrr.res$lx <- (X %*% rrr.res$p)
@@ -172,153 +172,221 @@
 #' @keywords multivariate, diagonalization, eigen
 
 
-### Should I do some PSD checks?
-
-gsvd <- function(DAT, LW, RW, k = 0, tol = .Machine$double.eps){
+gsvd_2 <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
 
   # preliminaries
-  DAT.dims <- dim(DAT)
-  if(length(DAT.dims)!=2){
-    stop("gsvd: DAT must have dim length of 2 (i.e., rows and columns)")
+  X_dimensions <- dim(X)
+  if(length(X_dimensions)!=2){
+    stop("gsvd: X must have dim length of 2 (i.e., rows and columns)")
   }
-  DAT <- as.matrix(DAT)
-  RW.is.vector <- LW.is.vector <- RW.is.missing <- LW.is.missing <- F ##asuming everything is a matrix.
 
-  ### These are here out of convenience for the tests below. They started to get too long.
-  if( !missing(LW) ){
-    if(is.empty.matrix(LW)){
-      stop("gsvd: LW is empty (i.e., all 0s")
+  # a few things about LW for stopping conditions
+  LW_is_missing <- missing(LW)
+  if(!LW_is_missing){
+
+    LW_is_vector <- is.vector(LW)
+
+    if(!LW_is_vector){
+
+      if( nrow(LW) != ncol(LW) | nrow(LW) != X_dimensions[1] ){
+        stop("gsvd: nrow(LW) does not equal ncol(LW) or nrow(X)")
+      }
+
+      # if you gave me all zeros, I'm stopping.
+      if(is.empty.matrix(LW)){
+        stop("gsvd: LW is empty (i.e., all 0s")
+      }
     }
-  }
-  if( !missing(RW) ){
-    if(is.empty.matrix(RW)){
-      stop("gsvd: RW is empty (i.e., all 0s")
-    }
-  }
 
-  # check if LW and RW are missing, if they are vectors, or if they are diagonal matrices.
-  if( missing(LW) ){
-    LW.is.missing <- T
-  }else{ # it's here and we have to check!
+    if(LW_is_vector){
+      if(length(LW)!=X_dimensions[1]){
+        stop("gsvd: length(LW) does not equal nrow(X)")
+      }
 
-    if ( is.vector(LW) ) {
-      LW.is.vector <- T
-    }else if(!LW.is.vector){
-
-      if( is.identity.matrix(LW) ){
-        LW.is.missing <- T
-        # warning("gsvd: LW was an identity matrix. LW will not be used in the GSVD.")
-      }else if( is.diagonal.matrix(LW) ){
-
-        LW <- diag(LW)
-
-        if( length(LW) != DAT.dims[1] ){
-          stop("gsvd:length(LW) does not equal nrow(DAT)")
-        }else{
-          LW.is.vector <- T  #now it's a vector
-        }
-
-      }else if( nrow(LW) != ncol(LW) | nrow(LW) != DAT.dims[1] ){
-        stop("gsvd:nrow(LW) does not equal ncol(LW) or nrow(DAT)")
+      # if you gave me all zeros, I'm stopping.
+      if(all(abs(LW)<=tol)){
+        stop("gsvd: LW is empty (i.e., all 0s")
       }
     }
   }
 
+  # a few things about RW for stopping conditions
+  RW_is_missing <- missing(RW)
+  if(!RW_is_missing){
 
-  if( missing(RW) ){
-    RW.is.missing <- T
-  }else{ # it's here and we have to check!
+    RW_is_vector <- is.vector(RW)
 
-    if ( is.vector(RW) ) {
-      RW.is.vector <- T
-    }else if(!RW.is.vector){
+    if(!RW_is_vector){
 
-      if( is.identity.matrix(RW) ){
-        RW.is.missing <- T
-        # warning("gsvd: RW was an identity matrix. RW will not be used in the GSVD.")
-      }else if( is.diagonal.matrix(RW) ){
+      if( nrow(RW) != ncol(RW) | nrow(RW) != X_dimensions[2] ){
+        stop("gsvd: nrow(RW) does not equal ncol(RW) or ncol(X)")
+      }
 
-        RW <- diag(RW)
+      # if you gave me all zeros, I'm stopping.
+      if(is.empty.matrix(RW)){
+        stop("gsvd: RW is empty (i.e., all 0s")
+      }
+    }
 
-        if( length(RW) != DAT.dims[2] ){
-          stop("gsvd:length(RW) does not equal ncol(DAT)")
-        }else{
-          RW.is.vector <- T  #now it's a vector
-        }
+    if(RW_is_vector){
+      if(length(RW)!=X_dimensions[2]){
+        stop("gsvd: length(RW) does not equal ncol(X)")
+      }
 
-      }else if( nrow(RW) != ncol(RW) | nrow(RW) != DAT.dims[2] ){
-        stop("gsvd:nrow(RW) does not equal ncol(RW) or ncol(DAT)")
+      # if you gave me all zeros, I'm stopping.
+      if(all(abs(RW)<=tol)){
+        stop("gsvd: RW is empty (i.e., all 0s")
       }
     }
   }
 
 
 
-  if(!LW.is.missing){
-    if( LW.is.vector ){  ## replace with sweep
-      DAT <- sweep(DAT,1,sqrt(LW),"*")
-    }else{
-      DAT <- (LW %^% (1/2)) %*% DAT
+  ## convenience checks *could* be removed* if problematic
+  # convenience checks & conversions; these are meant to minimize LW's memory footprint
+  if(!LW_is_missing){
+    if( !LW_is_vector & is.identity.matrix(LW) ){
+      LW_is_missing <- T
+      LW <- substitute() # neat! this makes it go missing
+    }
+
+    if( !LW_is_vector & is.diagonal.matrix(LW) ){
+      LW <- diag(LW)
+      LW_is_vector <- T  # now it's a vector
+    }
+
+    if( LW_is_vector & all(LW==1) ){
+      LW_is_missing <- T
+      LW <- substitute() # neat! this makes it go missing
     }
   }
 
-  if(!RW.is.missing){
-    if( RW.is.vector ){  ## replace with sweep
-      DAT <- sweep(DAT,2,sqrt(RW),"*")
-    }else{
-      DAT <- DAT %*% (RW %^% (1/2))
+  # convenience checks & conversions; these are meant to minimize RW's memory footprint
+  if(!RW_is_missing){
+    if( !RW_is_vector & is.identity.matrix(RW) ){
+      RW_is_missing <- T
+      RW <- substitute() # neat! this makes it go missing
+    }
+
+    if( !RW_is_vector & is.diagonal.matrix(RW) ){
+      RW <- diag(RW)
+      RW_is_vector <- T  # now it's a vector
+    }
+
+    if( RW_is_vector & all(RW==1) ){
+      RW_is_missing <- T
+      RW <- substitute() # neat! this makes it go missing
     }
   }
 
+  X <- as.matrix(X)
 
+  ########################################
+  #####
+  #     update & remove these sweeps
+  #####
+  ########################################
+
+  # this manipulates X as needed based on XLW
+  if(!LW_is_missing){
+
+    if( LW_is_vector ){
+      sqrt_LW <- sqrt(LW)
+      X <- sweep(X,1,sqrt_LW,"*") ## replace the sweep with * & t()
+    }else{
+      LW <- as.matrix(LW)
+      X <- (LW %^% (1/2)) %*% X
+    }
+
+  }
+  # this manipulates X as needed based on XRW
+  if(!RW_is_missing){
+
+    if( RW_is_vector ){
+      sqrt_RW <- sqrt(RW)
+      X <- sweep(X,2, sqrt_RW,"*") ## replace the sweep with * & t()
+    }else{
+      RW <- as.matrix(RW)
+      X <- X %*% (RW %^% (1/2))
+    }
+
+  }
+
+  ########################################
+  #####
+  #     update & remove these sweeps
+  #####
+  ########################################
+
+  # all the decomposition things
   if(k<=0){
-    k <- min(nrow(DAT),ncol(DAT))
+    k <- min(X_dimensions)
   }
-  res <- tolerance.svd(DAT,nu=k,nv=k,tol=tol)
+
+  res <- tolerance_svd(X,nu=k,nv=k,tol=tol)
   res$d.orig <- res$d
   res$l.orig <- res$d.orig^2
   res$tau <- (res$l.orig/sum(res$l.orig)) * 100
   components.to.return <- min(length(res$d.orig),k) #a safety check
-  ## u and v should already be k vectors but: be safe.
   res$d <- res$d.orig[1:components.to.return]
   res$l <- res$d^2
-  res$u <- as.matrix(res$u[,1:components.to.return])
-  res$v <- as.matrix(res$v[,1:components.to.return])
+  res$u <- res$u[,1:components.to.return, drop = FALSE]
+  res$v <- res$v[,1:components.to.return, drop = FALSE]
 
 
 
-  ## the logic here should match the one from above
-  if(!LW.is.missing){
-    if(LW.is.vector){
-      res$p <- sweep(res$u,1,1/sqrt(LW),"*")
-      res$fi <- sweep(sweep(res$p,1,LW,"*"),2,res$d,"*")
+  # make scores according to weights
+  if(!LW_is_missing){
+    if(LW_is_vector){
+
+      # res$p <- sweep(res$u,1,1/sqrt_LW,"*")
+      res$p <- res$u / sqrt_LW
+      # res$fi <- sweep(sweep(res$p,1,LW,"*"),2,res$d,"*")
+      res$fi <- t(t(res$p * LW) * res$d)
+
     }else{
+
       res$p <- (LW %^% (-1/2)) %*% res$u
-      res$fi <- sweep((LW %*% res$p),2,res$d,"*")
+      # res$fi <- sweep((LW %*% res$p),2,res$d,"*")
+      res$fi <- t(t(LW %*% res$p) * res$d)
+
     }
   }else{
+
     res$p <- res$u
-    res$fi <- sweep(res$p,2,res$d,"*")
+    # res$fi <- sweep(res$p,2,res$d,"*")
+    res$fi <- t(t(res$p) * res$d)
+
   }
 
-  if(!RW.is.missing){
-    if(RW.is.vector){
-      res$q <- sweep(res$v,1,1/sqrt(RW),"*")
-      res$fj <- sweep(sweep(res$q,1,RW,"*"),2,res$d,"*")
+  if(!RW_is_missing){
+    if(RW_is_vector){
+
+      # res$q <- sweep(res$v,1,1/sqrt_RW,"*")
+      res$q <- res$v / sqrt_RW
+      # res$fj <- sweep(sweep(res$q,1,RW,"*"),2,res$d,"*")
+      res$fj <- t(t(res$q * RW) * res$d)
+
     }else{
+
       res$q <- (RW %^% (-1/2)) %*% res$v
-      res$fj <- sweep((RW %*% res$q),2,res$d,"*")
+      # res$fj <- sweep((RW %*% res$q),2,res$d,"*")
+      res$fj <- t(t(RW %*% res$q) * res$d)
+
     }
   }else{
+
     res$q <- res$v
-    res$fj <- sweep(res$q,2,res$d,"*")
+    # res$fj <- sweep(res$q,2,res$d,"*")
+    res$fj <- t(t(res$q)  * res$d)
+
   }
 
 
-  rownames(res$fi) <- rownames(res$u) <- rownames(res$p) <- rownames(DAT)
-  rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(DAT)
+  rownames(res$fi) <- rownames(res$u) <- rownames(res$p) <- rownames(X)
+  rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(X)
 
   class(res) <- c("list", "GSVD", "gsvd")
   return(res)
-  #return(list(fi = fi, fj = fj, p = p, q = q, u = res$u, v = res$v, d = d, d.orig = d.orig, tau = tau))
+
 }

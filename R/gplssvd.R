@@ -30,7 +30,7 @@
 #' \item{fj}{Right (columns) component scores.}
 #' \item{ly}{Latent variable scores for rows of \code{Y}}
 #'
-#' @seealso \code{\link{tolerance.eigen}}, \code{\link{tolerance.svd}}, \code{\link{gsvd}}, \code{\link{geigen}}, and \code{\link{svd}}
+#' @seealso \code{\link{tolerance_eigen}}, \code{\link{tolerance_svd}}, \code{\link{gsvd}}, \code{\link{geigen}}, and \code{\link{svd}}
 #'
 #' @examples
 #'
@@ -74,243 +74,343 @@
 gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
 
-  # preliminaries
-  X.dims <- dim(X)
-  if(length(X.dims)!=2){
+  # check that it has dimensions
+  X_dimensions <- dim(X)
+  if(length(X_dimensions)!=2){
     stop("gplssvd: X must have dim length of 2 (i.e., rows and columns)")
   }
-  X <- as.matrix(X)
 
-  Y.dims <- dim(Y)
-  if(length(Y.dims)!=2){
+  # check that it has dimensions
+  Y_dimensions <- dim(Y)
+  if(length(Y_dimensions)!=2){
     stop("gplssvd: Y must have dim length of 2 (i.e., rows and columns)")
   }
-  Y <- as.matrix(Y)
 
-  if(X.dims[1] != Y.dims[1]){
+  # check that row dimensions match
+  if(X_dimensions[1] != Y_dimensions[1]){
     stop("gplssvd: X and Y must have the same number of rows")
   }
 
-  XRW.is.vector <- XLW.is.vector <- XRW.is.missing <- XLW.is.missing <- F -> YRW.is.vector -> YLW.is.vector -> YRW.is.missing -> YLW.is.missing
+  # a few things about XLW for stopping conditions
+  XLW_is_missing <- missing(XLW)
+  if(!XLW_is_missing){
 
-  ### These are here out of convenience for the tests below. They started to get too long.
-  if( !missing(XLW) ){
-    if(is.empty.matrix(XLW)){
-      stop("gplssvd: XLW is empty (i.e., all 0s")
+    XLW_is_vector <- is.vector(XLW)
+
+    if(!XLW_is_vector){
+
+      if( nrow(XLW) != ncol(XLW) | nrow(XLW) != X_dimensions[1] ){
+        stop("gplssvd: nrow(XLW) does not equal ncol(XLW) or nrow(X)")
+      }
+
+      # if you gave me all zeros, I'm stopping.
+      if(is.empty.matrix(XLW)){
+        stop("gplssvd: XLW is empty (i.e., all 0s")
+      }
     }
-  }
-  if( !missing(XRW) ){
-    if(is.empty.matrix(XRW)){
-      stop("gplssvd: XRW is empty (i.e., all 0s")
-    }
-  }
-  if( !missing(YLW) ){
-    if(is.empty.matrix(YLW)){
-      stop("gplssvd: YLW is empty (i.e., all 0s")
-    }
-  }
-  if( !missing(YRW) ){
-    if(is.empty.matrix(YRW)){
-      stop("gplssvd: YRW is empty (i.e., all 0s")
-    }
-  }
 
+    if(XLW_is_vector){
+      if(length(XLW)!=X_dimensions[1]){
+        stop("gplssvd: length(XLW) does not equal nrow(X)")
+      }
 
-
-  ### oof.
-  # check if XLW and XRW are missing, if they are vectors, or if they are diagonal matrices.
-  if( missing(XLW) ){
-    XLW.is.missing <- T
-  }else{ # it's here and we have to check!
-
-    if ( is.vector(XLW) ) {
-      XLW.is.vector <- T
-    }else if(!XLW.is.vector){
-
-      if( is.identity.matrix(XLW) ){
-        XLW.is.missing <- T
-        # warning("gplssvd: XLW was an identity matrix. XLW will not be used in the gplssvd.")
-      }else if( is.diagonal.matrix(XLW) ){
-
-        XLW <- diag(XLW)
-
-        if( length(XLW) != X.dims[1] ){
-          stop("gplssvd:length(XLW) does not equal nrow(X)")
-        }else{
-          XLW.is.vector <- T  #now it's a vector
-        }
-
-      }else if( nrow(XLW) != ncol(XLW) | nrow(XLW) != X.dims[1] ){
-        stop("gplssvd:nrow(XLW) does not equal ncol(XLW) or nrow(X)")
+      # if you gave me all zeros, I'm stopping.
+      if(all(abs(XLW)<=tol)){
+        stop("gplssvd: XLW is empty (i.e., all 0s")
       }
     }
   }
 
+  # a few things about XRW for stopping conditions
+  XRW_is_missing <- missing(XRW)
+  if(!XRW_is_missing){
 
-  if( missing(XRW) ){
-    XRW.is.missing <- T
-  }else{ # it's here and we have to check!
+    XRW_is_vector <- is.vector(XRW)
 
-    if ( is.vector(XRW) ) {
-      XRW.is.vector <- T
-    }else if(!XRW.is.vector){
+    if(!XRW_is_vector){
 
-      if( is.identity.matrix(XRW) ){
-        XRW.is.missing <- T
-        # warning("gplssvd: XRW was an identity matrix. XRW will not be used in the gplssvd.")
-      }else if( is.diagonal.matrix(XRW) ){
+      if( nrow(XRW) != ncol(XRW) | nrow(XRW) != X_dimensions[2] ){
+        stop("gplssvd: nrow(XRW) does not equal ncol(XRW) or ncol(X)")
+      }
 
-        XRW <- diag(XRW)
+      # if you gave me all zeros, I'm stopping.
+      if(is.empty.matrix(XRW)){
+        stop("gplssvd: XRW is empty (i.e., all 0s")
+      }
+    }
 
-        if( length(XRW) != X.dims[2] ){
-          stop("gplssvd:length(XRW) does not equal ncol(X)")
-        }else{
-          XRW.is.vector <- T  #now it's a vector
-        }
+    if(XRW_is_vector){
+      if(length(XRW)!=X_dimensions[2]){
+        stop("gplssvd: length(XRW) does not equal ncol(X)")
+      }
 
-      }else if( nrow(XRW) != ncol(XRW) | nrow(XRW) != X.dims[2] ){
-        stop("gplssvd:nrow(XRW) does not equal ncol(XRW) or ncol(X)")
+      # if you gave me all zeros, I'm stopping.
+      if(all(abs(XRW)<=tol)){
+        stop("gplssvd: XRW is empty (i.e., all 0s")
       }
     }
   }
 
-  # check if YLW and YRW are missing, if they are vectors, or if they are diagonal matrices.
-  if( missing(YLW) ){
-    YLW.is.missing <- T
-  }else{ # it's here and we have to check!
+  # a few things about YLW for stopping conditions
+  YLW_is_missing <- missing(YLW)
+  if(!YLW_is_missing){
 
-    if ( is.vector(YLW) ) {
-      YLW.is.vector <- T
-    }else if(!YLW.is.vector){
+    YLW_is_vector <- is.vector(YLW)
 
-      if( is.identity.matrix(YLW) ){
-        YLW.is.missing <- T
-        # warning("gplssvd: YLW was an identity matrix. YLW will not be used in the gplssvd.")
-      }else if( is.diagonal.matrix(YLW) ){
+    if(!YLW_is_vector){
 
-        YLW <- diag(YLW)
+      if( nrow(YLW) != ncol(YLW) | nrow(YLW) != Y_dimensions[1] ){
+        stop("gplssvd: nrow(YLW) does not equal ncol(YLW) or nrow(Y)")
+      }
 
-        if( length(YLW) != Y.dims[1] ){
-          stop("gplssvd:length(YLW) does not equal nrow(Y)")
-        }else{
-          YLW.is.vector <- T  #now it's a vector
-        }
+      # if you gave me all zeros, I'm stopping.
+      if(is.empty.matrix(YLW)){
+        stop("gplssvd: YLW is empty (i.e., all 0s")
+      }
+    }
 
-      }else if( nrow(YLW) != ncol(YLW) | nrow(YLW) != Y.dims[1] ){
-        stop("gplssvd:nrow(YLW) does not equal ncol(YLW) or nrow(Y)")
+    if(YLW_is_vector){
+      if(length(YLW)!=Y_dimensions[1]){
+        stop("gplssvd: length(YLW) does not equal nrow(Y)")
+      }
+
+      # if you gave me all zeros, I'm stopping.
+      if(all(abs(YLW)<=tol)){
+        stop("gplssvd: YLW is empty (i.e., all 0s")
       }
     }
   }
 
+  # a few things about YRW for stopping conditions
+  YRW_is_missing <- missing(YRW)
+  if(!YRW_is_missing){
 
-  if( missing(YRW) ){
-    YRW.is.missing <- T
-  }else{ # it's here and we have to check!
+    YRW_is_vector <- is.vector(YRW)
 
-    if ( is.vector(YRW) ) {
-      YRW.is.vector <- T
-    }else if(!YRW.is.vector){
+    if(!YRW_is_vector){
 
-      if( is.identity.matrix(YRW) ){
-        YRW.is.missing <- T
-        # warning("gplssvd: YRW was an identity matrix. YRW will not be used in the gplssvd.")
-      }else if( is.diagonal.matrix(YRW) ){
+      if( nrow(YRW) != ncol(YRW) | nrow(YRW) != Y_dimensions[2] ){
+        stop("gplssvd: nrow(YRW) does not equal ncol(YRW) or ncol(Y)")
+      }
 
-        YRW <- diag(YRW)
+      # if you gave me all zeros, I'm stopping.
+      if(is.empty.matrix(YRW)){
+        stop("gplssvd: YRW is empty (i.e., all 0s")
+      }
+    }
 
-        if( length(YRW) != Y.dims[2] ){
-          stop("gplssvd:length(YRW) does not equal ncol(Y)")
-        }else{
-          YRW.is.vector <- T  #now it's a vector
-        }
+    if(YRW_is_vector){
+      if(length(YRW)!=Y_dimensions[2]){
+        stop("gplssvd: length(YRW) does not equal ncol(Y)")
+      }
 
-      }else if( nrow(YRW) != ncol(YRW) | nrow(YRW) != Y.dims[2] ){
-        stop("gplssvd:nrow(YRW) does not equal ncol(YRW) or ncol(Y)")
+      # if you gave me all zeros, I'm stopping.
+      if(all(abs(YRW)<=tol)){
+        stop("gplssvd: YRW is empty (i.e., all 0s")
       }
     }
   }
 
+  ## convenience checks *could* be removed* if problematic
+  # convenience checks & conversions; these are meant to minimize XLW's memory footprint
+  if(!XLW_is_missing){
+    if( !XLW_is_vector & is.identity.matrix(XLW) ){
+      XLW_is_missing <- T
+      XLW <- substitute() # neat! this makes it go missing
+    }
 
+    if( !XLW_is_vector & is.diagonal.matrix(XLW) ){
+      XLW <- diag(XLW)
+      XLW_is_vector <- T  # now it's a vector
+    }
 
-  if(!XLW.is.missing){
-    if( XLW.is.vector ){  ## replace with sweep
-      X <- sweep(X,1,sqrt(XLW),"*")
+    if( XLW_is_vector & all(XLW==1) ){
+      XLW_is_missing <- T
+      XLW <- substitute() # neat! this makes it go missing
+    }
+  }
+
+  # convenience checks & conversions; these are meant to minimize XRW's memory footprint
+  if(!XRW_is_missing){
+    if( !XRW_is_vector & is.identity.matrix(XRW) ){
+      XRW_is_missing <- T
+      XRW <- substitute() # neat! this makes it go missing
+    }
+
+    if( !XRW_is_vector & is.diagonal.matrix(XRW) ){
+      XRW <- diag(XRW)
+      XRW_is_vector <- T  # now it's a vector
+    }
+
+    if( XRW_is_vector & all(XRW==1) ){
+      XRW_is_missing <- T
+      XRW <- substitute() # neat! this makes it go missing
+    }
+  }
+
+  # convenience checks & conversions; these are meant to minimize YLW's memory footprint
+  if(!YLW_is_missing){
+    if( !YLW_is_vector & is.identity.matrix(YLW) ){
+      YLW_is_missing <- T
+      YLW <- substitute() # neat! this makes it go missing
+    }
+
+    if( !YLW_is_vector & is.diagonal.matrix(YLW) ){
+      YLW <- diag(YLW)
+      YLW_is_vector <- T  # now it's a vector
+    }
+
+    if( YLW_is_vector & all(YLW==1) ){
+      YLW_is_missing <- T
+      YLW <- substitute() # neat! this makes it go missing
+    }
+  }
+
+  # convenience checks & conversions; these are meant to minimize YRW's memory footprint
+  if(!YRW_is_missing){
+    if( !YRW_is_vector & is.identity.matrix(YRW) ){
+      YRW_is_missing <- T
+      YRW <- substitute() # neat! this makes it go missing
+    }
+
+    if( !YRW_is_vector & is.diagonal.matrix(YRW) ){
+      YRW <- diag(YRW)
+      YRW_is_vector <- T  # now it's a vector
+    }
+
+    if( YRW_is_vector & all(YRW==1) ){
+      YRW_is_missing <- T
+      YRW <- substitute() # neat! this makes it go missing
+    }
+  }
+
+  # for safety
+  X <- as.matrix(X)
+  Y <- as.matrix(Y)
+
+  ########################################
+  #####
+  #     update & remove these sweeps
+  #####
+  ########################################
+
+  # this manipulates X as needed based on XLW
+  if(!XLW_is_missing){
+
+    if( XLW_is_vector ){
+      X <- sweep(X,1,sqrt(XLW),"*") ## replace the sweep with * & t()
     }else{
+      XLW <- as.matrix(XLW)
       X <- (XLW %^% (1/2)) %*% X
     }
-  }
 
-  if(!XRW.is.missing){
-    if( XRW.is.vector ){  ## replace with sweep
-      X <- sweep(X,2,sqrt(XRW),"*")
+  }
+  # this manipulates X as needed based on XRW
+  if(!XRW_is_missing){
+
+    if( XRW_is_vector ){
+      sqrt_XRW <- sqrt(XRW)
+      X <- sweep(X,2, sqrt_XRW,"*") ## replace the sweep with * & t()
     }else{
+      XRW <- as.matrix(XRW)
       X <- X %*% (XRW %^% (1/2))
     }
+
   }
+  # this manipulates Y as needed based on YLW
+  if(!YLW_is_missing){
 
-
-  if(!YLW.is.missing){
-    if( YLW.is.vector ){  ## replace with sweep
-      Y <- sweep(Y,1,sqrt(YLW),"*")
+    if( YLW_is_vector ){
+      Y <- sweep(Y,1,sqrt(YLW),"*")  ## replace the sweep with * & t()
     }else{
+      YLW <- as.matrix(YLW)
       Y <- (YLW %^% (1/2)) %*% Y
     }
-  }
 
-  if(!YRW.is.missing){
-    if( YRW.is.vector ){  ## replace with sweep
-      Y <- sweep(Y,2,sqrt(YRW),"*")
+  }
+  # this manipulates Y as needed based on YRW
+  if(!YRW_is_missing){
+
+    if( YRW_is_vector ){
+      sqrt_YRW <- sqrt(YRW)
+      Y <- sweep(Y,2,sqrt_YRW,"*")  ## replace the sweep with * & t()
     }else{
+      YRW <- as.matrix(YRW)
       Y <- Y %*% (YRW %^% (1/2))
     }
+
   }
 
+  ########################################
+  #####
+  #     update & remove these sweeps
+  #####
+  ########################################
 
+  # all the decomposition things
   if(k<=0){
-    k <- min(X.dims, Y.dims)
+    k <- min(X_dimensions, Y_dimensions)
   }
 
-  res <- tolerance.svd(t(X) %*% Y, nu=k, nv=k, tol=tol)
+  res <- tolerance_svd( t(X) %*% Y, nu=k, nv=k, tol=tol)
   res$d.orig <- res$d
   res$l.orig <- res$d.orig^2
   res$tau <- (res$l.orig/sum(res$l.orig)) * 100
   components.to.return <- min(length(res$d.orig),k) #a safety check
-  ## u and v should already be k vectors but: be safe.
   res$d <- res$d.orig[1:components.to.return]
   res$l <- res$d^2
-  res$u <- as.matrix(res$u[,1:components.to.return])
-  res$v <- as.matrix(res$v[,1:components.to.return])
+  res$u <- res$u[,1:components.to.return, drop = FALSE]
+  res$v <- res$v[,1:components.to.return, drop = FALSE]
 
   res$lx <- X %*% res$u
   res$ly <- Y %*% res$v
 
 
+  # make scores according to weights
+  if(!XRW_is_missing){
+    if(XRW_is_vector){
 
-  ## the logic here should match the one from above
-  if(!XRW.is.missing){
-    if(XRW.is.vector){
-      res$p <- sweep(res$u,1,1/sqrt(XRW),"*")
-      res$fi <- sweep(sweep(res$p,1,XRW,"*"),2,res$d,"*")
+      # res$p <- sweep(res$u,1,1/sqrt_XRW,"*")
+      res$p <- res$u / sqrt_XRW
+      # res$fi <- sweep(sweep(res$p,1,XRW,"*"),2,res$d,"*")
+      res$fi <- t(t(res$p * XRW) * res$d)
+
     }else{
+
       res$p <- (XRW %^% (-1/2)) %*% res$u
-      res$fi <- sweep((XRW %*% res$p),2,res$d,"*")
+      # res$fi <- sweep((XRW %*% res$p),2,res$d,"*")
+      res$fi <- t(t(XRW %*% res$p) * res$d)
+
     }
   }else{
+
     res$p <- res$u
-    res$fi <- sweep(res$p,2,res$d,"*")
+    # res$fi <- sweep(res$p,2,res$d,"*")
+    res$fi <- t(t(res$p) * res$d)
+
   }
 
-  if(!YRW.is.missing){
-    if(YRW.is.vector){
-      res$q <- sweep(res$v,1,1/sqrt(YRW),"*")
-      res$fj <- sweep(sweep(res$q,1,YRW,"*"),2,res$d,"*")
+  if(!YRW_is_missing){
+    if(YRW_is_vector){
+
+      # res$q <- sweep(res$v,1,1/sqrt_YRW,"*")
+      res$q <- res$v /sqrt_YRW
+      # res$fj <- sweep(sweep(res$q,1,YRW,"*"),2,res$d,"*")
+      res$fj <- t(t(res$q * YRW) * res$d)
+
     }else{
+
       res$q <- (YRW %^% (-1/2)) %*% res$v
-      res$fj <- sweep((YRW %*% res$q),2,res$d,"*")
+      # res$fj <- sweep((YRW %*% res$q),2,res$d,"*")
+      res$fj <- t(t(YRW %*% res$q) * res$d)
+
     }
   }else{
+
     res$q <- res$v
-    res$fj <- sweep(res$q,2,res$d,"*")
+    # res$fj <- sweep(res$q,2,res$d,"*")
+    res$fj <- t(t(res$q) * res$d)
+
   }
 
   rownames(res$fi) <- rownames(res$u) <- rownames(res$p) <- colnames(X)

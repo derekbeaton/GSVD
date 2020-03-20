@@ -3,26 +3,26 @@
 #' @title Generalized eigenvalue decomposition
 #'
 #' @description
-#' \code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT}).
+#' \code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{X}).
 #'   Constraints are used for the orthogonality conditions.
 #'
-#' @param DAT a square, symmetric data matrix to decompose
+#' @param X a square, symmetric data matrix to decompose
 #' @param W \bold{W}eights -- the constraints applied to the matrix and thus the eigen vectors.
 #' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
 #' @param tol default is \code{sqrt(.Machine$double.eps)}. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.
-#' @param symmetric if \code{DAT} is symmetric, set as TRUE. See \code{\link{eigen}}.
+#' @param symmetric if \code{X} is symmetric, set as TRUE. See \code{\link{eigen}}.
 #'
 #' @return A list with eight elements:
-#' \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
-#' \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
+#' \item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
+#' \item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
 #' \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
-#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
-#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}
-#' \item{v}{Eigenvectors. Dimensions are \code{ncol(DAT)} by k.}
-#' \item{q}{Generalized eigenvectors. Dimensions are \code{ncol(DAT)} by k.}
-#' \item{fj}{Component scores. Dimensions are \code{ncol(DAT)} by k.}
+#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
+#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
+#' \item{v}{Eigenvectors. Dimensions are \code{ncol(X)} by k.}
+#' \item{q}{Generalized eigenvectors. Dimensions are \code{ncol(X)} by k.}
+#' \item{fj}{Component scores. Dimensions are \code{ncol(X)} by k.}
 #'
-#' @seealso \code{\link{tolerance.eigen}}, \code{\link{tolerance.svd}}, \code{\link{gsvd}} and \code{\link{svd}}
+#' @seealso \code{\link{tolerance_eigen}}, \code{\link{tolerance_svd}}, \code{\link{gsvd}} and \code{\link{svd}}
 #'
 #' @examples
 #' Observed <- authors/sum(authors)
@@ -40,76 +40,97 @@
 
 
 
-geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
+geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
   # check that it has dimensions
-  DAT_dimensions <- dim(DAT)
-  if(length(DAT_dimensions)!=2){
-    stop("gsvd: DAT must have dim length of 2 (i.e., rows and columns)")
+  X_dimensions <- dim(X)
+  if(length(X_dimensions)!=2){
+    stop("geigen: X must have dim length of 2 (i.e., rows and columns)")
   }
 
   # check square-ness here.
-  if(DAT_dimensions[1] != DAT_dimensions[2]){
-    stop("gsvd: DAT must be square (i.e., have the same number of rows and columns)")
+  if(X_dimensions[1] != X_dimensions[2]){
+    stop("geigen: X must be square (i.e., have the same number of rows and columns)")
   }
 
-  DAT <- as.matrix(DAT)
-
-
-  W_is_vector <- is.vector(W)
+  # a few things about W for stopping conditions
   W_is_missing <- missing(W)
+  if(!W_is_missing){
 
+    W_is_vector <- is.vector(W)
 
-  if( !W_is_missing ){
-    if(is.empty.matrix(W)){
-      stop("geigen: W is empty (i.e., all 0s")
+    if(!W_is_vector){
+
+      if( nrow(W) != ncol(W) | nrow(W) != X_dimensions[2] ){
+        stop("geigen: nrow(W) does not equal ncol(W) or ncol(X)")
+      }
+
+      # if you gave me all zeros, I'm stopping.
+      if(is.empty.matrix(W)){
+        stop("geigen: W is empty (i.e., all 0s")
+      }
+    }
+
+    if(W_is_vector){
+      if(length(W)!=X_dimensions[1]){
+        stop("geigen: length(W) does not equal nrow(X)")
+      }
+
+      # if you gave me all zeros, I'm stopping.
+      if(all(abs(W)<=tol)){
+        stop("geigen: W is empty (i.e., all 0s")
+      }
     }
   }
 
-
-  if(!W_is_vector){
-
-    if( nrow(W) != ncol(W) | nrow(W) != DAT_dimensions[2] ){
-      stop("gsvd:nrow(W) does not equal ncol(W) or ncol(DAT)")
-    }
-
-    if( is.identity.matrix(W) ){
-
+  ## convenience checks *could* be removed* if problematic
+  # convenience checks & conversions; these are meant to minimize W's memory footprint
+  if(!W_is_missing){
+    if( !W_is_vector & is.identity.matrix(W) ){
       W_is_missing <- T
+      W <- substitute() # neat! this makes it go missing
+    }
 
-    }else if( is.diagonal.matrix(W) ){
-
+    if( !W_is_vector & is.diagonal.matrix(W) ){
       W <- diag(W)
-      W_is_vector <- T  #now it's a vector
+      W_is_vector <- T  # now it's a vector
+    }
 
+    if( W_is_vector & all(W==1) ){
+      W_is_missing <- T
+      W <- substitute() # neat! this makes it go missing
     }
   }
 
+  # for safety
+  X <- as.matrix(X)
+
+  # this manipulates X as needed
   if(!W_is_missing){
     if( W_is_vector ){
 
       sqrt_W <- sqrt(W)
-      DAT <- t(t(DAT * sqrt_W) * sqrt_W)
+      X <- t(t(X * sqrt_W) * sqrt_W)
 
     }else{
 
+      W <- as.matrix(W)
       sqrt_W <- W %^% (1/2)
-      DAT <- sqrt_W %*% DAT %*% sqrt_W
+      X <- sqrt_W %*% X %*% sqrt_W
 
     }
   }
 
+  # all the decomposition things
   if(k<=0){
-    k <- min(nrow(DAT),ncol(DAT))
+    k <- min(X_dimensions)
   }
 
   if(missing(symmetric)){
-    symmetric <- isSymmetric(DAT)
+    symmetric <- isSymmetric(X)
   }
 
-
-
-  res <- tolerance.eigen(DAT, tol=tol, symmetric=symmetric)
+  res <- tolerance_eigen(X, tol=tol, symmetric=symmetric)
 
   res$l.orig <- res$values
     res$values <- NULL
@@ -126,10 +147,11 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
 
 
+  # make scores according to weights
   if(!W_is_missing){
     if(W_is_vector){
 
-      res$q <- res$v / (sqrt_W)
+      res$q <- res$v / sqrt_W
       res$fj <- t(t(res$q * W) * res$d)
 
     }else{
@@ -145,7 +167,7 @@ geigen <- function(DAT, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
   }
 
-  rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(DAT)
+  rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(X)
 
   class(res) <- c("list", "GSVD", "geigen")
   return(res)
