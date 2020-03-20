@@ -110,6 +110,109 @@ is.identity.matrix <- function(x,tol=.Machine$double.eps){
 }
 
 
+#' @export
+#'
+#' @title \code{matrix_exponent}: raise matrix to a power and rebuild lower rank version
+#'
+#' @description \code{matrix_exponent} takes in a matrix and will compute raise that matrix to some arbitrary power via the singular value decomposition.
+#'  Additionally, the matrix can be computed for a lower rank estimate of the matrix.
+#'
+#' @param x data matrix
+#' @param power the power to raise \code{x} by (e.g., 2 is squared)
+#' @param ... parameters to pass through to \code{\link{tolerance_svd}}
+#'
+#' @return The (possibly lower rank) raised to an arbitrary \code{power} version of \code{x}
+#'
+#' @seealso \code{\link{tolerance_svd}}
+#'
+#' @examples
+#'  data(wine)
+#'  X <- as.matrix(wine$objective)
+#'  X.power_1 <- matrix.exponent(X)
+#'  X / X.power_1
+#'
+#'  ## other examples.
+#'  X.power_2 <- matrix.exponent(X,power=2)
+#'  X.power_negative.1.div.2 <- matrix.exponent(X,power=-1/2)
+#'
+#'  X.power_negative.1 <- matrix.exponent(X,power=-1)
+#'  X.power_negative.1 / (X %^% -1)
+#'
+#' @author Derek Beaton
+#'
+#' @keywords multivariate, diagonalization, eigen
+
+matrix_exponent <- function(x, power = 1, ...){
+
+  ##stolen from MASS::ginv()
+  if (length(dim(x)) > 2 || !(is.numeric(x) || is.complex(x))){
+    stop("matrix_exponent: 'x' must be a numeric or complex matrix")
+  }
+  if (!is.matrix(x)){
+    x <- as.matrix(x)
+  }
+
+  ## should be tested for speed.
+
+  #res <- tolerance_svd(x,...)
+  #comp.ret <- 1:min(length(res$d),k)
+  #return( (res$u[,comp.ret] * matrix(res$d[comp.ret]^power,nrow(res$u[,comp.ret]),ncol(res$u[,comp.ret]),byrow=T)) %*% t(res$v[,comp.ret]) )
+
+
+  ## the special cases:
+  ## power = 0
+  if(power==0){
+    x <- diag(1,nrow(x),ncol(x))
+    attributes(x)$message.to.user = "https://www.youtube.com/watch?v=9w1y-kMPNcM"
+    return( x )
+  }
+  ## is diagonal
+  if(is.diagonal.matrix(x)){
+    return( diag( diag(x)^power ) )
+
+  }
+  ## is vector
+  if( any(dim(x)==1) ){
+    return( x^power )
+  }
+
+  res <- tolerance_svd(x, ...)
+  # need to replace this sweep
+  return( sweep(res$u,2,res$d^power,"*") %*% t(res$v) )
+
+}
+
+
+
+#' @export
+#'
+#' @title Matrix exponentiation
+#'
+#' @description takes in a matrix and will compute raise that matrix to some arbitrary power via the singular value decomposition.
+#'  Additionally, the matrix can be computed for a lower rank estimate of the matrix.
+#'
+#' @param x data matrix
+#' @param power the power to raise \code{x} by (e.g., 2 is squared)
+#'
+#' @return \code{x} raised to an arbitrary \code{power}
+#'
+#' @seealso \code{\link{matrix_exponent}}
+#'
+#' @examples
+#'  data(wine)
+#'  X <- as.matrix(wine$objective)
+#'  X %^% 2 # power of 2
+#'  X %^% -1 # (generalized) inverse
+#'
+#' @author Derek Beaton
+#'
+#' @keywords multivariate, diagonalization, eigen
+#'
+`%^%` <- function(x,power){
+  matrix_exponent(x,power=power)
+}
+
+
 #' Objective and subjective wine data
 #'
 #' Data used for illustrative purposes in Abdi H., Guillemot, V., Eslami, A., & Beaton, D. (in Press, 2018). Canonical correlation analysis (CCA). In R. Alhajj and J. Rokne (Eds.), Encyclopedia of Social Networks and Mining (2nd Edition). New York: Springer Verlag.
