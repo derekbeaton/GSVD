@@ -42,10 +42,14 @@
 
 geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
-  # check that it has dimensions
+  # preliminaries
   X_dimensions <- dim(X)
-  if(length(X_dimensions)!=2){
-    stop("geigen: X must have dim length of 2 (i.e., rows and columns)")
+  ## stolen from MASS::ginv()
+  if (length(X_dimensions) > 2 || !(is.numeric(X) || is.complex(X))){
+    stop("geigen: 'X' must be a numeric or complex matrix")
+  }
+  if (!is.matrix(X)){
+    X <- as.matrix(X)
   }
 
   # check square-ness here.

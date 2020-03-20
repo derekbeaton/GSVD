@@ -176,9 +176,14 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
 
   # preliminaries
   X_dimensions <- dim(X)
-  if(length(X_dimensions)!=2){
-    stop("gsvd: X must have dim length of 2 (i.e., rows and columns)")
+  ## stolen from MASS::ginv()
+  if (length(X_dimensions) > 2 || !(is.numeric(X) || is.complex(X))){
+    stop("gsvd: 'X' must be a numeric or complex matrix")
   }
+  if (!is.matrix(X)){
+    X <- as.matrix(X)
+  }
+
 
   # a few things about LW for stopping conditions
   LW_is_missing <- missing(LW)
@@ -278,8 +283,6 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
       RW <- substitute() # neat! this makes it go missing
     }
   }
-
-  X <- as.matrix(X)
 
   ########################################
   #####

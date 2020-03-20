@@ -73,17 +73,24 @@
 
 gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
-
-  # check that it has dimensions
+  # preliminaries
   X_dimensions <- dim(X)
-  if(length(X_dimensions)!=2){
-    stop("gplssvd: X must have dim length of 2 (i.e., rows and columns)")
+  ## stolen from MASS::ginv()
+  if (length(X_dimensions) > 2 || !(is.numeric(X) || is.complex(X))){
+    stop("gplssvd: 'X' must be a numeric or complex matrix")
+  }
+  if (!is.matrix(X)){
+    X <- as.matrix(X)
   }
 
-  # check that it has dimensions
+  # preliminaries
   Y_dimensions <- dim(Y)
-  if(length(Y_dimensions)!=2){
-    stop("gplssvd: Y must have dim length of 2 (i.e., rows and columns)")
+  ## stolen from MASS::ginv()
+  if (length(Y_dimensions) > 2 || !(is.numeric(Y) || is.complex(Y))){
+    stop("gplssvd: 'Y' must be a numeric or complex matrix")
+  }
+  if (!is.matrix(Y)){
+    Y <- as.matrix(Y)
   }
 
   # check that row dimensions match
@@ -283,10 +290,6 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       YRW <- substitute() # neat! this makes it go missing
     }
   }
-
-  # for safety
-  X <- as.matrix(X)
-  Y <- as.matrix(Y)
 
   ########################################
   #####

@@ -9,11 +9,11 @@
 #' @param x data matrix
 #' @param power the power to raise \code{x} by (e.g., 2 is squared)
 #' @param k the number of components to retain in order to build a lower rank estimate of \code{x}
-#' @param ... parameters to pass through to \code{\link{tolerance.svd}}
+#' @param ... parameters to pass through to \code{\link{tolerance_svd}}
 #'
 #' @return The (possibly lower rank) raised to an arbitrary \code{power} version of \code{x}
 #'
-#' @seealso \code{\link{tolerance.svd}} and \code{\link{matrix.generalized.inverse}}
+#' @seealso \code{\link{tolerance_svd}} and \code{\link{matrix.generalized.inverse}}
 #'
 #' @examples
 #'  data(wine)
@@ -36,19 +36,21 @@
 matrix.exponent <- function(x, power = 1, k = 0, ...){
 
   ##stolen from MASS::ginv()
-  if (length(dim(x)) > 2L || !(is.numeric(x) || is.complex(x)))
+  if (length(dim(x)) > 2 || !(is.numeric(x) || is.complex(x))){
     stop("matrix.exponent: 'x' must be a numeric or complex matrix")
-  if (!is.matrix(x))
+  }
+  if (!is.matrix(x)){
     x <- as.matrix(x)
+  }
 
   k <- round(k)
   if(k<=0){
-    k <- min(nrow(x),ncol(x))
+    k <- min(dim(x))
   }
 
   ## should be tested for speed.
 
-  #res <- tolerance.svd(x,...)
+  #res <- tolerance_svd(x,...)
   #comp.ret <- 1:min(length(res$d),k)
   #return( (res$u[,comp.ret] * matrix(res$d[comp.ret]^power,nrow(res$u[,comp.ret]),ncol(res$u[,comp.ret]),byrow=T)) %*% t(res$v[,comp.ret]) )
 
@@ -70,10 +72,11 @@ matrix.exponent <- function(x, power = 1, k = 0, ...){
     return( x^power )
   }
 
-  res <- tolerance.svd(x, nu = k, nv = k, ...)
+  res <- tolerance_svd(x, nu = k, nv = k, ...)
   if(k > length(res$d)){
     k <- length(res$d)
   }
+  # need to replace this sweep
   return( sweep(res$u,2,res$d[1:k]^power,"*") %*% t(res$v) )
 
 }
