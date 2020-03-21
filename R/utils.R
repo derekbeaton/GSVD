@@ -90,6 +90,7 @@ is.identical.matrix <- function(x,tol=.Machine$double.eps, round.digits = 12){
 
 is.identity.matrix <- function(x,tol=.Machine$double.eps){
 
+  ## probably should do the same checks here as stolen from MASS::ginv()
   if(is.null(dim(x))){
     stop("is.identity.matrix: x is not a matrix.")
   }
@@ -128,14 +129,14 @@ is.identity.matrix <- function(x,tol=.Machine$double.eps){
 #' @examples
 #'  data(wine)
 #'  X <- as.matrix(wine$objective)
-#'  X.power_1 <- matrix.exponent(X)
+#'  X.power_1 <- matrix_exponent(X)
 #'  X / X.power_1
 #'
 #'  ## other examples.
-#'  X.power_2 <- matrix.exponent(X,power=2)
-#'  X.power_negative.1.div.2 <- matrix.exponent(X,power=-1/2)
+#'  X.power_2 <- matrix_exponent(X,power=2)
+#'  X.power_negative.1.div.2 <- matrix_exponent(X,power=-1/2)
 #'
-#'  X.power_negative.1 <- matrix.exponent(X,power=-1)
+#'  X.power_negative.1 <- matrix_exponent(X,power=-1)
 #'  X.power_negative.1 / (X %^% -1)
 #'
 #' @author Derek Beaton
@@ -189,7 +190,6 @@ matrix_exponent <- function(x, power = 1, ...){
 #' @title Matrix exponentiation
 #'
 #' @description takes in a matrix and will compute raise that matrix to some arbitrary power via the singular value decomposition.
-#'  Additionally, the matrix can be computed for a lower rank estimate of the matrix.
 #'
 #' @param x data matrix
 #' @param power the power to raise \code{x} by (e.g., 2 is squared)

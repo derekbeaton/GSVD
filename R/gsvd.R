@@ -1,7 +1,7 @@
 #' GSVD
 #'
 #' @description The generalized singular value decomposition (GSVD) generalizes the standard SVD (see \code{\link{svd}}) procedure through addition of (optional) constraints applied to the rows and/or columns of a matrix.
-#' @details While dedicated to the GSVD, this package also includes some nice features that are helpful for matrix analyses. For example there are tests to check if matrices are empty (\code{\link{is.empty.matrix}}) or identity (\code{\link{is.identity.matrix}}); also included are operations such as generalized inverse (\code{\link{matrix.generalized.inverse}}) and matrix exponents (\code{\link{matrix.exponent}} or \code{\link{\%^\%}}).
+#' @details While dedicated to the GSVD, this package also includes some nice features that are helpful for matrix analyses. For example there are tests to check if matrices are empty (\code{\link{is.empty.matrix}}) or identity (\code{\link{is.identity.matrix}}); also included is matrix exponents (\code{\link{matrix_exponent}} or \code{\link{\%^\%}}).
 #' @seealso \code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance_svd}}, \code{\link{\%^\%}}
 #' @examples
 #'  ## an example of correspondence analysis.
@@ -75,7 +75,7 @@
 #'   Nguyen, L. H., & Holmes, S. (2019). Ten quick tips for effective dimensionality reduction. PLOS Computational Biology, 15(6), e1006907. https://doi.org/10.1371/journal.pcbi.1006907 \cr
 #'   Yanai, H., Takeuchi, K., & Takane, Y. (2011). Projection Matrices, Generalized Inverse Matrices, and Singular Value Decomposition. \emph{Springer-Verlag, New-York.}\cr
 #'
-#' @keywords multivariate svd genearlized matrix decomposition variance component orthogonal
+#' @keywords multivariate svd generalized matrix decomposition variance component orthogonal
 #'
 "_PACKAGE"
 
@@ -246,18 +246,20 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
   }
 
 
-
   ## convenience checks *could* be removed* if problematic
   # convenience checks & conversions; these are meant to minimize LW's memory footprint
   if(!LW_is_missing){
-    if( !LW_is_vector & is.identity.matrix(LW) ){
-      LW_is_missing <- T
-      LW <- substitute() # neat! this makes it go missing
-    }
+    if( !LW_is_vector){
 
-    if( !LW_is_vector & is.diagonal.matrix(LW) ){
-      LW <- diag(LW)
-      LW_is_vector <- T  # now it's a vector
+      if( is.identity.matrix(LW) ){
+        LW_is_missing <- T
+        LW <- substitute() # neat! this makes it go missing
+      }
+
+      if( is.diagonal.matrix(LW) ){
+        LW <- diag(LW)
+        LW_is_vector <- T  # now it's a vector
+      }
     }
 
     if( LW_is_vector & all(LW==1) ){
@@ -268,14 +270,16 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
 
   # convenience checks & conversions; these are meant to minimize RW's memory footprint
   if(!RW_is_missing){
-    if( !RW_is_vector & is.identity.matrix(RW) ){
-      RW_is_missing <- T
-      RW <- substitute() # neat! this makes it go missing
-    }
+    if( !RW_is_vector ){
+      if( is.identity.matrix(RW) ){
+        RW_is_missing <- T
+        RW <- substitute() # neat! this makes it go missing
+      }
 
-    if( !RW_is_vector & is.diagonal.matrix(RW) ){
-      RW <- diag(RW)
-      RW_is_vector <- T  # now it's a vector
+      if( !RW_is_vector & is.diagonal.matrix(RW) ){
+        RW <- diag(RW)
+        RW_is_vector <- T  # now it's a vector
+      }
     }
 
     if( RW_is_vector & all(RW==1) ){
@@ -284,18 +288,14 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
     }
   }
 
-  ########################################
-  #####
-  #     update & remove these sweeps
-  #####
-  ########################################
 
   # this manipulates X as needed based on XLW
   if(!LW_is_missing){
 
     if( LW_is_vector ){
       sqrt_LW <- sqrt(LW)
-      X <- sweep(X,1,sqrt_LW,"*") ## replace the sweep with * & t()
+      # X <- sweep(X,1,sqrt_LW,"*") ## replace the sweep with * & t()
+      X <- X * sqrt_LW
     }else{
       LW <- as.matrix(LW)
       X <- (LW %^% (1/2)) %*% X
@@ -307,19 +307,14 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
 
     if( RW_is_vector ){
       sqrt_RW <- sqrt(RW)
-      X <- sweep(X,2, sqrt_RW,"*") ## replace the sweep with * & t()
+      # X <- sweep(X,2, sqrt_RW,"*") ## replace the sweep with * & t()
+      X <- t(t(X) * sqrt_RW)
     }else{
       RW <- as.matrix(RW)
       X <- X %*% (RW %^% (1/2))
     }
 
   }
-
-  ########################################
-  #####
-  #     update & remove these sweeps
-  #####
-  ########################################
 
   # all the decomposition things
   if(k<=0){

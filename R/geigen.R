@@ -90,14 +90,16 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
   ## convenience checks *could* be removed* if problematic
   # convenience checks & conversions; these are meant to minimize W's memory footprint
   if(!W_is_missing){
-    if( !W_is_vector & is.identity.matrix(W) ){
-      W_is_missing <- T
-      W <- substitute() # neat! this makes it go missing
-    }
+    if( !W_is_vector) {
+      if( is.identity.matrix(W) ){
+        W_is_missing <- T
+        W <- substitute() # neat! this makes it go missing
+      }
 
-    if( !W_is_vector & is.diagonal.matrix(W) ){
-      W <- diag(W)
-      W_is_vector <- T  # now it's a vector
+      if( !W_is_vector & is.diagonal.matrix(W) ){
+        W <- diag(W)
+        W_is_vector <- T  # now it's a vector
+      }
     }
 
     if( W_is_vector & all(W==1) ){
@@ -105,9 +107,6 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
       W <- substitute() # neat! this makes it go missing
     }
   }
-
-  # for safety
-  X <- as.matrix(X)
 
   # this manipulates X as needed
   if(!W_is_missing){

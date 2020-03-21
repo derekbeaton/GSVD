@@ -221,16 +221,22 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   ## convenience checks *could* be removed* if problematic
   # convenience checks & conversions; these are meant to minimize XLW's memory footprint
   if(!XLW_is_missing){
-    if( !XLW_is_vector & is.identity.matrix(XLW) ){
-      XLW_is_missing <- T
-      XLW <- substitute() # neat! this makes it go missing
+
+    ## this is a matrix call
+    if( !XLW_is_vector ){
+      if(is.identity.matrix(XLW) ){
+        XLW_is_missing <- T
+        XLW <- substitute() # neat! this makes it go missing
+      }
+
+      ## this is a matrix call
+      if( is.diagonal.matrix(XLW) ){
+        XLW <- diag(XLW)
+        XLW_is_vector <- T  # now it's a vector
+      }
     }
 
-    if( !XLW_is_vector & is.diagonal.matrix(XLW) ){
-      XLW <- diag(XLW)
-      XLW_is_vector <- T  # now it's a vector
-    }
-
+    ## this is a vector call
     if( XLW_is_vector & all(XLW==1) ){
       XLW_is_missing <- T
       XLW <- substitute() # neat! this makes it go missing
@@ -239,14 +245,17 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
   # convenience checks & conversions; these are meant to minimize XRW's memory footprint
   if(!XRW_is_missing){
-    if( !XRW_is_vector & is.identity.matrix(XRW) ){
-      XRW_is_missing <- T
-      XRW <- substitute() # neat! this makes it go missing
-    }
+    if( !XRW_is_vector ){
 
-    if( !XRW_is_vector & is.diagonal.matrix(XRW) ){
-      XRW <- diag(XRW)
-      XRW_is_vector <- T  # now it's a vector
+      if( is.identity.matrix(XRW) ){
+        XRW_is_missing <- T
+        XRW <- substitute() # neat! this makes it go missing
+      }
+
+      if( is.diagonal.matrix(XRW) ){
+        XRW <- diag(XRW)
+        XRW_is_vector <- T  # now it's a vector
+      }
     }
 
     if( XRW_is_vector & all(XRW==1) ){
@@ -257,14 +266,18 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
   # convenience checks & conversions; these are meant to minimize YLW's memory footprint
   if(!YLW_is_missing){
-    if( !YLW_is_vector & is.identity.matrix(YLW) ){
-      YLW_is_missing <- T
-      YLW <- substitute() # neat! this makes it go missing
-    }
+    if( !YLW_is_vector ){
 
-    if( !YLW_is_vector & is.diagonal.matrix(YLW) ){
-      YLW <- diag(YLW)
-      YLW_is_vector <- T  # now it's a vector
+      if( is.identity.matrix(YLW) ){
+        YLW_is_missing <- T
+        YLW <- substitute() # neat! this makes it go missing
+      }
+
+      if( is.diagonal.matrix(YLW) ){
+        YLW <- diag(YLW)
+        YLW_is_vector <- T  # now it's a vector
+      }
+
     }
 
     if( YLW_is_vector & all(YLW==1) ){
@@ -275,14 +288,18 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
   # convenience checks & conversions; these are meant to minimize YRW's memory footprint
   if(!YRW_is_missing){
-    if( !YRW_is_vector & is.identity.matrix(YRW) ){
-      YRW_is_missing <- T
-      YRW <- substitute() # neat! this makes it go missing
-    }
+    if( !YRW_is_vector ){
 
-    if( !YRW_is_vector & is.diagonal.matrix(YRW) ){
-      YRW <- diag(YRW)
-      YRW_is_vector <- T  # now it's a vector
+      if( is.identity.matrix(YRW) ){
+        YRW_is_missing <- T
+        YRW <- substitute() # neat! this makes it go missing
+      }
+
+      if( is.diagonal.matrix(YRW) ){
+        YRW <- diag(YRW)
+        YRW_is_vector <- T  # now it's a vector
+      }
+
     }
 
     if( YRW_is_vector & all(YRW==1) ){
@@ -301,7 +318,8 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   if(!XLW_is_missing){
 
     if( XLW_is_vector ){
-      X <- sweep(X,1,sqrt(XLW),"*") ## replace the sweep with * & t()
+      # X <- sweep(X,1,sqrt(XLW),"*") ## replace the sweep with * & t()
+      X <- X * sqrt(XLW)
     }else{
       XLW <- as.matrix(XLW)
       X <- (XLW %^% (1/2)) %*% X
@@ -313,7 +331,8 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
     if( XRW_is_vector ){
       sqrt_XRW <- sqrt(XRW)
-      X <- sweep(X,2, sqrt_XRW,"*") ## replace the sweep with * & t()
+      # X <- sweep(X,2, sqrt_XRW,"*") ## replace the sweep with * & t()
+      X <- t(t(X) * sqrt_XRW)
     }else{
       XRW <- as.matrix(XRW)
       X <- X %*% (XRW %^% (1/2))
@@ -324,7 +343,8 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   if(!YLW_is_missing){
 
     if( YLW_is_vector ){
-      Y <- sweep(Y,1,sqrt(YLW),"*")  ## replace the sweep with * & t()
+      # Y <- sweep(Y,1,sqrt(YLW),"*")  ## replace the sweep with * & t()
+      Y <- Y * sqrt(YLW)
     }else{
       YLW <- as.matrix(YLW)
       Y <- (YLW %^% (1/2)) %*% Y
@@ -336,7 +356,8 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
     if( YRW_is_vector ){
       sqrt_YRW <- sqrt(YRW)
-      Y <- sweep(Y,2,sqrt_YRW,"*")  ## replace the sweep with * & t()
+      # Y <- sweep(Y,2,sqrt_YRW,"*")  ## replace the sweep with * & t()
+      Y <- t(t(Y) * sqrt_YRW)
     }else{
       YRW <- as.matrix(YRW)
       Y <- Y %*% (YRW %^% (1/2))
