@@ -89,12 +89,6 @@ tolerance_svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$doub
   rownames(svd_res$u) <- rownames(x)
   rownames(svd_res$v) <- colnames(x)
 
-  ## force consistent directions as best as possible:
-  # if( sign(svd_res$u[1]) == -1 ){
-  #   svd_res$u <- svd_res$u * -1
-  #   svd_res$v <- svd_res$v * -1
-  # }
-
   ## new way inspired by FactoMineR but with some changes
   vector_signs <- ifelse(colSums(svd_res$v) < 0, -1, 1)
   svd_res$v <- t(t(svd_res$v) * vector_signs)
