@@ -4,10 +4,10 @@
 \alias{geigen}
 \title{Generalized eigenvalue decomposition}
 \usage{
-geigen(DAT, W, k = 0, tol = sqrt(.Machine$double.eps), symmetric)
+geigen(X, W, k = 0, tol = sqrt(.Machine$double.eps), symmetric)
 }
 \arguments{
-\item{DAT}{a square, symmetric data matrix to decompose}
+\item{X}{a square, symmetric data matrix to decompose}
 
 \item{W}{\bold{W}eights -- the constraints applied to the matrix and thus the eigen vectors.}
 
@@ -15,37 +15,44 @@ geigen(DAT, W, k = 0, tol = sqrt(.Machine$double.eps), symmetric)
 
 \item{tol}{default is \code{sqrt(.Machine$double.eps)}. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.}
 
-\item{symmetric}{if \code{DAT} is symmetric, set as TRUE. See \code{\link{eigen}}.}
+\item{symmetric}{if \code{X} is symmetric, set as TRUE. See \code{\link{eigen}}.}
 }
 \value{
 A list with eight elements:
-\item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
-\item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
+\item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
+\item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
 \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
-\item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
-\item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}
-\item{v}{Eigenvectors. Dimensions are \code{ncol(DAT)} by k.}
-\item{q}{Generalized eigenvectors. Dimensions are \code{ncol(DAT)} by k.}
-\item{fj}{Component scores. Dimensions are \code{ncol(DAT)} by k.}
+\item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
+\item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
+\item{v}{Eigenvectors. Dimensions are \code{ncol(X)} by k.}
+\item{q}{Generalized eigenvectors. Dimensions are \code{ncol(X)} by k.}
+\item{fj}{Component scores. Dimensions are \code{ncol(X)} by k.}
 }
 \description{
-\code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{DAT}).
+\code{geigen} takes in constraints (\code{W}), (usually diagonal matrices, but any positive semi-definite matrix) that are applied to the data (\code{X}).
   Constraints are used for the orthogonality conditions.
 }
 \examples{
-Observed <- authors/sum(authors)
-row.w <- rowSums(Observed)
-row.W <- diag(1/row.w)
-col.w <- colSums(Observed)
-col.W <- diag(1/col.w)
-Expected <- row.w \%o\% col.w
-Deviations <- Observed - Expected
-ca.res_gsvd <- gsvd(Deviations,row.W,col.W)
-ca.res_geigen <- geigen(t(Deviations) \%*\% diag(1/row.w) \%*\% Deviations, col.W)
+
+## (Metric) Multidimensional Scaling
+data(wine, package="GSVD")
+D <- as.matrix(dist(wine$objective))^2
+masses <- rep(1/nrow(D), nrow(D))
+Xi <- matrix(-masses, length(masses), length(masses))
+diag(Xi) <- (1-masses)
+mds.res_geigen <- geigen((-D / (nrow(D) * 2)), Xi)
+
+## Principal components analysis: "covariance"
+cov_X <- as.matrix(cov(wine$objective))
+cov_pca.res_geigen <- geigen(cov_X)
+
+## Principal components analysis: "correlation"
+cor_X <- as.matrix(cor(wine$objective))
+cor_pca.res_geigen <- geigen(cor_X)
 
 }
 \seealso{
-\code{\link{tolerance.eigen}}, \code{\link{tolerance.svd}}, \code{\link{gsvd}} and \code{\link{svd}}
+\code{\link{tolerance_eigen}}, \code{\link{gsvd}} and \code{\link{gplssvd}}
 }
 \author{
 Derek Beaton

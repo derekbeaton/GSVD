@@ -4,10 +4,10 @@
 \alias{gsvd}
 \title{Generalized singular value decomposition}
 \usage{
-gsvd(DAT, LW, RW, k = 0, tol = .Machine$double.eps)
+gsvd(X, LW, RW, k = 0, tol = .Machine$double.eps)
 }
 \arguments{
-\item{DAT}{a data matrix to decompose}
+\item{X}{a data matrix to decompose}
 
 \item{LW}{\bold{L}eft \bold{W}eights -- the constraints applied to the left side (rows) of the matrix and thus left singular vectors.}
 
@@ -19,20 +19,20 @@ gsvd(DAT, LW, RW, k = 0, tol = .Machine$double.eps)
 }
 \value{
 A list with eleven elements:
-\item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
-\item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
+\item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
+\item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
 \item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}).}
-\item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of DAT}
-\item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of DAT}
-\item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(DAT)} by k.}
-\item{p}{Left (rows) generalized singular vectors. Dimensions are \code{nrow(DAT)} by k.}
-\item{fi}{Left (rows) component scores. Dimensions are \code{nrow(DAT)} by k.}
-\item{v}{Right (columns) singular vectors. Dimensions are \code{ncol(DAT)} by k.}
-\item{q}{Right (columns) generalized singular vectors. Dimensions are \code{ncol(DAT)} by k.}
-\item{fj}{Right (columns) component scores. Dimensions are \code{ncol(DAT)} by k.}
+\item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
+\item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
+\item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(X)} by k.}
+\item{p}{Left (rows) generalized singular vectors. Dimensions are \code{nrow(X)} by k.}
+\item{fi}{Left (rows) component scores. Dimensions are \code{nrow(X)} by k.}
+\item{v}{Right (columns) singular vectors. Dimensions are \code{ncol(X)} by k.}
+\item{q}{Right (columns) generalized singular vectors. Dimensions are \code{ncol(X)} by k.}
+\item{fj}{Right (columns) component scores. Dimensions are \code{ncol(X)} by k.}
 }
 \description{
-\code{gsvd} takes in left (\code{LW}) and right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to the data (\code{DAT}).
+\code{gsvd} takes in left (\code{LW}) and right (\code{RW}) constraints (usually diagonal matrices, but any positive semi-definite matrix is fine) that are applied to the data (\code{X}).
   Left and right constraints are used for the orthogonality conditions.
 }
 \examples{
@@ -76,7 +76,7 @@ A list with eleven elements:
  #### This is not "traditional" CCA because of the generalized inverse.
  #### However the results are the same as standard CCA when data are not rank deficient.
  cca.res <- gsvd(
-     DAT=(crossprod(X) \%^\% -1) \%*\% R \%*\% (crossprod(Y) \%^\% -1),
+     X=(crossprod(X) \%^\% -1) \%*\% R \%*\% (crossprod(Y) \%^\% -1),
      LW=crossprod(X),
      RW=crossprod(Y)
  )
@@ -89,7 +89,7 @@ A list with eleven elements:
  #### This is not "traditional" RRR because of the generalized inverse.
  #### However the results are the same as standard RRR when data are not rank deficient.
  rrr.res <- gsvd(
-     DAT=(crossprod(X) \%^\% -1) \%*\% R,
+     X=(crossprod(X) \%^\% -1) \%*\% R,
      LW=crossprod(X)
  )
  rrr.res$lx <- (X \%*\% rrr.res$p)
@@ -97,7 +97,7 @@ A list with eleven elements:
 
 }
 \seealso{
-\code{\link{tolerance.svd}} and \code{\link{svd}}
+\code{\link{tolerance_svd}}, \code{\link{geigen}} and \code{\link{gplssvd}}
 }
 \author{
 Derek Beaton

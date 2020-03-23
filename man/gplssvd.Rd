@@ -58,9 +58,10 @@ A list with thirteen elements:
  ### NOTE:
  #### This is not "traditional" CCA because of the generalized inverse.
  #### However the results are the same as standard CCA when data are not rank deficient.
+ #### and this particular version uses tricks to minimize memory & computation
  cca.res <- gplssvd(
-     X = X \%^\% (-1),
-     Y = Y \%^\% (-1),
+     X = MASS::ginv(X),
+     Y = MASS::ginv(Y),
      XRW=crossprod(X),
      YRW=crossprod(Y)
  )
@@ -71,14 +72,14 @@ A list with thirteen elements:
  #### This is not "traditional" RRR because of the generalized inverse.
  #### However the results are the same as standard RRR when data are not rank deficient.
  rrr.res <- gplssvd(
-     X = X \%^\% (-1),
+     X = MASS::ginv(X),
      Y = Y,
      XRW=crossprod(X)
  )
 
 }
 \seealso{
-\code{\link{tolerance.eigen}}, \code{\link{tolerance.svd}}, \code{\link{gsvd}}, \code{\link{geigen}}, and \code{\link{svd}}
+\code{\link{tolerance_svd}}, \code{\link{geigen}} and \code{\link{gsvd}}
 }
 \author{
 Derek Beaton
