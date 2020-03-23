@@ -1,8 +1,8 @@
 #' @export
 #'
-#' @title \code{is.diagonal.matrix}: test if a matrix is a diagonal matrix.
+#' @title \code{is_diagonal_matrix}: test if a matrix is a diagonal matrix.
 #'
-#' @description \code{is.diagonal.matrix} takes a matrix and tests if it is a diagonal matrix.
+#' @description \code{is_diagonal_matrix} takes a matrix and tests if it is a diagonal matrix.
 #'
 #' @param x A matrix to test.
 #' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
@@ -10,13 +10,22 @@
 #' @return A boolean. TRUE if the matrix is a diagonal matrix, FALSE if the matrix is not.
 
 
-## I stole this from somewhere... but I don't remember where
-## I should find where I stole this from.
-## I believe this: https://stackoverflow.com/questions/11057639/identifying-if-only-the-diagonal-is-non-zero
-is.diagonal.matrix <- function(x,tol=.Machine$double.eps){
-  if(is.null(dim(x))){
-    stop("is.diagonal.matrix: X is not a matrix.")
+## enhanced version of this: https://stackoverflow.com/questions/11057639/identifying-if-only-the-diagonal-is-non-zero
+is_diagonal_matrix <- function(x,tol=.Machine$double.eps){
+
+  if( length(dim(x)) != 2 ){
+    stop("is_diagonal_matrix: x is not a matrix.")
   }
+  if( !is.numeric(x) ){
+    stop("is_diagonal_matrix: x is not numeric.")
+  }
+  if( dim(x)[1] != dim(x)[2] ){
+    stop("is_diagonal_matrix: x is not a square matrix.")
+  }
+  if(!is.matrix(x)){
+    x <- as.matrix(x)
+  }
+
   x[ x^2 < tol ] <- 0
   return(all(x[lower.tri(x)] == 0, x[upper.tri(x)] == 0))
 }
@@ -24,9 +33,9 @@ is.diagonal.matrix <- function(x,tol=.Machine$double.eps){
 
 #' @export
 #'
-#' @title \code{is.empty.matrix}: test if a matrix contains all 0s.
+#' @title \code{is_empty_matrix}: test if a matrix contains all 0s.
 #'
-#' @description \code{is.empty.matrix} takes a matrix and tests if it contains all 0s.
+#' @description \code{is_empty_matrix} takes a matrix and tests if it contains all 0s.
 #'
 #' @param x A matrix to test.
 #' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
@@ -34,9 +43,18 @@ is.diagonal.matrix <- function(x,tol=.Machine$double.eps){
 #' @return A boolean. TRUE if the matrix contains all 0s, FALSE if the matrix does not.
 
 
-is.empty.matrix <- function(x,tol=.Machine$double.eps){
+is_empty_matrix <- function(x,tol=.Machine$double.eps){
 
-  x <- as.matrix(x)
+  if( length(dim(x)) != 2 ){
+    stop("is_empty_matrix: x is not a matrix.")
+  }
+  if( !is.numeric(x) ){
+    stop("is_empty_matrix: x is not numeric.")
+  }
+  if(!is.matrix(x)){
+    x <- as.matrix(x)
+  }
+
   x[abs(x) < tol] <- 0
 
   if(sum(abs(x))==0){
@@ -47,39 +65,11 @@ is.empty.matrix <- function(x,tol=.Machine$double.eps){
 
 }
 
-
 #' @export
 #'
-#' @title \code{is.identical.matrix}: test if a matrix contains all identical values.
+#' @title \code{is_identity_matrix}: test if a matrix is an identity matrix.
 #'
-#' @description \code{is.identical.matrix} takes a matrix and tests if it contains all identical values.
-#'
-#' @param x A matrix to test.
-#' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
-#' @param round.digits number of decimal places to round to (via \code{\link{round}} function).
-#'
-#' @return A boolean. TRUE if the matrix contains all identical values, FALSE if the matrix does not.
-
-is.identical.matrix <- function(x,tol=.Machine$double.eps, round.digits = 12){
-
-  x <- as.matrix(x)
-  x[abs(x) < tol] <- 0
-  x <- round(x,digits=round.digits)
-
-  if(length(unique(c(x)))==1){
-    return(TRUE)
-  }else{
-    return(FALSE)
-  }
-
-}
-
-
-#' @export
-#'
-#' @title \code{is.identity.matrix}: test if a matrix is an identity matrix.
-#'
-#' @description \code{is.identity.matrix} takes a matrix and tests if it is an identity matrix.
+#' @description \code{is_identity_matrix} takes a matrix and tests if it is an identity matrix.
 #'
 #' @param x A matrix to test.
 #' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
@@ -88,17 +78,25 @@ is.identical.matrix <- function(x,tol=.Machine$double.eps, round.digits = 12){
 
 
 
-is.identity.matrix <- function(x,tol=.Machine$double.eps){
+is_identity_matrix <- function(x,tol=.Machine$double.eps){
 
-  ## probably should do the same checks here as stolen from MASS::ginv()
-  if(is.null(dim(x))){
-    stop("is.identity.matrix: x is not a matrix.")
+  if( length(dim(x)) != 2 ){
+    stop("is_identity_matrix: x is not a matrix.")
+  }
+  if( !is.numeric(x) ){
+    stop("is_identity_matrix: x is not numeric.")
+  }
+  if( dim(x)[1] != dim(x)[2] ){
+    stop("is_identity_matrix: x is not a square matrix.")
+  }
+  if(!is.matrix(x)){
+    x <- as.matrix(x)
   }
 
-  x <- as.matrix(x)
   x[abs(x) < tol] <- 0
 
-  if(is.diagonal.matrix(x)){
+  ## this now checks if it is a diagonal matrix
+  if( all(x[lower.tri(x)] == 0, x[upper.tri(x)] == 0) ){
     if( all(diag(x)==1) ){
       return(TRUE)
     }else{
@@ -113,104 +111,77 @@ is.identity.matrix <- function(x,tol=.Machine$double.eps){
 
 #' @export
 #'
-#' @title \code{matrix_exponent}: raise matrix to a power and rebuild lower rank version
+#' @title \code{sqrt_psd_matrix}: square root of a positive semi-definite matrix
 #'
-#' @description \code{matrix_exponent} takes in a matrix and will compute raise that matrix to some arbitrary power via the singular value decomposition.
-#'  Additionally, the matrix can be computed for a lower rank estimate of the matrix.
+#' @description \code{sqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
 #'
-#' @param x data matrix
-#' @param power the power to raise \code{x} by (e.g., 2 is squared)
-#' @param ... parameters to pass through to \code{\link{tolerance_svd}}
+#' @param x A square matrix (presumably positive semi-definite)
+#' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
 #'
-#' @return The (possibly lower rank) raised to an arbitrary \code{power} version of \code{x}
-#'
-#' @seealso \code{\link{tolerance_svd}}
-#'
-#' @examples
-#'  data(wine)
-#'  X <- as.matrix(wine$objective)
-#'  X.power_1 <- matrix_exponent(X)
-#'  X / X.power_1
-#'
-#'  ## other examples.
-#'  X.power_2 <- matrix_exponent(X,power=2)
-#'  X.power_negative.1.div.2 <- matrix_exponent(X,power=-1/2)
-#'
-#'  X.power_negative.1 <- matrix_exponent(X,power=-1)
-#'  X.power_negative.1 / (X %^% -1)
-#'
-#' @author Derek Beaton
-#'
-#' @keywords multivariate, diagonalization, eigen
+#' @return A matrix. The square root of the \code{x} matrix
+#' @seealso \code{\link{tolerance_eigen}}
 
-matrix_exponent <- function(x, power = 1, ...){
+sqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
 
-  ##stolen from MASS::ginv()
-  if (length(dim(x)) > 2 || !(is.numeric(x) || is.complex(x))){
-    stop("matrix_exponent: 'x' must be a numeric or complex matrix")
+  ## checks: just that they are a matrix & square & numeric
+  if( length(dim(x)) != 2 ){
+    stop("sqrt_psd_matrix: x is not a matrix.")
   }
-  if (!is.matrix(x)){
+  if( !is.numeric(x) ){
+    stop("sqrt_psd_matrix: x is not numeric.")
+  }
+  if( dim(x)[1] != dim(x)[2] ){
+    stop("sqrt_psd_matrix: x is not a square matrix.")
+  }
+  if(!is.matrix(x)){
     x <- as.matrix(x)
   }
 
-  ## should be tested for speed.
+  ## tolerance_eigen
+  res <- tolerance_eigen(x, tol = tol)
 
-  #res <- tolerance_svd(x,...)
-  #comp.ret <- 1:min(length(res$d),k)
-  #return( (res$u[,comp.ret] * matrix(res$d[comp.ret]^power,nrow(res$u[,comp.ret]),ncol(res$u[,comp.ret]),byrow=T)) %*% t(res$v[,comp.ret]) )
-
-
-  ## the special cases:
-  ## power = 0
-  if(power==0){
-    x <- diag(1,nrow(x),ncol(x))
-    attributes(x)$message.to.user = "https://www.youtube.com/watch?v=9w1y-kMPNcM"
-    return( x )
-  }
-  ## is diagonal
-  if(is.diagonal.matrix(x)){
-    return( diag( diag(x)^power ) )
-
-  }
-  ## is vector
-  if( any(dim(x)==1) ){
-    return( x^power )
-  }
-
-  res <- tolerance_svd(x, ...)
-  # need to replace this sweep
-  return( sweep(res$u,2,res$d^power,"*") %*% t(res$v) )
+  ## rebuild
+  return(t(t(res$vectors) * sqrt(res$values) ) %*% t(res$vectors))
 
 }
-
 
 
 #' @export
 #'
-#' @title Matrix exponentiation
+#' @title \code{invsqrt_psd_matrix}: inverse square root of a positive semi-definite matrix
 #'
-#' @description takes in a matrix and will compute raise that matrix to some arbitrary power via the singular value decomposition.
+#' @description \code{invsqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the inverse square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
 #'
-#' @param x data matrix
-#' @param power the power to raise \code{x} by (e.g., 2 is squared)
+#' @param x A square matrix (presumably positive semi-definite)
+#' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
 #'
-#' @return \code{x} raised to an arbitrary \code{power}
-#'
-#' @seealso \code{\link{matrix_exponent}}
-#'
-#' @examples
-#'  data(wine)
-#'  X <- as.matrix(wine$objective)
-#'  X %^% 2 # power of 2
-#'  X %^% -1 # (generalized) inverse
-#'
-#' @author Derek Beaton
-#'
-#' @keywords multivariate, diagonalization, eigen
-#'
-`%^%` <- function(x,power){
-  matrix_exponent(x,power=power)
+#' @return A matrix. The inverse square root of the \code{x} matrix
+#' @seealso \code{\link{tolerance_eigen}}
+
+invsqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
+
+  ## checks: just that they are a matrix & square & numeric
+  if( length(dim(x)) != 2 ){
+    stop("invsqrt_psd_matrix: x is not a matrix.")
+  }
+  if( !is.numeric(x) ){
+    stop("invsqrt_psd_matrix: x is not numeric.")
+  }
+  if( dim(x)[1] != dim(x)[2] ){
+    stop("invsqrt_psd_matrix: x is not a square matrix.")
+  }
+  if(!is.matrix(x)){
+    x <- as.matrix(x)
+  }
+
+  ## tolerance_eigen
+  res <- tolerance_eigen(x, tol = tol)
+
+  ## rebuild
+  return(t(t(res$vectors) * (1/sqrt(res$values)) ) %*% t(res$vectors))
+
 }
+
 
 
 #' Objective and subjective wine data

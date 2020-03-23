@@ -1,10 +1,27 @@
 #' GSVD
 #'
 #' @description The generalized singular value decomposition (GSVD) generalizes the standard SVD (see \code{\link{svd}}) procedure through addition of (optional) constraints applied to the rows and/or columns of a matrix.
-#' @details While dedicated to the GSVD, this package also includes some nice features that are helpful for matrix analyses. For example there are tests to check if matrices are empty (\code{\link{is.empty.matrix}}) or identity (\code{\link{is.identity.matrix}}); also included is matrix exponents (\code{\link{matrix_exponent}} or \code{\link{\%^\%}}).
+#' @details FILL THIS IN.
 #' @seealso \code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance_svd}}, \code{\link{\%^\%}}
 #' @examples
-#'  ## an example of correspondence analysis.
+#'
+#'  data(wine)
+#'  ## Principal components analysis: "covariance"
+#'
+#'  wine.objective <- wine$objective
+#'  ## "covariance" PCA
+#'  cov.pca.data <- scale(wine.objective,scale=FALSE)
+#'  cov.pca.res <- gsvd(cov.pca.data)
+#'
+#'  ## Principal components analysis: "correlation"
+#'  cor.pca.data <- scale(wine.objective,scale=TRUE)
+#'  cor.pca.res <- gsvd(cor.pca.data)
+#'
+#'  ## Principal components analysis: "correlation" with the covariance matrix and constraints
+#'  cor.pca.res2 <- gsvd(cov.pca.data,RW=1/apply(wine.objective,2,var))
+#'
+#'
+#'  ## Correspondence analysis
 #'  data(authors)
 #'  Observed <- authors/sum(authors)
 #'  row.w <- rowSums(Observed)
@@ -16,36 +33,25 @@
 #'  ca.res <- gsvd(Deviations,row.W,col.W)
 #'
 #'
-#'  # several examples of principal component analysis
-#'  data(wine)
-#'  wine.objective <- wine$objective
-#'  ## "covariance" PCA
-#'  cov.pca.data <- scale(wine.objective,scale=FALSE)
-#'  cov.pca.res <- gsvd(cov.pca.data)
-#'  ## "correlation" PCA
-#'  cor.pca.data <- scale(wine.objective,scale=TRUE)
-#'  cor.pca.res <- gsvd(cor.pca.data)
-#'  ## "correlation" PCA with GSVD constraints
-#'  cor.pca.res2 <- gsvd(cov.pca.data,RW=1/apply(wine.objective,2,var))
-#'
 #'
 #'  # Three "two-table" technique examples
 #'  X <- scale(wine$objective)
 #'  Y <- scale(wine$subjective)
 #'  R <- t(X) %*% Y
 #'
-#'  ## an example of partial least squares (correlation)
+#'  ## Partial least squares (correlation)
 #'  pls.res <- gsvd(R)
-#'
+#'  pls.res$lx <- (X %*% cca.res$p)
+#'  pls.res$ly <- (Y %*% cca.res$q)
 #'
 #'  ## an example of canonical correlation analysis (CCA)
 #'  ### NOTE:
 #'  #### This is not "traditional" CCA because of the generalized inverse.
 #'  #### However results are the same as standard CCA when data are not rank deficient.
 #'  cca.res <- gsvd(
-#'      X=(crossprod(X) %^% -1) %*% R %*% (crossprod(Y) %^% -1),
-#'      LW=crossprod(X),
-#'      RW=crossprod(Y)
+#'      X = MASS::ginv(crossprod(X)) %*% R %*% MASS::ginv(crossprod(Y)),
+#'      LW = crossprod(X),
+#'      RW = crossprod(Y)
 #'  )
 #'  cca.res$lx <- (X %*% cca.res$p)
 #'  cca.res$ly <- (Y %*% cca.res$q)
@@ -55,8 +61,8 @@
 #'  #### This is not "traditional" RRR because of the generalized inverse.
 #'  #### However the results are the same as standard RRR when data are not rank deficient.
 #'  rrr.res <- gsvd(
-#'      X=(crossprod(X) %^% -1) %*% R,
-#'      LW=crossprod(X)
+#'      X = MASS::ginv(crossprod(X)) %*% R,
+#'      LW = crossprod(X)
 #'  )
 #'  rrr.res$lx <- (X %*% rrr.res$p)
 #'  rrr.res$ly <- (Y %*% rrr.res$q)
@@ -106,7 +112,7 @@
 #' \item{q}{Right (columns) generalized singular vectors. Dimensions are \code{ncol(X)} by k.}
 #' \item{fj}{Right (columns) component scores. Dimensions are \code{ncol(X)} by k.}
 #'
-#' @seealso \code{\link{tolerance_svd}} and \code{\link{svd}}
+#' @seealso \code{\link{tolerance_svd}}, \code{\link{geigen}} and \code{\link{gplssvd}}
 #'
 #' @examples
 #'
@@ -198,7 +204,7 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(is.empty.matrix(LW)){
+      if(is_empty_matrix(LW)){
         stop("gsvd: LW is empty (i.e., all 0s")
       }
     }
@@ -228,7 +234,7 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(is.empty.matrix(RW)){
+      if(is_empty_matrix(RW)){
         stop("gsvd: RW is empty (i.e., all 0s")
       }
     }
@@ -251,12 +257,12 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
   if(!LW_is_missing){
     if( !LW_is_vector){
 
-      if( is.identity.matrix(LW) ){
+      if( is_identity_matrix(LW) ){
         LW_is_missing <- T
         LW <- substitute() # neat! this makes it go missing
       }
 
-      if( is.diagonal.matrix(LW) ){
+      if( is_diagonal_matrix(LW) ){
         LW <- diag(LW)
         LW_is_vector <- T  # now it's a vector
       }
@@ -271,12 +277,12 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
   # convenience checks & conversions; these are meant to minimize RW's memory footprint
   if(!RW_is_missing){
     if( !RW_is_vector ){
-      if( is.identity.matrix(RW) ){
+      if( is_identity_matrix(RW) ){
         RW_is_missing <- T
         RW <- substitute() # neat! this makes it go missing
       }
 
-      if( !RW_is_vector & is.diagonal.matrix(RW) ){
+      if( !RW_is_vector & is_diagonal_matrix(RW) ){
         RW <- diag(RW)
         RW_is_vector <- T  # now it's a vector
       }
@@ -298,7 +304,8 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
       X <- X * sqrt_LW
     }else{
       LW <- as.matrix(LW)
-      X <- (LW %^% (1/2)) %*% X
+      # X <- (LW %^% (1/2)) %*% X
+      X <- sqrt_psd_matrix(LW) %*% X
     }
 
   }
@@ -311,7 +318,7 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
       X <- t(t(X) * sqrt_RW)
     }else{
       RW <- as.matrix(RW)
-      X <- X %*% (RW %^% (1/2))
+      X <- X %*% sqrt_psd_matrix(RW)
     }
 
   }
@@ -344,7 +351,8 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
 
     }else{
 
-      res$p <- (LW %^% (-1/2)) %*% res$u
+      # res$p <- (LW %^% (-1/2)) %*% res$u
+      res$p <- invsqrt_psd_matrix(LW) %*% res$u
       # res$fi <- sweep((LW %*% res$p),2,res$d,"*")
       res$fi <- t(t(LW %*% res$p) * res$d)
 
@@ -367,7 +375,7 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
 
     }else{
 
-      res$q <- (RW %^% (-1/2)) %*% res$v
+      res$q <- invsqrt_psd_matrix(RW) %*% res$v
       # res$fj <- sweep((RW %*% res$q),2,res$d,"*")
       res$fj <- t(t(RW %*% res$q) * res$d)
 

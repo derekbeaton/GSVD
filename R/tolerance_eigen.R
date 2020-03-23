@@ -19,6 +19,13 @@
 #'
 #' @seealso \code{\link{eigen}}
 #'
+#' @examples
+#'  data(wine)
+#'  cor_X <- cor(as.matrix(wine$objective))
+#'  s_asis <- tolerance_eigen(cor_X)
+#'  s_.Machine <- tolerance_eigen(cor_X, tol=.Machine$double.eps)
+#'  s_000001 <- tolerance_eigen(cor_X, tol=.000001)
+#'
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen
 

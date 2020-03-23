@@ -22,23 +22,28 @@
 #' \item{q}{Generalized eigenvectors. Dimensions are \code{ncol(X)} by k.}
 #' \item{fj}{Component scores. Dimensions are \code{ncol(X)} by k.}
 #'
-#' @seealso \code{\link{tolerance_eigen}}, \code{\link{tolerance_svd}}, \code{\link{gsvd}} and \code{\link{svd}}
+#' @seealso \code{\link{tolerance_eigen}}, \code{\link{gsvd}} and \code{\link{gplssvd}}
 #'
 #' @examples
-#' Observed <- authors/sum(authors)
-#' row.w <- rowSums(Observed)
-#' row.W <- diag(1/row.w)
-#' col.w <- colSums(Observed)
-#' col.W <- diag(1/col.w)
-#' Expected <- row.w %o% col.w
-#' Deviations <- Observed - Expected
-#' ca.res_gsvd <- gsvd(Deviations,row.W,col.W)
-#' ca.res_geigen <- geigen(t(Deviations) %*% diag(1/row.w) %*% Deviations, col.W)
+#'
+#' ## (Metric) Multidimensional Scaling
+#' data(wine, package="GSVD")
+#' D <- as.matrix(dist(wine$objective))^2
+#' masses <- rep(1/nrow(D), nrow(D))
+#' Xi <- matrix(-masses, length(masses), length(masses))
+#' diag(Xi) <- (1-masses)
+#' mds.res_geigen <- geigen((-D / (nrow(D) * 2)), Xi)
+#'
+#' ## Principal components analysis: "covariance"
+#' cov_X <- as.matrix(cov(wine$objective))
+#' cov_pca.res_geigen <- geigen(cov_X)
+#'
+#' ## Principal components analysis: "correlation"
+#' cor_X <- as.matrix(cor(wine$objective))
+#' cor_pca.res_geigen <- geigen(cor_X)
 #'
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen
-
-
 
 geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
@@ -70,7 +75,7 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(is.empty.matrix(W)){
+      if(is_empty_matrix(W)){
         stop("geigen: W is empty (i.e., all 0s")
       }
     }
@@ -91,12 +96,12 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
   # convenience checks & conversions; these are meant to minimize W's memory footprint
   if(!W_is_missing){
     if( !W_is_vector) {
-      if( is.identity.matrix(W) ){
+      if( is_identity_matrix(W) ){
         W_is_missing <- T
         W <- substitute() # neat! this makes it go missing
       }
 
-      if( !W_is_vector & is.diagonal.matrix(W) ){
+      if( !W_is_vector & is_diagonal_matrix(W) ){
         W <- diag(W)
         W_is_vector <- T  # now it's a vector
       }
@@ -118,7 +123,8 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
     }else{
 
       W <- as.matrix(W)
-      sqrt_W <- W %^% (1/2)
+      # sqrt_W <- W %^% (1/2)
+      sqrt_W <- sqrt_psd_matrix(W)
       X <- sqrt_W %*% X %*% sqrt_W
 
     }
@@ -159,7 +165,8 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
     }else{
 
-      res$q <- (W %^% (-1/2)) %*% res$v
+      # res$q <- (W %^% (-1/2)) %*% res$v
+      res$q <- invsqrt_psd_matrix(W) %*% res$v
       res$fj <- t(t(W %*% res$q) * res$d)
 
     }

@@ -26,8 +26,8 @@
 #'  data(wine)
 #'  X <- scale(as.matrix(wine$objective))
 #'  s_asis <- tolerance_svd(X)
-#'  s_sqrt.Machine <- tolerance_svd(X,tol=sqrt(.Machine$double.eps))
-#'  s_000001 <- tolerance_svd(X,tol=.000001)
+#'  s_.Machine <- tolerance_svd(X, tol= .Machine$double.eps)
+#'  s_000001 <- tolerance_svd(X, tol=.000001)
 #'
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen

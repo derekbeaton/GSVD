@@ -30,7 +30,7 @@
 #' \item{fj}{Right (columns) component scores.}
 #' \item{ly}{Latent variable scores for rows of \code{Y}}
 #'
-#' @seealso \code{\link{tolerance_eigen}}, \code{\link{tolerance_svd}}, \code{\link{gsvd}}, \code{\link{geigen}}, and \code{\link{svd}}
+#' @seealso \code{\link{tolerance_svd}}, \code{\link{geigen}} and \code{\link{gsvd}}
 #'
 #' @examples
 #'
@@ -47,9 +47,10 @@
 #'  ### NOTE:
 #'  #### This is not "traditional" CCA because of the generalized inverse.
 #'  #### However the results are the same as standard CCA when data are not rank deficient.
+#'  #### and this particular version uses tricks to minimize memory & computation
 #'  cca.res <- gplssvd(
-#'      X = X %^% (-1),
-#'      Y = Y %^% (-1),
+#'      X = MASS::ginv(X),
+#'      Y = MASS::ginv(Y),
 #'      XRW=crossprod(X),
 #'      YRW=crossprod(Y)
 #'  )
@@ -60,16 +61,13 @@
 #'  #### This is not "traditional" RRR because of the generalized inverse.
 #'  #### However the results are the same as standard RRR when data are not rank deficient.
 #'  rrr.res <- gplssvd(
-#'      X = X %^% (-1),
+#'      X = MASS::ginv(X),
 #'      Y = Y,
 #'      XRW=crossprod(X)
 #'  )
 #'
 #' @author Derek Beaton
 #' @keywords multivariate, diagonalization, eigen, partial least squares
-
-
-### Should I do some PSD checks?
 
 gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
@@ -111,7 +109,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(is.empty.matrix(XLW)){
+      if(is_empty_matrix(XLW)){
         stop("gplssvd: XLW is empty (i.e., all 0s")
       }
     }
@@ -141,7 +139,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(is.empty.matrix(XRW)){
+      if(is_empty_matrix(XRW)){
         stop("gplssvd: XRW is empty (i.e., all 0s")
       }
     }
@@ -171,7 +169,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(is.empty.matrix(YLW)){
+      if(is_empty_matrix(YLW)){
         stop("gplssvd: YLW is empty (i.e., all 0s")
       }
     }
@@ -201,7 +199,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(is.empty.matrix(YRW)){
+      if(is_empty_matrix(YRW)){
         stop("gplssvd: YRW is empty (i.e., all 0s")
       }
     }
@@ -224,13 +222,13 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
     ## this is a matrix call
     if( !XLW_is_vector ){
-      if(is.identity.matrix(XLW) ){
+      if(is_identity_matrix(XLW) ){
         XLW_is_missing <- T
         XLW <- substitute() # neat! this makes it go missing
       }
 
       ## this is a matrix call
-      if( is.diagonal.matrix(XLW) ){
+      if( is_diagonal_matrix(XLW) ){
         XLW <- diag(XLW)
         XLW_is_vector <- T  # now it's a vector
       }
@@ -247,12 +245,12 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   if(!XRW_is_missing){
     if( !XRW_is_vector ){
 
-      if( is.identity.matrix(XRW) ){
+      if( is_identity_matrix(XRW) ){
         XRW_is_missing <- T
         XRW <- substitute() # neat! this makes it go missing
       }
 
-      if( is.diagonal.matrix(XRW) ){
+      if( is_diagonal_matrix(XRW) ){
         XRW <- diag(XRW)
         XRW_is_vector <- T  # now it's a vector
       }
@@ -268,12 +266,12 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   if(!YLW_is_missing){
     if( !YLW_is_vector ){
 
-      if( is.identity.matrix(YLW) ){
+      if( is_identity_matrix(YLW) ){
         YLW_is_missing <- T
         YLW <- substitute() # neat! this makes it go missing
       }
 
-      if( is.diagonal.matrix(YLW) ){
+      if( is_diagonal_matrix(YLW) ){
         YLW <- diag(YLW)
         YLW_is_vector <- T  # now it's a vector
       }
@@ -290,12 +288,12 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   if(!YRW_is_missing){
     if( !YRW_is_vector ){
 
-      if( is.identity.matrix(YRW) ){
+      if( is_identity_matrix(YRW) ){
         YRW_is_missing <- T
         YRW <- substitute() # neat! this makes it go missing
       }
 
-      if( is.diagonal.matrix(YRW) ){
+      if( is_diagonal_matrix(YRW) ){
         YRW <- diag(YRW)
         YRW_is_vector <- T  # now it's a vector
       }
@@ -308,11 +306,6 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
     }
   }
 
-  ########################################
-  #####
-  #     update & remove these sweeps
-  #####
-  ########################################
 
   # this manipulates X as needed based on XLW
   if(!XLW_is_missing){
@@ -322,7 +315,8 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       X <- X * sqrt(XLW)
     }else{
       XLW <- as.matrix(XLW)
-      X <- (XLW %^% (1/2)) %*% X
+      # X <- (XLW %^% (1/2)) %*% X
+      X <- sqrt_psd_matrix(XLW) %*% X
     }
 
   }
@@ -335,7 +329,8 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       X <- t(t(X) * sqrt_XRW)
     }else{
       XRW <- as.matrix(XRW)
-      X <- X %*% (XRW %^% (1/2))
+      # X <- X %*% (XRW %^% (1/2))
+      X <- X %*% sqrt_psd_matrix(XRW)
     }
 
   }
@@ -347,7 +342,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       Y <- Y * sqrt(YLW)
     }else{
       YLW <- as.matrix(YLW)
-      Y <- (YLW %^% (1/2)) %*% Y
+      Y <- sqrt_psd_matrix(YLW) %*% Y
     }
 
   }
@@ -360,16 +355,12 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       Y <- t(t(Y) * sqrt_YRW)
     }else{
       YRW <- as.matrix(YRW)
-      Y <- Y %*% (YRW %^% (1/2))
+      # Y <- Y %*% (YRW %^% (1/2))
+      Y <- Y %*% sqrt_psd_matrix(YRW)
     }
 
   }
 
-  ########################################
-  #####
-  #     update & remove these sweeps
-  #####
-  ########################################
 
   # all the decomposition things
   if(k<=0){
@@ -401,7 +392,8 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
     }else{
 
-      res$p <- (XRW %^% (-1/2)) %*% res$u
+      # res$p <- (XRW %^% (-1/2)) %*% res$u
+      res$p <- invsqrt_psd_matrix(XRW) %*% res$u
       # res$fi <- sweep((XRW %*% res$p),2,res$d,"*")
       res$fi <- t(t(XRW %*% res$p) * res$d)
 
@@ -424,7 +416,8 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 
     }else{
 
-      res$q <- (YRW %^% (-1/2)) %*% res$v
+      # res$q <- (YRW %^% (-1/2)) %*% res$v
+      res$q <- invsqrt_psd_matrix(YRW) %*% res$v
       # res$fj <- sweep((YRW %*% res$q),2,res$d,"*")
       res$fj <- t(t(YRW %*% res$q) * res$d)
 
