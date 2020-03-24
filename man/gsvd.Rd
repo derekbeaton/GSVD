@@ -37,63 +37,40 @@ A list with eleven elements:
 }
 \examples{
 
- ## an example of correspondence analysis.
- data(authors)
- Observed <- authors/sum(authors)
- row.w <- rowSums(Observed)
-   row.W <- diag(1/row.w)
- col.w <- colSums(Observed)
-   col.W <- diag(1/col.w)
- Expected <- row.w \%o\% col.w
- Deviations <- Observed - Expected
- ca.res <- gsvd(Deviations,row.W,col.W)
-
-
- # several examples of principal component analysis
- data(wine)
+ data(wine, package="GSVD")
  wine.objective <- wine$objective
+ ## Principal components analysis: "covariance"
  ## "covariance" PCA
  cov.pca.data <- scale(wine.objective,scale=FALSE)
  cov.pca.res <- gsvd(cov.pca.data)
- ## "correlation" PCA
+
+ ## Principal components analysis: "correlation"
  cor.pca.data <- scale(wine.objective,scale=TRUE)
  cor.pca.res <- gsvd(cor.pca.data)
- ## "correlation" PCA with GSVD constraints
+
+ ## Principal components analysis: "correlation" with the covariance matrix and constraints
  cor.pca.res2 <- gsvd(cov.pca.data,RW=1/apply(wine.objective,2,var))
 
 
- # Three "two-table" technique examples
- X <- scale(wine$objective)
- Y <- scale(wine$subjective)
- R <- t(X) \%*\% Y
-
- ## an example of partial least squares (correlation)
- pls.res <- gsvd(R)
-
-
- ## an example of canonical correlation analysis (CCA)
- ### NOTE:
- #### This is not "traditional" CCA because of the generalized inverse.
- #### However the results are the same as standard CCA when data are not rank deficient.
- cca.res <- gsvd(
-     X=(crossprod(X) \%^\% -1) \%*\% R \%*\% (crossprod(Y) \%^\% -1),
-     LW=crossprod(X),
-     RW=crossprod(Y)
- )
- cca.res$lx <- (X \%*\% cca.res$p)
- cca.res$ly <- (Y \%*\% cca.res$q)
+ ## Correspondence analysis
+ data(authors, package="GSVD")
+ Observed <- authors/sum(authors)
+ row.w <- rowSums(Observed)
+ col.w <- colSums(Observed)
+ Expected <- row.w \%o\% col.w
+ Deviations <- Observed - Expected
+ ca.res <- gsvd(Deviations,1/row.w,1/col.w)
 
 
- ## an example of reduced rank regression (RRR) a.k.a. redundancy analysis (RDA)
- ### NOTE:
- #### This is not "traditional" RRR because of the generalized inverse.
- #### However the results are the same as standard RRR when data are not rank deficient.
- rrr.res <- gsvd(
-     X=(crossprod(X) \%^\% -1) \%*\% R,
-     LW=crossprod(X)
- )
- rrr.res$lx <- (X \%*\% rrr.res$p)
- rrr.res$ly <- (Y \%*\% rrr.res$q)
+ ## Multiple correspondence analysis
+ data("snps.druguse", package="GSVD")
+ X <- model.matrix(~ ., data=snps.druguse$DATA1, contrasts.arg = lapply(snps.druguse$DATA1, contrasts, contrasts=FALSE))[,-1]
+ Observed <- X/sum(X)
+ row.w <- rowSums(Observed)
+ col.w <- colSums(Observed)
+ Expected <- row.w \%o\% col.w
+ Deviations <- Observed - Expected
+ ca.res <- gsvd(Deviations,1/row.w,1/col.w)
 
 }
 \seealso{

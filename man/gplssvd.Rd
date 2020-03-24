@@ -50,29 +50,29 @@ A list with thirteen elements:
  X <- scale(wine$objective)
  Y <- scale(wine$subjective)
 
- ## an example of partial least squares (correlation)
+ ## Partial least squares (correlation)
  pls.res <- gplssvd(X, Y)
 
 
- ## an example of canonical correlation analysis (CCA)
+ ## Canonical correlation analysis (CCA)
  ### NOTE:
  #### This is not "traditional" CCA because of the generalized inverse.
  #### However the results are the same as standard CCA when data are not rank deficient.
  #### and this particular version uses tricks to minimize memory & computation
  cca.res <- gplssvd(
-     X = MASS::ginv(X),
-     Y = MASS::ginv(Y),
+     X = MASS::ginv(t(X)),
+     Y = MASS::ginv(t(Y)),
      XRW=crossprod(X),
      YRW=crossprod(Y)
  )
 
 
- ## an example of reduced rank regression (RRR) a.k.a. redundancy analysis (RDA)
+ ## Reduced rank regression (RRR) a.k.a. redundancy analysis (RDA)
  ### NOTE:
  #### This is not "traditional" RRR because of the generalized inverse.
  #### However the results are the same as standard RRR when data are not rank deficient.
  rrr.res <- gplssvd(
-     X = MASS::ginv(X),
+     X = MASS::ginv(t(X)),
      Y = Y,
      XRW=crossprod(X)
  )

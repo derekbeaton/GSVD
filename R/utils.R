@@ -1,3 +1,8 @@
+# imports from other packages
+#' @importFrom MASS ginv
+NULL
+
+
 #' @export
 #'
 #' @title \code{is_diagonal_matrix}: test if a matrix is a diagonal matrix.

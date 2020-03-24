@@ -11,71 +11,6 @@ The generalized singular value decomposition (GSVD) generalizes the standard SVD
 \details{
 FILL THIS IN.
 }
-\examples{
-
- data(wine)
- ## Principal components analysis: "covariance"
-
- wine.objective <- wine$objective
- ## "covariance" PCA
- cov.pca.data <- scale(wine.objective,scale=FALSE)
- cov.pca.res <- gsvd(cov.pca.data)
-
- ## Principal components analysis: "correlation"
- cor.pca.data <- scale(wine.objective,scale=TRUE)
- cor.pca.res <- gsvd(cor.pca.data)
-
- ## Principal components analysis: "correlation" with the covariance matrix and constraints
- cor.pca.res2 <- gsvd(cov.pca.data,RW=1/apply(wine.objective,2,var))
-
-
- ## Correspondence analysis
- data(authors)
- Observed <- authors/sum(authors)
- row.w <- rowSums(Observed)
-   row.W <- diag(1/row.w)
- col.w <- colSums(Observed)
-   col.W <- diag(1/col.w)
- Expected <- row.w \%o\% col.w
- Deviations <- Observed - Expected
- ca.res <- gsvd(Deviations,row.W,col.W)
-
-
-
- # Three "two-table" technique examples
- X <- scale(wine$objective)
- Y <- scale(wine$subjective)
- R <- t(X) \%*\% Y
-
- ## Partial least squares (correlation)
- pls.res <- gsvd(R)
- pls.res$lx <- (X \%*\% cca.res$p)
- pls.res$ly <- (Y \%*\% cca.res$q)
-
- ## an example of canonical correlation analysis (CCA)
- ### NOTE:
- #### This is not "traditional" CCA because of the generalized inverse.
- #### However results are the same as standard CCA when data are not rank deficient.
- cca.res <- gsvd(
-     X = MASS::ginv(crossprod(X)) \%*\% R \%*\% MASS::ginv(crossprod(Y)),
-     LW = crossprod(X),
-     RW = crossprod(Y)
- )
- cca.res$lx <- (X \%*\% cca.res$p)
- cca.res$ly <- (Y \%*\% cca.res$q)
-
- ## an example of reduced rank regression (RRR) a.k.a. redundancy analysis (RDA)
- ### NOTE:
- #### This is not "traditional" RRR because of the generalized inverse.
- #### However the results are the same as standard RRR when data are not rank deficient.
- rrr.res <- gsvd(
-     X = MASS::ginv(crossprod(X)) \%*\% R,
-     LW = crossprod(X)
- )
- rrr.res$lx <- (X \%*\% rrr.res$p)
- rrr.res$ly <- (Y \%*\% rrr.res$q)
-
-}
 \references{
 Abdi, H. (2007). Singular Value Decomposition (SVD) and Generalized Singular Value Decomposition (GSVD). In N.J. Salkind (Ed.): \emph{Encyclopedia of Measurement and Statistics}.Thousand Oaks (CA): Sage. pp. 907-912.\cr
   Beaton, D., Fatt, C. R. C., & Abdi, H. (2014). An ExPosition of multivariate analysis with the singular value decomposition in R. \emph{Computational Statistics & Data Analysis}, 72, 176-189. \cr
@@ -91,7 +26,7 @@ Abdi, H. (2007). Singular Value Decomposition (SVD) and Generalized Singular Val
   Yanai, H., Takeuchi, K., & Takane, Y. (2011). Projection Matrices, Generalized Inverse Matrices, and Singular Value Decomposition. \emph{Springer-Verlag, New-York.}\cr
 }
 \seealso{
-\code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance_svd}}, \code{\link{\%^\%}}
+\code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance_svd}}
 }
 \author{
 \strong{Maintainer}: Derek Beaton \email{exposition.software@gmail.com}
