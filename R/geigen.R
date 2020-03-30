@@ -96,10 +96,10 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
   # convenience checks & conversions; these are meant to minimize W's memory footprint
   if(!W_is_missing){
     if( !W_is_vector) {
-      if( is_identity_matrix(W) ){
-        W_is_missing <- T
-        W <- substitute() # neat! this makes it go missing
-      }
+      # if( is_identity_matrix(W) ){
+      #   W_is_missing <- T
+      #   W <- substitute() # neat! this makes it go missing
+      # }
 
       if( !W_is_vector & is_diagonal_matrix(W) ){
         W <- diag(W)

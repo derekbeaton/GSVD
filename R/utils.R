@@ -70,7 +70,9 @@ is_empty_matrix <- function(x,tol=.Machine$double.eps){
 
 }
 
-#' @export
+
+## #' @export
+#'
 #'
 #' @title \code{is_identity_matrix}: test if a matrix is an identity matrix.
 #'
@@ -83,35 +85,35 @@ is_empty_matrix <- function(x,tol=.Machine$double.eps){
 
 
 
-is_identity_matrix <- function(x,tol=.Machine$double.eps){
-
-  if( length(dim(x)) != 2 ){
-    stop("is_identity_matrix: x is not a matrix.")
-  }
-  if( !is.numeric(x) ){
-    stop("is_identity_matrix: x is not numeric.")
-  }
-  if( dim(x)[1] != dim(x)[2] ){
-    stop("is_identity_matrix: x is not a square matrix.")
-  }
-  if(!is.matrix(x)){
-    x <- as.matrix(x)
-  }
-
-  x[abs(x) < tol] <- 0
-
-  ## this now checks if it is a diagonal matrix
-  if( all(x[lower.tri(x)] == 0, x[upper.tri(x)] == 0) ){
-    if( all(diag(x)==1) ){
-      return(TRUE)
-    }else{
-      return(FALSE)
-    }
-  }else{
-    return(FALSE)
-  }
-
-}
+# is_identity_matrix <- function(x,tol=.Machine$double.eps){
+#
+#   if( length(dim(x)) != 2 ){
+#     stop("is_identity_matrix: x is not a matrix.")
+#   }
+#   if( !is.numeric(x) ){
+#     stop("is_identity_matrix: x is not numeric.")
+#   }
+#   if( dim(x)[1] != dim(x)[2] ){
+#     stop("is_identity_matrix: x is not a square matrix.")
+#   }
+#   if(!is.matrix(x)){
+#     x <- as.matrix(x)
+#   }
+#
+#   x[abs(x) < tol] <- 0
+#
+#   ## this now checks if it is a diagonal matrix
+#   if( all(x[lower.tri(x)] == 0, x[upper.tri(x)] == 0) ){
+#     if( all(diag(x)==1) ){
+#       return(TRUE)
+#     }else{
+#       return(FALSE)
+#     }
+#   }else{
+#     return(FALSE)
+#   }
+#
+# }
 
 
 #' @export

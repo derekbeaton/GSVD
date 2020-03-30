@@ -2,7 +2,7 @@
 #'
 #' @description The generalized singular value decomposition (GSVD) generalizes the standard SVD (see \code{\link{svd}}) procedure through addition of (optional) constraints applied to the rows and/or columns of a matrix.
 #' @details FILL THIS IN.
-#' @seealso \code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance_svd}}
+#' @seealso \code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{gplssvd}}
 #'
 #' @references
 #'   Abdi, H. (2007). Singular Value Decomposition (SVD) and Generalized Singular Value Decomposition (GSVD). In N.J. Salkind (Ed.): \emph{Encyclopedia of Measurement and Statistics}.Thousand Oaks (CA): Sage. pp. 907-912.\cr
@@ -171,10 +171,10 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
   if(!LW_is_missing){
     if( !LW_is_vector){
 
-      if( is_identity_matrix(LW) ){
-        LW_is_missing <- T
-        LW <- substitute() # neat! this makes it go missing
-      }
+      # if( is_identity_matrix(LW) ){
+      #   LW_is_missing <- T
+      #   LW <- substitute() # neat! this makes it go missing
+      # }
 
       if( is_diagonal_matrix(LW) ){
         LW <- diag(LW)
@@ -191,10 +191,11 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
   # convenience checks & conversions; these are meant to minimize RW's memory footprint
   if(!RW_is_missing){
     if( !RW_is_vector ){
-      if( is_identity_matrix(RW) ){
-        RW_is_missing <- T
-        RW <- substitute() # neat! this makes it go missing
-      }
+
+      # if( is_identity_matrix(RW) ){
+      #   RW_is_missing <- T
+      #   RW <- substitute() # neat! this makes it go missing
+      # }
 
       if( !RW_is_vector & is_diagonal_matrix(RW) ){
         RW <- diag(RW)

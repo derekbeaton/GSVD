@@ -26,7 +26,7 @@ Abdi, H. (2007). Singular Value Decomposition (SVD) and Generalized Singular Val
   Yanai, H., Takeuchi, K., & Takane, Y. (2011). Projection Matrices, Generalized Inverse Matrices, and Singular Value Decomposition. \emph{Springer-Verlag, New-York.}\cr
 }
 \seealso{
-\code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{tolerance_svd}}
+\code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{gplssvd}}
 }
 \author{
 \strong{Maintainer}: Derek Beaton \email{exposition.software@gmail.com}

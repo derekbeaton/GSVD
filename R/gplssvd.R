@@ -220,12 +220,15 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   # convenience checks & conversions; these are meant to minimize XLW's memory footprint
   if(!XLW_is_missing){
 
-    ## this is a matrix call
+    ## this is a matrix call; THIS MAKES IT GO MISSING AND NEXT CHECKS FAIL.
+      ### technically, the following two checks actually handle this.
+      ### it is a diagonal, and then it's a vector that's all 1s
     if( !XLW_is_vector ){
-      if(is_identity_matrix(XLW) ){
-        XLW_is_missing <- T
-        XLW <- substitute() # neat! this makes it go missing
-      }
+
+      # if(is_identity_matrix(XLW) ){
+      #   XLW_is_missing <- T
+      #   XLW <- substitute() # neat! this makes it go missing
+      # }
 
       ## this is a matrix call
       if( is_diagonal_matrix(XLW) ){
@@ -245,10 +248,10 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   if(!XRW_is_missing){
     if( !XRW_is_vector ){
 
-      if( is_identity_matrix(XRW) ){
-        XRW_is_missing <- T
-        XRW <- substitute() # neat! this makes it go missing
-      }
+      # if( is_identity_matrix(XRW) ){
+      #   XRW_is_missing <- T
+      #   XRW <- substitute() # neat! this makes it go missing
+      # }
 
       if( is_diagonal_matrix(XRW) ){
         XRW <- diag(XRW)
@@ -266,10 +269,10 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   if(!YLW_is_missing){
     if( !YLW_is_vector ){
 
-      if( is_identity_matrix(YLW) ){
-        YLW_is_missing <- T
-        YLW <- substitute() # neat! this makes it go missing
-      }
+      # if( is_identity_matrix(YLW) ){
+      #   YLW_is_missing <- T
+      #   YLW <- substitute() # neat! this makes it go missing
+      # }
 
       if( is_diagonal_matrix(YLW) ){
         YLW <- diag(YLW)
@@ -288,10 +291,10 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   if(!YRW_is_missing){
     if( !YRW_is_vector ){
 
-      if( is_identity_matrix(YRW) ){
-        YRW_is_missing <- T
-        YRW <- substitute() # neat! this makes it go missing
-      }
+      # if( is_identity_matrix(YRW) ){
+      #   YRW_is_missing <- T
+      #   YRW <- substitute() # neat! this makes it go missing
+      # }
 
       if( is_diagonal_matrix(YRW) ){
         YRW <- diag(YRW)

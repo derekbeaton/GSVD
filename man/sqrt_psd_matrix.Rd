@@ -2,19 +2,27 @@
 % Please edit documentation in R/utils.R
 \name{sqrt_psd_matrix}
 \alias{sqrt_psd_matrix}
-\title{\code{sqrt_psd_matrix}: square root of a positive semi-definite matrix}
+\title{\code{is_identity_matrix}: test if a matrix is an identity matrix.}
 \usage{
 sqrt_psd_matrix(x, tol = sqrt(.Machine$double.eps))
 }
 \arguments{
+\item{x}{A matrix to test.}
+
+\item{tol}{Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.}
+
 \item{x}{A square matrix (presumably positive semi-definite)}
 
 \item{tol}{Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.}
 }
 \value{
+A boolean. TRUE if the matrix is an identity matrix, FALSE if the matrix is not.
+
 A matrix. The square root of the \code{x} matrix
 }
 \description{
+\code{is_identity_matrix} takes a matrix and tests if it is an identity matrix.
+
 \code{sqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
 }
 \seealso{
