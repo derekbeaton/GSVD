@@ -55,40 +55,33 @@ devtools::install_github("derekbeaton/GSVD")
 
 ### Core
 
-  - `gsvd()` is the generalized SVD function. It passes through to
-    `tolerance.svd()` and makes use of `matrix.exponent()` with `%^%`.
+  - `tolerance_eigen()` is an alternative to the eigenvalue
+    decomposition function to only return vectors and values *above*
+    some precision threshold (e.g., `.Machine$double.eps`)
 
-  - `tolerance.svd()` is an alternative to the SVD function to only
+  - `tolerance_svd()` is an alternative to the SVD function to only
     return vectors and values *above* some precision threshold (e.g.,
     `.Machine$double.eps`)
 
   - `geigen()` is the generalized eigen function. It passes through to
-    `tolerance.eigen()` and makes use of `matrix.exponent()` with `%^%`.
+    `tolerance_eigen()`.
 
-  - `tolerance.eigen()` is an alternative to the eigenvalue
-    decomposition function to only return vectors and values *above*
-    some precision threshold (e.g., `.Machine$double.eps`)
+  - `gsvd()` is the generalized SVD function. It passes through to
+    `tolerance_svd()`.
 
   - `gplssvd()` is the generalized partial least squares-singular value
-    decomposition function. It passes through to `tolerance.svd()` and
-    makes use of `matrix.exponent()` with `%^%`.
+    decomposition function. It passes through to `tolerance_svd()`.
 
 ### Bells-and-whistles
 
-  - `matrix.exponent()` is matrix exponentiation through the SVD (i.e.,
-    raise the singular values to a power and then rebuild the matrix).
+  - `sqrt_psd_matrix()` computes the square root of a square positive
+    semi-definite (psd) matrix.
 
-  - `%^%` is the same as `matrix.exponent()` but much more convenient
-    and follows usual matrix operations in `R` (e.g., `%*%`)
+  - `invsqrt_psd_matrix` computes the inverse of the square root of a
+    square positive semi-definite (psd) matrix
 
-  - `matrix.generalized.inverse()` is a specific implementation of
-    `matrix.exponent()` that strictly performs the generalized inverse
-    (i.e., singular values raised to -1).
-
-  - `matrix.low.rank.rebuild()` is a heavy-duty function to rebuild
-    lower rank versions of matrices with the SVD. It currently allows
-    for a set of continuous components, arbitrary components, or to
-    rebuild by percent of explained variance.
+  - A small set of functions to check for specific types of square
+    matrices. See `utils.R`.
 
 ## Usage
 
@@ -115,9 +108,11 @@ library(GSVD)
  cor.pca.res2 <- gsvd(cov.pca.data,RW=1/apply(wine.objective,2,var))
 
 # an example of multidimensional scaling
-  squared.wine.attributes.distances <- as.matrix(dist(t(scale(wine.objective))))^2
-  double.centered.wine <- (.Call(stats:::C_DoubleCentre,squared.wine.attributes.distances)/2)*-1
-  mds.res <- geigen(double.centered.wine)
+  D <- as.matrix(dist(wine$objective))^2
+  masses <- rep(1/nrow(D), nrow(D))
+  Xi <- matrix(-masses, length(masses), length(masses))
+  diag(Xi) <- (1-masses)
+  mds.res_geigen <- geigen((-D / (nrow(D) * 2)), Xi)
 
  
 # an example of correspondence analysis.
@@ -154,27 +149,30 @@ library(GSVD)
   X <- scale(wine$objective)
   Y <- scale(wine$subjective)
   
-  ## an example of partial least squares (correlation)
+  ## an example of partial least squares-svd (aka PLS correlation)
   pls.res <- gplssvd(X, Y)
   
   pls.res$d
   diag( t(pls.res$lx) %*% pls.res$ly )
   
-  ## an example of canonical correlation analysis
-  cca.res <- gplssvd( X = X %^% (-1), Y = Y %^% (-1), XRW=crossprod(X), YRW=crossprod(Y))
-    ## to note: cca.res$p and cca.res$q are the "canonical vectors" (see ?cancor and $xcoef and $ycoef)
+  ## Canonical correlation analysis (CCA)
+  ### NOTE:
+  #### This is not "traditional" CCA because of the generalized inverse.
+  #### However the results are the same as standard CCA when data are not rank deficient.
+  #### and this particular version uses tricks to minimize memory & computation
+  cca.res <- gplssvd(
+    X = MASS::ginv(t(X)),
+    Y = MASS::ginv(t(Y)),
+    XRW=crossprod(X),
+    YRW=crossprod(Y),
+    scale_X = F,
+    scale_Y = F
+  )
   cca.res$d
-  diag( t(cca.res$lx) %*% cca.res$ly )
-  
-  ## an alternate example of canonical correlation analysis
-  cca.res_alt <- gplssvd(  X = X, Y = Y, XRW=crossprod(X %^% (-1)), YRW=crossprod(Y %^% (-1)))
-    ## to note: cca.res_alt$fi %*% diag(1/cca.res_alt$d) and cca.res_alt$fj %*% diag(1/cca.res_alt$d) are the "canonical vectors" (see ?cancor and $xcoef and $ycoef)
-  cca.res_alt$d
-  diag( t(cca.res_alt$lx) %*% cca.res_alt$ly )
-  
+  diag( t(cca.res$lx) %*% cca.res$ly )  
   
   ## an example of reduced rank regression/redundancy analysis
-  rrr.res <- gplssvd(X, Y, XRW=crossprod(X %^% (-1))) 
+  rrr.res <- gplssvd(X, Y, XRW=MASS::ginv(crossprod(X)))
     ## to note: rrr.res$fi is "beta" and rrr.res$v is alpha (see rrr.nonmiss: http://ftp.uni-bayreuth.de/math/statlib/S/rrr.s)
   rrr.res$d
   diag( t(rrr.res$lx) %*% rrr.res$ly )
@@ -201,7 +199,6 @@ library(GSVD)
                        XRW = 1/cx, YRW = 1/cy)
   plsca.res$d
   diag(t(plsca.res$lx) %*% plsca.res$ly)
-  
  
 ```
 
