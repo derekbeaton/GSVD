@@ -57,6 +57,4 @@ cor_pca.res_geigen <- geigen(cor_X)
 \author{
 Derek Beaton
 }
-\keyword{diagonalization,}
-\keyword{eigen}
-\keyword{multivariate,}
+\keyword{multivariate}

@@ -45,6 +45,4 @@ A list with three elements (like \code{svd}):
 \author{
 Derek Beaton
 }
-\keyword{diagonalization,}
-\keyword{eigen}
-\keyword{multivariate,}
+\keyword{multivariate}

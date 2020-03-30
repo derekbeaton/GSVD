@@ -40,6 +40,4 @@ A list with two elements (like \code{eigen}):
 \author{
 Derek Beaton
 }
-\keyword{diagonalization,}
-\keyword{eigen}
-\keyword{multivariate,}
+\keyword{multivariate}

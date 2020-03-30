@@ -1,7 +1,9 @@
 #' GSVD
 #'
 #' @description The generalized singular value decomposition (GSVD) generalizes the standard SVD (see \code{\link{svd}}) procedure through addition of (optional) constraints applied to the rows and/or columns of a matrix.
-#' @details FILL THIS IN.
+#' @details A package specifically designed for the generalized eigen decomposition, generalized singular value decomposition, and generalized partial least squares-singular value decomposition.
+#' Each decomposition allows for the use of weights (or constraints) applied to the columns and/or rows of each data matrix.
+#' This package provides these decompositions as the core for a very large list of standard statistical---and typically multivariate---approaches, including but not limited to principal components analysis, metric multidimensional scaling, standard and multiple correspondence analysis, partial least squares, canonical correlation analysis, and multivariate linear regression/reduced rank regression/redundancy analysis.
 #' @seealso \code{\link{gsvd}}, \code{\link{geigen}}, \code{\link{gplssvd}}
 #'
 #' @references
@@ -18,7 +20,7 @@
 #'   Nguyen, L. H., & Holmes, S. (2019). Ten quick tips for effective dimensionality reduction. PLOS Computational Biology, 15(6), e1006907. https://doi.org/10.1371/journal.pcbi.1006907 \cr
 #'   Yanai, H., Takeuchi, K., & Takane, Y. (2011). Projection Matrices, Generalized Inverse Matrices, and Singular Value Decomposition. \emph{Springer-Verlag, New-York.}\cr
 #'
-#' @keywords multivariate svd generalized matrix decomposition variance component orthogonal
+#' @keywords internal
 #'
 "_PACKAGE"
 
@@ -80,7 +82,9 @@
 #'
 #'  ## Multiple correspondence analysis
 #'  data("snps.druguse", package="GSVD")
-#'  X <- model.matrix(~ ., data=snps.druguse$DATA1, contrasts.arg = lapply(snps.druguse$DATA1, contrasts, contrasts=FALSE))[,-1]
+#'  X <- model.matrix(~ .,
+#'      data=snps.druguse$DATA1,
+#'      contrasts.arg = lapply(snps.druguse$DATA1, contrasts, contrasts=FALSE))[,-1]
 #'  Observed <- X/sum(X)
 #'  row.w <- rowSums(Observed)
 #'  col.w <- colSums(Observed)
@@ -89,7 +93,7 @@
 #'  ca.res <- gsvd(Deviations,1/row.w,1/col.w)
 #'
 #' @author Derek Beaton
-#' @keywords multivariate, diagonalization, eigen
+#' @keywords multivariate
 
 
 gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){

@@ -84,9 +84,4 @@ A list with thirteen elements:
 \author{
 Derek Beaton
 }
-\keyword{diagonalization,}
-\keyword{eigen,}
-\keyword{least}
-\keyword{multivariate,}
-\keyword{partial}
-\keyword{squares}
+\keyword{multivariate}

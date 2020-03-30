@@ -64,7 +64,9 @@ A list with eleven elements:
 
  ## Multiple correspondence analysis
  data("snps.druguse", package="GSVD")
- X <- model.matrix(~ ., data=snps.druguse$DATA1, contrasts.arg = lapply(snps.druguse$DATA1, contrasts, contrasts=FALSE))[,-1]
+ X <- model.matrix(~ .,
+     data=snps.druguse$DATA1,
+     contrasts.arg = lapply(snps.druguse$DATA1, contrasts, contrasts=FALSE))[,-1]
  Observed <- X/sum(X)
  row.w <- rowSums(Observed)
  col.w <- colSums(Observed)
@@ -79,6 +81,4 @@ A list with eleven elements:
 \author{
 Derek Beaton
 }
-\keyword{diagonalization,}
-\keyword{eigen}
-\keyword{multivariate,}
+\keyword{multivariate}

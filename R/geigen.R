@@ -43,7 +43,7 @@
 #' cor_pca.res_geigen <- geigen(cor_X)
 #'
 #' @author Derek Beaton
-#' @keywords multivariate, diagonalization, eigen
+#' @keywords multivariate
 
 geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 

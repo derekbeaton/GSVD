@@ -9,7 +9,9 @@
 The generalized singular value decomposition (GSVD) generalizes the standard SVD (see \code{\link{svd}}) procedure through addition of (optional) constraints applied to the rows and/or columns of a matrix.
 }
 \details{
-FILL THIS IN.
+A package specifically designed for the generalized eigen decomposition, generalized singular value decomposition, and generalized partial least squares-singular value decomposition.
+Each decomposition allows for the use of weights (or constraints) applied to the columns and/or rows of each data matrix.
+This package provides these decompositions as the core for a very large list of standard statistical---and typically multivariate---approaches, including but not limited to principal components analysis, metric multidimensional scaling, standard and multiple correspondence analysis, partial least squares, canonical correlation analysis, and multivariate linear regression/reduced rank regression/redundancy analysis.
 }
 \references{
 Abdi, H. (2007). Singular Value Decomposition (SVD) and Generalized Singular Value Decomposition (GSVD). In N.J. Salkind (Ed.): \emph{Encyclopedia of Measurement and Statistics}.Thousand Oaks (CA): Sage. pp. 907-912.\cr
@@ -32,11 +34,4 @@ Abdi, H. (2007). Singular Value Decomposition (SVD) and Generalized Singular Val
 \strong{Maintainer}: Derek Beaton \email{exposition.software@gmail.com}
 
 }
-\keyword{component}
-\keyword{decomposition}
-\keyword{generalized}
-\keyword{matrix}
-\keyword{multivariate}
-\keyword{orthogonal}
-\keyword{svd}
-\keyword{variance}
+\keyword{internal}

@@ -27,7 +27,7 @@
 #'  s_000001 <- tolerance_eigen(cor_X, tol=.000001)
 #'
 #' @author Derek Beaton
-#' @keywords multivariate, diagonalization, eigen
+#' @keywords multivariate
 
 tolerance_eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
 

@@ -67,7 +67,7 @@
 #'  )
 #'
 #' @author Derek Beaton
-#' @keywords multivariate, diagonalization, eigen, partial least squares
+#' @keywords multivariate
 
 gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
 

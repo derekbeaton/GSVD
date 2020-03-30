@@ -30,7 +30,7 @@
 #'  s_000001 <- tolerance_svd(X, tol=.000001)
 #'
 #' @author Derek Beaton
-#' @keywords multivariate, diagonalization, eigen
+#' @keywords multivariate
 
 tolerance_svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$double.eps) {
 
