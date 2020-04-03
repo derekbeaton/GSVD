@@ -311,7 +311,7 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
   rownames(res$fi) <- rownames(res$u) <- rownames(res$p) <- rownames(X)
   rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(X)
 
-  class(res) <- c("list", "GSVD", "gsvd")
+  class(res) <- c("gsvd", "GSVD", "list")
   return(res)
 
 }

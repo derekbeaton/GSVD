@@ -1,7 +1,7 @@
 Package: GSVD
 Type: Package
 Title: The generalized singular value decomposition
-Version: 0.7.0.9000
+Version: 0.8.0
 Authors@R: c(person("Derek","Beaton",role=c("aut","cre"),email="exposition.software@gmail.com"))
 Author: Derek Beaton [aut, cre]
 Maintainer: Derek Beaton <exposition.software@gmail.com>

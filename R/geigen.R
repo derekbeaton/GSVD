@@ -179,7 +179,7 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
   rownames(res$fj) <- rownames(res$v) <- rownames(res$q) <- colnames(X)
 
-  class(res) <- c("list", "GSVD", "geigen")
+  class(res) <- c("geigen", "GSVD", "list")
   return(res)
 
 }

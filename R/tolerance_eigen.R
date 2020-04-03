@@ -70,6 +70,7 @@ tolerance_eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
 
   }
 
-  class(eigen_res) <- c("list", "GSVD", "eigen")
+  # class(eigen_res) <- c("eigen", "GSVD", "list")
+  # return(eigen_res)
   return(eigen_res)
 }

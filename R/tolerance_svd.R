@@ -94,6 +94,7 @@ tolerance_svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$doub
   svd_res$v <- t(t(svd_res$v) * vector_signs)
   svd_res$u <- t(t(svd_res$u) * vector_signs)
 
-  class(svd_res) <- c("list", "GSVD", "svd")
+  # class(svd_res) <- c("svd", "GSVD", "list")
+  # return(svd_res)
   return(svd_res)
 }

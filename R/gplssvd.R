@@ -439,7 +439,7 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
   rownames(res$lx) <- rownames(X)
   rownames(res$ly) <- rownames(Y)
 
-  class(res) <- c("list", "GSVD", "gplssvd")
+  class(res) <- c("gplssvd", "GSVD", "list")
   return(res)
 
 }
