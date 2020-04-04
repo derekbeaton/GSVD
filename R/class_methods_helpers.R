@@ -1,38 +1,68 @@
-## class methods and helpers
-
-## need print and summary
-  ### for now, I don't want any as.*() because I don't want others defining GSVD objects.
-
-
-
-
-## is.*() methods
-
+#' is_GSVD
+#'
+#' Tests if the \code{x} object is of class type "GSVD"
+#' @details The three primary functions in the \code{GSVD} package produce an inherited (hierarchical) class structure where all of them are of type "GSVD". Those functions are \code{\link{geigen}}, \code{\link{gsvd}}, and \code{\link{gplssvd}}.
+#'
+#' @param x object to test
+#' @return boolean. \code{TRUE} if the object is of class GSVD, FALSE otherwise.
+#'
+#' @seealso \code{\link{inherits}}
+#'
 #' @export
-is.GSVD <- function(x){
+is_GSVD <- function(x){
   inherits(x, "GSVD")
 }
+
+#' is_GSVD_geigen
+#'
+#' Tests if the \code{x} object is of class type "geigen"
+#' @details Only \code{\link{geigen}} produces this class type.
+#'
+#' @param x object to test
+#' @return boolean. \code{TRUE} if the object is of class geigen, FALSE otherwise.
+#'
+#' @seealso \code{\link{inherits}}
+#'
 #' @export
-is.geigen <- function(x){
+is_GSVD_geigen <- function(x){
   inherits(x, "geigen")
 }
+
+#' is_GSVD_gsvd
+#'
+#' Tests if the \code{x} object is of class type "gsvd"
+#' @details Only \code{\link{gsvd}} produces this class type.
+#'
+#' @param x object to test
+#' @return boolean. \code{TRUE} if the object is of class gsvd, FALSE otherwise.
+#'
+#' @seealso \code{\link{inherits}}
+#'
 #' @export
-is.gsvd <- function(x){
+is_GSVD_gsvd <- function(x){
   inherits(x, "gsvd")
 }
+
+#' is_GSVD_gplssvd
+#'
+#' Tests if the \code{x} object is of class type "gplssvd"
+#' @details Only \code{\link{gplssvd}} produces this class type.
+#'
+#' @param x object to test
+#' @return boolean. \code{TRUE} if the object is of class gplssvd, FALSE otherwise.
+#'
+#' @seealso \code{\link{inherits}}
+#'
 #' @export
-is.gplssvd <- function(x){
+is_GSVD_gplssvd <- function(x){
   inherits(x, "gplssvd")
 }
 
 
-## GSVD package methods
-## with "GSVD" I know that there will always be D, L, TAU; I should not worry about V, Q, and FJ for here.
-
 #' @export
-print.GSVD <- function(x){
+print.GSVD <- function(x, ...){
 
-  if(!is.GSVD(x)){
+  if(!is_GSVD(x)){
     stop("print.GSVD: Not a recognized class")
   }
 
@@ -61,9 +91,10 @@ print.GSVD <- function(x){
 }
 
 #' @export
-summary.GSVD <- function(x){
-
-  if(!is.GSVD(x)){
+summary.GSVD <- function(object, ...){
+  ## this inheritance is super dumb
+  x <- object
+  if(!is_GSVD(x)){
     stop("summary.GSVD: Not a recognized class")
   }
 
@@ -83,9 +114,9 @@ summary.GSVD <- function(x){
 
 
 #' @export
-print.geigen <- function(x){
+print.geigen <- function(x, ...){
 
-  if(!is.geigen(x)){
+  if(!is_GSVD_geigen(x)){
     stop("print.geigen: Not a recognized class")
   }
 
@@ -117,9 +148,10 @@ print.geigen <- function(x){
 }
 
 #' @export
-summary.geigen <- function(x){
-
-  if(!is.geigen(x)){
+summary.geigen <- function(object, ...){
+  ## this inheritance is super dumb
+  x <- object
+  if(!is_GSVD_geigen(x)){
     stop("summary.geigen: Not a recognized class")
   }
 
@@ -138,10 +170,10 @@ summary.geigen <- function(x){
 
 
 #' @export
-print.gsvd <- function(x){
+print.gsvd <- function(x, ...){
 
 
-  if(!is.gsvd(x)){
+  if(!is_GSVD_gsvd(x)){
     stop("print.gsvd: Not a recognized class")
   }
 
@@ -177,9 +209,10 @@ print.gsvd <- function(x){
 }
 
 #' @export
-summary.gsvd <- function(x){
-
-  if(!is.gsvd(x)){
+summary.gsvd <- function(object, ...){
+  ## this inheritance is super dumb
+  x <- object
+  if(!is_GSVD_gsvd(x)){
     stop("summary.gsvd: Not a recognized class")
   }
 
@@ -197,9 +230,9 @@ summary.gsvd <- function(x){
 }
 
 #' @export
-print.gplssvd <- function(x){
+print.gplssvd <- function(x, ...){
 
-  if(!is.gplssvd(x)){
+  if(!is_GSVD_gplssvd(x)){
     stop("print.gplssvd: Not a recognized class")
   }
 
@@ -236,10 +269,11 @@ print.gplssvd <- function(x){
 }
 
 #' @export
-summary.gplssvd <- function(x){
+summary.gplssvd <- function(object, ...){
+  ## this inheritance is super dumb
+  x <- object
 
-
-  if(!is.gplssvd(x)){
+  if(!is_GSVD_gplssvd(x)){
     stop("summary.gplssvd: Not a recognized class")
   }
 

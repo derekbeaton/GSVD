@@ -200,3 +200,10 @@ invsqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
 "beer.tasting.notes"
 
 
+
+#' synthetic_ADNI
+#'
+#' A synthetic data set derived from the Alzheimer's Disease Neuroimaging Initiative (ADNI). Data were generated from a specific set of variables in the \code{ADNIMERGE} \code{R} package. Synthetic data were produced with the \code{synthpop} package with the "cart" method.
+#'
+#' @format A matrix that contains 623 observations (rows) and 17 variables (columns) of various data types (i.e., a mixture of continuous, categorical, and ordinal)
+"synthetic_ADNI"
