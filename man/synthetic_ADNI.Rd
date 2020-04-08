@@ -11,4 +11,7 @@ synthetic_ADNI
 \description{
 A synthetic data set derived from the Alzheimer's Disease Neuroimaging Initiative (ADNI). Data were generated from a specific set of variables in the \code{ADNIMERGE} \code{R} package. Synthetic data were produced with the \code{synthpop} package with the "cart" method.
 }
+\details{
+see http://adni.loni.usc.edu/ for more details on the ADNI data and the \code{ADNIMERGE} package
+}
 \keyword{datasets}

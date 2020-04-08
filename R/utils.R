@@ -77,12 +77,11 @@ is_empty_matrix <- function(x,tol=.Machine$double.eps){
 #' @description \code{sqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
 #'
 #' @param x A square matrix (presumably positive semi-definite)
-#' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
 #'
 #' @return A matrix. The square root of the \code{x} matrix
 #' @seealso \code{\link{tolerance_eigen}}
 
-sqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
+sqrt_psd_matrix <- function(x){
 
   ## checks: just that they are a matrix & square & numeric
   if( length(dim(x)) != 2 ){
@@ -99,7 +98,7 @@ sqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
   }
 
   ## tolerance_eigen
-  res <- tolerance_eigen(x, tol = tol)
+  res <- tolerance_eigen(x, tol = 1e-13)
 
   ## rebuild
   return(t(t(res$vectors) * sqrt(res$values) ) %*% t(res$vectors))
@@ -114,12 +113,11 @@ sqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
 #' @description \code{invsqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the inverse square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
 #'
 #' @param x A square matrix (presumably positive semi-definite)
-#' @param tol Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.
 #'
 #' @return A matrix. The inverse square root of the \code{x} matrix
 #' @seealso \code{\link{tolerance_eigen}}
 
-invsqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
+invsqrt_psd_matrix <- function(x){
 
   ## checks: just that they are a matrix & square & numeric
   if( length(dim(x)) != 2 ){
@@ -136,7 +134,7 @@ invsqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
   }
 
   ## tolerance_eigen
-  res <- tolerance_eigen(x, tol = tol)
+  res <- tolerance_eigen(x, tol = 1e-13)
 
   ## rebuild
   return(t(t(res$vectors) * (1/sqrt(res$values)) ) %*% t(res$vectors))
@@ -181,14 +179,19 @@ invsqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
 #'
 #' Tasting notes, preferences, breweries and styles of 38 different craft beers from various breweries, across various styles.
 #'
-#'@format A list called 'beer.tasting.notes' with four matrices:
-#' \describe{
+#'@format A list called 'beer.tasting.notes' with 10 matrices:
+#'\describe{
 #'  \item{data}{Data matrix. Tasting notes (ratings) of 38 different beers (rows) described by 16 different flavor profiles (columns).}
+#'  \item{sup.data}{Supplementary data matrix. ABV and overall preference ratings of 38 beers described by two features (ABV & overall) in original value and rounded value.}
 #'  \item{brewery.design}{Design matrix. Source brewery of 38 different beers (rows) across 26 breweries (columns).}
 #'  \item{style.design}{Design matrix. Style of 38 different beers (rows) across 20 styles (columns) (styles as listed from Beer Advocate website).}
-#'  \item{sup.data}{Supplementary data matrix. ABV and overall preference ratings of 38 beers described by two features (ABV & overall) in original value and rounded value.}
+#'  \item{superordinate.styles}{Supplementary data matrix. Style of 38 different beers (rows) across 8 "superordinate" styles.}
+#'  \item{city.design}{Supplementary data matrix. Style of 38 different beers (rows) across 18 cities of origin.}
+#'  \item{region.design}{Supplementary data matrix. Style of 38 different beers (rows) across 5 regions of origin.}
+#'  \item{inspired.style}{Supplementary data matrix. Style of 38 different beers (rows) across 6 styles that inspired these beers.}
+#'  \item{pale.sour.style}{Supplementary data matrix. Style of 38 different beers (rows) across 4 styles to capture if it is pale, sour, a saison, or "miscellaneous".}
+#'  \item{physical.distances}{Data matrix. Square symmetric distance matrix of 29 different beers (rows) from \code{data} that reflect the physical distance---as the Nazgul flies---between each beer (by brewery).}
 #' }
-#'
 #' @author Jenny Rieck and Derek Beaton
 #'
 #' @source
@@ -204,6 +207,8 @@ invsqrt_psd_matrix <- function(x, tol = sqrt(.Machine$double.eps)){
 #' synthetic_ADNI
 #'
 #' A synthetic data set derived from the Alzheimer's Disease Neuroimaging Initiative (ADNI). Data were generated from a specific set of variables in the \code{ADNIMERGE} \code{R} package. Synthetic data were produced with the \code{synthpop} package with the "cart" method.
+#'
+#' @details see http://adni.loni.usc.edu/ for more details on the ADNI data and the \code{ADNIMERGE} package
 #'
 #' @format A matrix that contains 623 observations (rows) and 17 variables (columns) of various data types (i.e., a mixture of continuous, categorical, and ordinal)
 "synthetic_ADNI"

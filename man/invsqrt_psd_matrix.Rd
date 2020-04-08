@@ -4,12 +4,10 @@
 \alias{invsqrt_psd_matrix}
 \title{\code{invsqrt_psd_matrix}: inverse square root of a positive semi-definite matrix}
 \usage{
-invsqrt_psd_matrix(x, tol = sqrt(.Machine$double.eps))
+invsqrt_psd_matrix(x)
 }
 \arguments{
 \item{x}{A square matrix (presumably positive semi-definite)}
-
-\item{tol}{Tolerance precision to eliminate all abs(x) values below \code{tol}. Default is \code{.Machine$double.eps}.}
 }
 \value{
 A matrix. The inverse square root of the \code{x} matrix
