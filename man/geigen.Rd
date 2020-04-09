@@ -21,7 +21,6 @@ geigen(X, W, k = 0, tol = sqrt(.Machine$double.eps), symmetric)
 A list with eight elements:
 \item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
 \item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
-\item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}.}
 \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
 \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
 \item{v}{Eigenvectors. Dimensions are \code{ncol(X)} by k.}

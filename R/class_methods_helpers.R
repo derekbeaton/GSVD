@@ -59,63 +59,63 @@ is_GSVD_gplssvd <- function(x){
 }
 
 
-#' @export
-print.GSVD <- function(x, ...){
 
-  if(!is_GSVD(x)){
-    stop("print.GSVD: Not a recognized class")
-  }
+### strongly considering dropping this print method or radically changing it.
+# #' @export
+# print.GSVD <- function(x, ...){
+#
+#   if(!is_GSVD(x)){
+#     stop("print.GSVD: Not a recognized class")
+#   }
+#
+#   cat("**GSVD package object of class type 'GSVD'.**\n\n")
+#   cat(sprintf("Number of total components = %d.\n", length(x$tau)))
+#   cat(sprintf("Number of retained components = %d.\n", length(x$d)))
+#
+#   cat("The 'GSVD' object contains:\n")
+#   gsvd_obj_mat <- cbind(
+#     rbind("$d.orig","Full set of singular values"),
+#     rbind("$l.orig","Full set of eigen values"),
+#     rbind("$d","Retained set of singular values (k)"),
+#     rbind("$l","Retained set of eigen values (k)")
+#   )
+#
+#   print( format(gsvd_obj_mat, justify = "right"), quote="FALSE")
+#   cat("**See specific print.*() method for more details on geigen(), gsvd(), and gplssvd() classes**\n")
+#
+# }
 
-  cat("**GSVD package object of class type 'GSVD'.**\n\n")
-  cat(sprintf("Number of total components = %d.\n", length(x$tau)))
-  cat(sprintf("Explained variance per component:\n", length(x$tau)))
-  print( round(x$tau, digits = 3) )
-  cat(sprintf("Number of retained components = %d.\n", length(x$d)))
-  cat(sprintf("Cumulative variance for retained components = %f.\n", round(sum(x$tau[1:length(x$d)]), digits = 3)) )
-  cat(sprintf("Explained variance per retained components:\n"))
-  print( round(x$tau[1:length(x$d)], digits = 3) )
 
-
-  cat("The 'GSVD' object contains:\n")
-  gsvd_obj_mat <- cbind(
-    rbind("$d.orig","Full set of singular values"),
-    rbind("$l.orig","Full set of eigen values"),
-    rbind("$tau","Percent explained variance per component for all components"),
-    rbind("$d","Retained set of singular values (k)"),
-    rbind("$l","Retained set of eigen values (k)")
-  )
-
-  print( format(gsvd_obj_mat, justify = "right"), quote="FALSE")
-  cat("**See specific print.*() method for more details on geigen(), gsvd(), and gplssvd() classes**\n")
-
-}
-
-#' @export
-summary.GSVD <- function(object, ...){
-  ## this inheritance is super dumb
-  x <- object
-  if(!is_GSVD(x)){
-    stop("summary.GSVD: Not a recognized class")
-  }
-
-  cat("**GSVD package object of class type 'GSVD'.**\n\n")
-  cat(sprintf("Number of total components = %d.\n", length(x$tau)))
-  cat(sprintf("Number of retained components = %d.\n\n", length(x$d)))
-
-  print_mat <- round(cbind(x$tau[1:length(x$d)], cumsum(x$tau[1:length(x$d)]),  x$l[1:length(x$d)], x$d[1:length(x$d)]), digits = 3)
-  print_mat <- format(print_mat, justify = "right")
-
-  colnames(print_mat) <- c("Explained variance","Cumulative explained variance","Eigenvalues", "Singular values")
-  rownames(print_mat) <- paste0("Component: ", 1:length(x$d))
-  print(print_mat, quote=FALSE)
-
-}
+### strongly considering dropping this print method or radically changing it.
+# #' @export
+# summary.GSVD <- function(object, ...){
+#   ## this inheritance is super dumb
+#   x <- object
+#   if(!is_GSVD(x)){
+#     stop("summary.GSVD: Not a recognized class")
+#   }
+#
+#   cat("**GSVD package object of class type 'GSVD'.**\n\n")
+#   cat(sprintf("Number of total components = %d.\n", length(x$tau)))
+#   cat(sprintf("Number of retained components = %d.\n\n", length(x$d)))
+#
+#   print_mat <- round(cbind(x$tau[1:length(x$d)], cumsum(x$tau[1:length(x$d)]),  x$l[1:length(x$d)], x$d[1:length(x$d)]), digits = 3)
+#   print_mat <- format(print_mat, justify = "right")
+#
+#   colnames(print_mat) <- c("Explained variance","Cumulative explained variance","Eigenvalues", "Singular values")
+#   rownames(print_mat) <- paste0("Component: ", 1:length(x$d))
+#   print(print_mat, quote=FALSE)
+#
+# }
 
 
 
 #' @export
 print.geigen <- function(x, ...){
 
+  if(!is_GSVD(x)){
+    stop("print.geigen: Not a GSVD object")
+  }
   if(!is_GSVD_geigen(x)){
     stop("print.geigen: Not a recognized class")
   }
@@ -151,6 +151,9 @@ print.geigen <- function(x, ...){
 summary.geigen <- function(object, ...){
   ## this inheritance is super dumb
   x <- object
+  if(!is_GSVD(x)){
+    stop("summary.geigen: Not a GSVD object")
+  }
   if(!is_GSVD_geigen(x)){
     stop("summary.geigen: Not a recognized class")
   }
@@ -172,7 +175,9 @@ summary.geigen <- function(object, ...){
 #' @export
 print.gsvd <- function(x, ...){
 
-
+  if(!is_GSVD(x)){
+    stop("print.gsvd: Not a GSVD object")
+  }
   if(!is_GSVD_gsvd(x)){
     stop("print.gsvd: Not a recognized class")
   }
@@ -212,6 +217,9 @@ print.gsvd <- function(x, ...){
 summary.gsvd <- function(object, ...){
   ## this inheritance is super dumb
   x <- object
+  if(!is_GSVD(x)){
+    stop("summary.gsvd: Not a GSVD object")
+  }
   if(!is_GSVD_gsvd(x)){
     stop("summary.gsvd: Not a recognized class")
   }
@@ -232,6 +240,9 @@ summary.gsvd <- function(object, ...){
 #' @export
 print.gplssvd <- function(x, ...){
 
+  if(!is_GSVD(x)){
+    stop("print.gplssvd: Not a GSVD object")
+  }
   if(!is_GSVD_gplssvd(x)){
     stop("print.gplssvd: Not a recognized class")
   }
@@ -272,7 +283,9 @@ print.gplssvd <- function(x, ...){
 summary.gplssvd <- function(object, ...){
   ## this inheritance is super dumb
   x <- object
-
+  if(!is_GSVD(x)){
+    stop("summary.gplssvd: Not a GSVD object")
+  }
   if(!is_GSVD_gplssvd(x)){
     stop("summary.gplssvd: Not a recognized class")
   }

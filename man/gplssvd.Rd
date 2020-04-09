@@ -27,7 +27,6 @@ gplssvd(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps)
 A list with thirteen elements:
 \item{d.orig}{A vector containing the singular values of DAT above the tolerance threshold (based on eigenvalues).}
 \item{l.orig}{A vector containing the eigen values of DAT above the tolerance threshold (\code{tol}).}
-\item{tau}{A vector that contains the (original) explained variance per component (via eigenvalues: \code{$l.orig}).}
 \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values}
 \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values}
 \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(DAT)} by k.}
