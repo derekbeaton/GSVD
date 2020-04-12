@@ -35,11 +35,11 @@ A list with eight elements:
 
 ## (Metric) Multidimensional Scaling
 data(wine, package="GSVD")
-D <- as.matrix(dist(wine$objective))^2
+D <- as.matrix(dist(wine$objective))
 masses <- rep(1/nrow(D), nrow(D))
-Xi <- matrix(-masses, length(masses), length(masses))
-diag(Xi) <- (1-masses)
-mds.res_geigen <- geigen((-D / (nrow(D) * 2)), Xi)
+Xi <- diag(nrow(D)) - ( rep(1,nrow(D)) \%o\% masses )
+S <- Xi \%*\% (-(D^2) / 2) \%*\% t(Xi)
+mds.res_geigen <- geigen(S)
 
 ## Principal components analysis: "covariance"
 cov_X <- as.matrix(cov(wine$objective))
