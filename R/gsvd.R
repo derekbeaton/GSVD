@@ -35,14 +35,14 @@
 #' @param X a data matrix to decompose
 #' @param LW \bold{L}eft \bold{W}eights -- the constraints applied to the left side (rows) of the matrix and thus left singular vectors.
 #' @param RW \bold{R}ight \bold{W}eights -- the constraints applied to the right side (columns) of the matrix and thus right singular vectors.
-#' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
+#' @param k total number of components to return though the full variance will still be returned (see \code{d_full}). If 0, the full set of components are returned.
 #' @param tol default is .Machine$double.eps. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.
 #'
 #' @return A list with eleven elements:
-#' \item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
-#' \item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
-#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
-#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
+#' \item{d_full}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
+#' \item{l_full}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
+#' \item{d}{A vector of length \code{min(length(d_full), k)} containing the retained singular values of X}
+#' \item{l}{A vector of length \code{min(length(l_full), k)} containing the retained eigen values of X}
 #' \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(X)} by k.}
 #' \item{p}{Left (rows) generalized singular vectors. Dimensions are \code{nrow(X)} by k.}
 #' \item{fi}{Left (rows) component scores. Dimensions are \code{nrow(X)} by k.}
@@ -247,11 +247,11 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
   }
 
   res <- tolerance_svd(X,nu=k,nv=k,tol=tol)
-  res$d.orig <- res$d
-  res$l.orig <- res$d.orig^2
-  # res$tau <- (res$l.orig/sum(res$l.orig)) * 100
-  components.to.return <- min(length(res$d.orig),k) #a safety check
-  res$d <- res$d.orig[1:components.to.return]
+  res$d_full <- res$d
+  res$l_full <- res$d_full^2
+  # res$tau <- (res$l_full/sum(res$l_full)) * 100
+  components.to.return <- min(length(res$d_full),k) #a safety check
+  res$d <- res$d_full[1:components.to.return]
   res$l <- res$d^2
   res$u <- res$u[,1:components.to.return, drop = FALSE]
   res$v <- res$v[,1:components.to.return, drop = FALSE]

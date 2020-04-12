@@ -74,8 +74,8 @@ is_GSVD_gplssvd <- function(x){
 #
 #   cat("The 'GSVD' object contains:\n")
 #   gsvd_obj_mat <- cbind(
-#     rbind("$d.orig","Full set of singular values"),
-#     rbind("$l.orig","Full set of eigen values"),
+#     rbind("$d_full","Full set of singular values"),
+#     rbind("$l_full","Full set of eigen values"),
 #     rbind("$d","Retained set of singular values (k)"),
 #     rbind("$l","Retained set of eigen values (k)")
 #   )
@@ -122,19 +122,13 @@ print.geigen <- function(x, ...){
 
   cat("**GSVD package object of class type 'geigen'.**\n\n")
   cat(sprintf("geigen() was performed on a marix with %d columns/rows\n", nrow(x$v)))
-  cat(sprintf("Number of total components = %d.\n", length(x$tau)))
-  cat(sprintf("Explained variance per component:\n", length(x$tau)))
-  print( round(x$tau, digits = 3) )
+  cat(sprintf("Number of total components = %d.\n", length(x$d_full)))
   cat(sprintf("Number of retained components = %d.\n", length(x$d)))
-  cat(sprintf("Cumulative variance for retained components = %f.\n", round(sum(x$tau[1:length(x$d)]), digits = 3)) )
-  cat(sprintf("Explained variance per retained components:\n"))
-  print( round(x$tau[1:length(x$d)], digits = 3) )
 
   cat("\nThe 'geigen' object contains:")
   geigen_obj_mat <- rbind(
-    cbind("$d.orig","Full set of singular values"),
-    cbind("$l.orig","Full set of eigen values"),
-    cbind("$tau","Percent explained variance per component for all components"),
+    cbind("$d_full","Full set of singular values"),
+    cbind("$l_full","Full set of eigen values"),
     cbind("$d","Retained set of singular values (k)"),
     cbind("$l","Retained set of eigen values (k)"),
     cbind("$v","Eigen/singular vectors"),
@@ -158,14 +152,14 @@ summary.geigen <- function(object, ...){
     stop("summary.geigen: Not a recognized class")
   }
 
-  cat("**GSVD package object of class type 'geigen'.**\n\n")
-  cat(sprintf("Number of total components = %d.\n", length(x$tau)))
+  cat("**GSVD package object of class type 'geigen'. Use 'print()' or 'print.geigen() for more information.**\n\n")
+  cat(sprintf("Number of total components = %d.\n", length(x$d_full)))
   cat(sprintf("Number of retained components = %d.\n\n", length(x$d)))
 
-  print_mat <- round(cbind(x$tau[1:length(x$d)], cumsum(x$tau[1:length(x$d)]),  x$l[1:length(x$d)], x$d[1:length(x$d)]), digits = 3)
+  print_mat <- round(cbind(x$l[1:length(x$d)], x$d[1:length(x$d)]), digits = 3)
   print_mat <- format(print_mat, justify = "right")
 
-  colnames(print_mat) <- c("Explained variance","Cumulative explained variance","Eigenvalues", "Singular values")
+  colnames(print_mat) <- c("Eigenvalues", "Singular values")
   rownames(print_mat) <- paste0("Component: ", 1:length(x$d))
   print(print_mat, quote=FALSE)
 
@@ -184,20 +178,14 @@ print.gsvd <- function(x, ...){
 
   cat("**GSVD package object of class type 'gsvd'.**\n\n")
   cat("gsvd() was performed on a matrix with", nrow(x$u),"rows and", nrow(x$v),"columns\n")
-  cat(sprintf("Number of components = %d.\n", length(x$tau)))
-  cat(sprintf("Explained variance per component:\n", length(x$tau)))
-  print( round(x$tau, digits = 3) )
+  cat(sprintf("Number of components = %d.\n", length(x$d_full)))
   cat(sprintf("Number of retained components = %d.\n", length(x$d)))
-  cat(sprintf("Cumulative variance for retained components = %f.\n", round(sum(x$tau[1:length(x$d)]), digits = 3)) )
-  cat(sprintf("Explained variance per retained components:\n"))
-  print( round(x$tau[1:length(x$d)], digits = 3) )
 
 
   cat("\nThe 'gsvd' object contains:")
   gsvd_obj_mat <- rbind(
-    cbind("$d.orig","Full set of singular values"),
-    cbind("$l.orig","Full set of eigen values"),
-    cbind("$tau","Percent explained variance per component for all components"),
+    cbind("$d_full","Full set of singular values"),
+    cbind("$l_full","Full set of eigen values"),
     cbind("$d","Retained set of singular values (k)"),
     cbind("$l","Retained set of eigen values (k)"),
     cbind("$u","Left singular vectors (for rows of DAT)"),
@@ -224,14 +212,14 @@ summary.gsvd <- function(object, ...){
     stop("summary.gsvd: Not a recognized class")
   }
 
-  cat("**GSVD package object of class type 'gsvd'.**\n\n")
-  cat(sprintf("Number of total components = %d.\n", length(x$tau)))
+  cat("**GSVD package object of class type 'gsvd'. Use 'print()' or 'print.gsvd() for more information.**\n\n")
+  cat(sprintf("Number of total components = %d.\n", length(x$d_full)))
   cat(sprintf("Number of retained components = %d.\n\n", length(x$d)))
 
-  print_mat <- round(cbind(x$tau[1:length(x$d)], cumsum(x$tau[1:length(x$d)]),  x$l[1:length(x$d)], x$d[1:length(x$d)]), digits = 3)
+  print_mat <- round(cbind(x$l[1:length(x$d)], x$d[1:length(x$d)]), digits = 3)
   print_mat <- format(print_mat, justify = "right")
 
-  colnames(print_mat) <- c("Explained variance","Cumulative explained variance","Eigenvalues", "Singular values")
+  colnames(print_mat) <- c("Eigenvalues", "Singular values")
   rownames(print_mat) <- paste0("Component: ", 1:length(x$d))
   print(print_mat, quote=FALSE)
 
@@ -249,19 +237,13 @@ print.gplssvd <- function(x, ...){
 
   cat("**GSVD package object of class type 'gplssvd'.**\n\n")
   cat("gplssvd() was performed on an X matrix with", nrow(x$lx),"rows and", nrow(x$u),"columns and a Y matrix with" , nrow(x$ly),"rows and", nrow(x$v),"columns\n")
-  cat(sprintf("Number of total components = %d.\n", length(x$tau)))
-  cat(sprintf("Explained variance per component:\n", length(x$tau)))
-  print( round(x$tau, digits = 3) )
+  cat(sprintf("Number of total components = %d.\n", length(x$d_full)))
   cat(sprintf("Number of retained components = %d.\n", length(x$d)))
-  cat(sprintf("Cumulative variance for retained components = %f.\n", round(sum(x$tau[1:length(x$d)]), digits = 3)) )
-  cat(sprintf("Explained variance per retained components:\n"))
-  print( round(x$tau[1:length(x$d)], digits = 3) )
 
   cat("\nThe 'gplssvd' object contains:")
   gplssvd_obj_mat <- rbind(
-    cbind("$d.orig","Full set of singular values"),
-    cbind("$l.orig","Full set of eigen values"),
-    cbind("$tau","Percent explained variance per component for all components"),
+    cbind("$d_full","Full set of singular values"),
+    cbind("$l_full","Full set of eigen values"),
     cbind("$d","Retained set of singular values (k)"),
     cbind("$l","Retained set of eigen values (k)"),
     cbind("$u","Left singular vectors (for columns of X)"),
@@ -281,6 +263,7 @@ print.gplssvd <- function(x, ...){
 
 #' @export
 summary.gplssvd <- function(object, ...){
+
   ## this inheritance is super dumb
   x <- object
   if(!is_GSVD(x)){
@@ -290,14 +273,14 @@ summary.gplssvd <- function(object, ...){
     stop("summary.gplssvd: Not a recognized class")
   }
 
-  cat("**GSVD package object of class type 'gplssvd'.**\n\n")
-  cat(sprintf("Number of total components = %d.\n", length(x$tau)))
+  cat("**GSVD package object of class type 'gplssvd'. Use 'print()' or 'print.gplssvd() for more information.**\n\n")
+  cat(sprintf("Number of total components = %d.\n", length(x$d_full)))
   cat(sprintf("Number of retained components = %d.\n\n", length(x$d)))
 
-  print_mat <- round(cbind(x$tau[1:length(x$d)], cumsum(x$tau[1:length(x$d)]),  x$l[1:length(x$d)], x$d[1:length(x$d)]), digits = 3)
+  print_mat <- round(cbind(x$l[1:length(x$d)], x$d[1:length(x$d)]), digits = 3)
   print_mat <- format(print_mat, justify = "right")
 
-  colnames(print_mat) <- c("Explained variance","Cumulative explained variance","Eigenvalues", "Singular values")
+  colnames(print_mat) <- c("Eigenvalues", "Singular values")
   rownames(print_mat) <- paste0("Component: ", 1:length(x$d))
   print(print_mat, quote=FALSE)
 

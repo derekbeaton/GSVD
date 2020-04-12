@@ -13,16 +13,16 @@ gsvd(X, LW, RW, k = 0, tol = .Machine$double.eps)
 
 \item{RW}{\bold{R}ight \bold{W}eights -- the constraints applied to the right side (columns) of the matrix and thus right singular vectors.}
 
-\item{k}{total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.}
+\item{k}{total number of components to return though the full variance will still be returned (see \code{d_full}). If 0, the full set of components are returned.}
 
 \item{tol}{default is .Machine$double.eps. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.}
 }
 \value{
 A list with eleven elements:
-\item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
-\item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
-\item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
-\item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
+\item{d_full}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
+\item{l_full}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
+\item{d}{A vector of length \code{min(length(d_full), k)} containing the retained singular values of X}
+\item{l}{A vector of length \code{min(length(l_full), k)} containing the retained eigen values of X}
 \item{u}{Left (rows) singular vectors. Dimensions are \code{nrow(X)} by k.}
 \item{p}{Left (rows) generalized singular vectors. Dimensions are \code{nrow(X)} by k.}
 \item{fi}{Left (rows) component scores. Dimensions are \code{nrow(X)} by k.}

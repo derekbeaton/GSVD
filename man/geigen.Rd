@@ -11,7 +11,7 @@ geigen(X, W, k = 0, tol = sqrt(.Machine$double.eps), symmetric)
 
 \item{W}{\bold{W}eights -- the constraints applied to the matrix and thus the eigen vectors.}
 
-\item{k}{total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.}
+\item{k}{total number of components to return though the full variance will still be returned (see \code{d_full}). If 0, the full set of components are returned.}
 
 \item{tol}{default is \code{sqrt(.Machine$double.eps)}. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.}
 
@@ -19,10 +19,10 @@ geigen(X, W, k = 0, tol = sqrt(.Machine$double.eps), symmetric)
 }
 \value{
 A list with eight elements:
-\item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
-\item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
-\item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
-\item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
+\item{d_full}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
+\item{l_full}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
+\item{d}{A vector of length \code{min(length(d_full), k)} containing the retained singular values of X}
+\item{l}{A vector of length \code{min(length(l_full), k)} containing the retained eigen values of X}
 \item{v}{Eigenvectors. Dimensions are \code{ncol(X)} by k.}
 \item{q}{Generalized eigenvectors. Dimensions are \code{ncol(X)} by k.}
 \item{fj}{Component scores. Dimensions are \code{ncol(X)} by k.}

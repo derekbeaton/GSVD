@@ -15,6 +15,9 @@ A matrix. The inverse square root of the \code{x} matrix
 \description{
 \code{invsqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the inverse square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
 }
+\details{
+Note that \code{invsqrt_psd_matrix} uses \code{tolerance_eigen(...,tol=1e-13)} with the tolerance fixed at 1e-13. This enforces an "acceptably zero" value for eigenvalues, and also stops the computation if any eigenvalues are not zero or positive (within the tolerance parameter). If the computation is halted, that means the matrix was not positive semi-definite.
+}
 \seealso{
 \code{\link{tolerance_eigen}}
 }

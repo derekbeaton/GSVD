@@ -8,15 +8,15 @@
 #'
 #' @param X a square, symmetric data matrix to decompose
 #' @param W \bold{W}eights -- the constraints applied to the matrix and thus the eigen vectors.
-#' @param k total number of components to return though the full variance will still be returned (see \code{d.orig}). If 0, the full set of components are returned.
+#' @param k total number of components to return though the full variance will still be returned (see \code{d_full}). If 0, the full set of components are returned.
 #' @param tol default is \code{sqrt(.Machine$double.eps)}. A tolerance level for eliminating effectively zero (small variance), negative, imaginary eigen/singular value components.
 #' @param symmetric if \code{X} is symmetric, set as TRUE. See \code{\link{eigen}}.
 #'
 #' @return A list with eight elements:
-#' \item{d.orig}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
-#' \item{l.orig}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
-#' \item{d}{A vector of length \code{min(length(d.orig), k)} containing the retained singular values of X}
-#' \item{l}{A vector of length \code{min(length(l.orig), k)} containing the retained eigen values of X}
+#' \item{d_full}{A vector containing the singular values of X above the tolerance threshold (based on eigenvalues).}
+#' \item{l_full}{A vector containing the eigen values of X above the tolerance threshold (\code{tol}).}
+#' \item{d}{A vector of length \code{min(length(d_full), k)} containing the retained singular values of X}
+#' \item{l}{A vector of length \code{min(length(l_full), k)} containing the retained eigen values of X}
 #' \item{v}{Eigenvectors. Dimensions are \code{ncol(X)} by k.}
 #' \item{q}{Generalized eigenvectors. Dimensions are \code{ncol(X)} by k.}
 #' \item{fj}{Component scores. Dimensions are \code{ncol(X)} by k.}
@@ -123,8 +123,10 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
       W <- as.matrix(W)
       # sqrt_W <- W %^% (1/2)
-      sqrt_W <- sqrt_psd_matrix(W)
-      X <- sqrt_W %*% X %*% sqrt_W
+      # sqrt_W <- sqrt_psd_matrix(W)
+
+      ## woopsies before. my assumption previously was that W is symmetric, but I doesn't have to be. it probably should be, but that's the user's problem.
+      X <- sqrt_psd_matrix(W) %*% X %*% sqrt_psd_matrix(t(W))
 
     }
   }
@@ -140,15 +142,15 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
 
   res <- tolerance_eigen(X, tol=tol, symmetric=symmetric)
 
-  res$l.orig <- res$values
+  res$l_full <- res$values
     res$values <- NULL
-  res$d.orig <- sqrt(res$l.orig)
-  # res$tau <- (res$l.orig/sum(res$l.orig)) * 100
+  res$d_full <- sqrt(res$l_full)
+  # res$tau <- (res$l_full/sum(res$l_full)) * 100
 
-  components_to_return <- min(length(res$d.orig),k)
+  components_to_return <- min(length(res$d_full),k)
 
-  res$d <- res$d.orig[1:components_to_return]
-  res$l <- res$l.orig[1:components_to_return]
+  res$d <- res$d_full[1:components_to_return]
+  res$l <- res$l_full[1:components_to_return]
   res$v <- res$vectors[,1:components_to_return, drop = FALSE]
     res$vectors <- NULL
 
