@@ -126,7 +126,14 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
       # sqrt_W <- sqrt_psd_matrix(W)
 
       ## woopsies before. my assumption previously was that W is symmetric, but I doesn't have to be. it probably should be, but that's the user's problem.
-      X <- sqrt_psd_matrix(W) %*% X %*% sqrt_psd_matrix(t(W))
+      if(isSymmetric(W)){
+          ## ok so now I also check. if it's symmetric we can just go straight for it
+        sqrt_W <- sqrt_psd_matrix(W)
+        X <- sqrt_W %*% X %*% sqrt_W
+      }else{
+        X <- sqrt_psd_matrix(W) %*% X %*% sqrt_psd_matrix(t(W))
+      }
+
 
     }
   }
