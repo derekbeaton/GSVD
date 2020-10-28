@@ -4,7 +4,9 @@
 \name{authors}
 \alias{authors}
 \title{Authors}
-\format{A matrix that contains the frequency of punctuation usage of 6 authors x 3 punctuations.}
+\format{
+A matrix that contains the frequency of punctuation usage of 6 authors x 3 punctuations.
+}
 \usage{
 authors
 }

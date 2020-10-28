@@ -4,12 +4,14 @@
 \name{wine}
 \alias{wine}
 \title{Objective and subjective wine data}
-\format{A list called 'wine' with three matrices:
+\format{
+A list called 'wine' with three matrices:
 \describe{
 \item{objective}{a 36 wine x 5 attribute matrix of objective variables for wines.}
 \item{subjective}{a 36 wine x 9 attribute matrix of subjective variables for wines.}
 \item{supplemental}{a 36 wine x 3 attribute matrix of supplemental information on the wines (country, color, grape).}
-}}
+}
+}
 \usage{
 wine
 }

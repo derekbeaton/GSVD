@@ -4,11 +4,13 @@
 \name{snps.druguse}
 \alias{snps.druguse}
 \title{SNPs and drug Use}
-\format{A list called 'snps.druguse' with two matrices:
+\format{
+A list called 'snps.druguse' with two matrices:
 \describe{
 \item{DATA1}{a 50 x 3 matrix of two-level categorical ("yes" or "no") variables.}
 \item{DATA2}{a 50 x 2 matrix of three-level categorical (genotypes) variables. Note: Some entries contains NAs.}
-}}
+}
+}
 \usage{
 snps.druguse
 }

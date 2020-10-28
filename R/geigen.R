@@ -85,8 +85,9 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(all(abs(W)<=tol)){
-        stop("geigen: W is empty (i.e., all 0s")
+      #if(all(abs(W)<=tol)){
+      if(!are_all_values_positive(W)){
+        stop("geigen: W is not strictly positive values.")
       }
     }
   }

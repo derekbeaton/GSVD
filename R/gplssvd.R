@@ -119,8 +119,9 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(all(abs(XLW)<=tol)){
-        stop("gplssvd: XLW is empty (i.e., all 0s")
+      # if(all(abs(XLW)<=tol)){
+      if(!are_all_values_positive(XLW)){
+        stop("gplssvd: XLW is not strictly positive values")
       }
     }
   }
@@ -149,8 +150,9 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(all(abs(XRW)<=tol)){
-        stop("gplssvd: XRW is empty (i.e., all 0s")
+      # if(all(abs(XRW)<=tol)){
+      if(!are_all_values_positive(XRW)){
+        stop("gplssvd: XRW is not strictly positive values")
       }
     }
   }
@@ -179,8 +181,9 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(all(abs(YLW)<=tol)){
-        stop("gplssvd: YLW is empty (i.e., all 0s")
+      # if(all(abs(YLW)<=tol)){
+      if(!are_all_values_positive(YLW)){
+        stop("gplssvd: YLW is not strictly positive values")
       }
     }
   }
@@ -209,8 +212,9 @@ gplssvd <- function(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(all(abs(YRW)<=tol)){
-        stop("gplssvd: YRW is empty (i.e., all 0s")
+      # if(all(abs(YRW)<=tol)){
+      if(!are_all_values_positive(YRW)){
+        stop("gplssvd: YRW is not strictly positive values")
       }
     }
   }

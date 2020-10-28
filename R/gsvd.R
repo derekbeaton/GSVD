@@ -132,8 +132,9 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(all(abs(LW)<=tol)){
-        stop("gsvd: LW is empty (i.e., all 0s")
+      # if(all(abs(LW)<=tol)){
+      if(!are_all_values_positive(LW)){
+        stop("gsvd: LW is not strictly positive values")
       }
     }
   }
@@ -162,8 +163,9 @@ gsvd <- function(X, LW, RW, k = 0, tol = .Machine$double.eps){
       }
 
       # if you gave me all zeros, I'm stopping.
-      if(all(abs(RW)<=tol)){
-        stop("gsvd: RW is empty (i.e., all 0s")
+      # if(all(abs(RW)<=tol)){
+      if(!are_all_values_positive(RW)){
+        stop("gsvd: RW is not strictly positive values")
       }
     }
   }

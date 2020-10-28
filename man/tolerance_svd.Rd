@@ -4,8 +4,7 @@
 \alias{tolerance_svd}
 \title{\code{tolerance_svd}: An SVD to truncate potentially spurious (near machine precision) components.}
 \usage{
-tolerance_svd(x, nu = min(dim(x)), nv = min(dim(x)),
-  tol = .Machine$double.eps)
+tolerance_svd(x, nu = min(dim(x)), nv = min(dim(x)), tol = .Machine$double.eps)
 }
 \arguments{
 \item{x}{A data matrix of size for input to the singular value decomposition (\code{\link{svd}})}

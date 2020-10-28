@@ -4,7 +4,9 @@
 \name{synthetic_ADNI}
 \alias{synthetic_ADNI}
 \title{synthetic_ADNI}
-\format{A matrix that contains 623 observations (rows) and 17 variables (columns) of various data types (i.e., a mixture of continuous, categorical, and ordinal)}
+\format{
+A matrix that contains 623 observations (rows) and 17 variables (columns) of various data types (i.e., a mixture of continuous, categorical, and ordinal)
+}
 \usage{
 synthetic_ADNI
 }

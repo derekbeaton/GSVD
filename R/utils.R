@@ -72,6 +72,26 @@ is_empty_matrix <- function(x,tol=.Machine$double.eps){
 
 #' @export
 #'
+#' @title \code{are_all_values_positive}: check for strictly positive values in object
+#'
+#' @description \code{are_all_values_positive} test presumably a vector, but any numeric object, for strictly positive values
+#'
+#' @param x A numeric object
+#'
+#' @return A boolean. TRUE if all values are positive, FALSE otherwise
+
+are_all_values_positive <- function(x){
+
+  !(any(is.null(x)) |
+  any(is.infinite(x)) |
+  any(is.na(x)) |
+  any(is.nan(x)) |
+  any(x < 0))
+
+}
+
+#' @export
+#'
 #' @title \code{sqrt_psd_matrix}: square root of a positive semi-definite matrix
 #'
 #' @description \code{sqrt_psd_matrix} takes a square, positive semi-definite matrix and returns the square root of that matrix (via the eigenvalue decomposition by way of \code{tolerance_eigen}).
@@ -216,3 +236,14 @@ invsqrt_psd_matrix <- function(x){
 #'
 #' @format A matrix that contains 623 observations (rows) and 17 variables (columns) of various data types (i.e., a mixture of continuous, categorical, and ordinal)
 "synthetic_ADNI"
+
+
+
+#' synthetic_ONDRI
+#'
+#' A synthetic data set derived from the Ontario Neurodegenerative Disease Research Initiative (ONDRI). Data were generated from a specific set of variables in the \code{ADNIMERGE} \code{R} package. Synthetic data were produced with the \code{synthpop} package with the "cart" method.
+#'
+#' @details see http://ondri.ca for more details on the study, and see https://github.com/ondri-nibs/toy_data for details on the synthetic data. To note, the \code{data.frame} available here is in a more "prepared" format than available as raw data files.
+#'
+#' @format A matrix that contains 138 observations (rows) and 17 variables (columns) of various data types (i.e., a mixture of continuous, categorical, and ordinal), including some identification variables (e.g., IDs)
+"synthetic_ONDRI"

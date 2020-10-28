@@ -4,7 +4,8 @@
 \name{beer.tasting.notes}
 \alias{beer.tasting.notes}
 \title{Personal beer tasting notes}
-\format{A list called 'beer.tasting.notes' with 10 matrices:
+\format{
+A list called 'beer.tasting.notes' with 10 matrices:
 \describe{
  \item{data}{Data matrix. Tasting notes (ratings) of 38 different beers (rows) described by 16 different flavor profiles (columns).}
  \item{sup.data}{Supplementary data matrix. ABV and overall preference ratings of 38 beers described by two features (ABV & overall) in original value and rounded value.}
@@ -16,7 +17,8 @@
  \item{inspired.style}{Supplementary data matrix. Style of 38 different beers (rows) across 6 styles that inspired these beers.}
  \item{pale.sour.style}{Supplementary data matrix. Style of 38 different beers (rows) across 4 styles to capture if it is pale, sour, a saison, or "miscellaneous".}
  \item{physical.distances}{Data matrix. Square symmetric distance matrix of 29 different beers (rows) from \code{data} that reflect the physical distance---as the Nazgul flies---between each beer (by brewery).}
-}}
+}
+}
 \source{
 Jenny Rieck and Derek Beaton laboriously ``collected'' these data for ``experimental purposes''.
 }
