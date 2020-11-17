@@ -1,0 +1,74 @@
+---
+title: "Decomposition functions"
+author: "Derek Beaton"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Decomposition functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(knitr)
+library(kableExtra)
+```
+
+
+# Package description: core functions and features
+
+The `GSVD` package has three primary "workhorse" functions: 
+
+* `geigen(X, W, k = 0, tol = sqrt(.Machine\$double.eps), symmetric)`, 
+
+* `gsvd(X, LW, RW, k = 0, tol = .Machine\$double.eps)`, and
+
+* `gplssvd(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine\$double.eps)`
+
+
+In `geigen()` or `gsvd()` each there is one data matrix `X`, whereas `gplssvd()` has two data matrices `X` and `Y`. In `geigen()` there is a single constraint matrix `W`. In `gsvd()` there are two constraint matrices, `LW` or "left weights" for the rows of `X` and `RW` or "right weights" for the columns of `X`. The "left" and "right" references are used because of the association between these weights and the left and right generalized singular vectors. In `gplssvd()` there are two constraint matrices per data matrix (so four total constraint matrices): `XLW` and `XRW` for `X`'s "left" and "right" weights, and `YLW` and `YRW` for `Y`'s "left" and "right" weights. The `geigen()` includes the argument `symmetric` to indicate if `X` is a symmetric matrix; when missing `X` is tested via `isSymmetric()`. The `symmetric` argument is eventually passed through to, and is the same as, `symmetric` in `base::eigen()`. All three functions include `k` which indicates how many components to return. Finally, all three functions include a tolerance argument `tol`, which is passed through to `tolerance_svd()` or `tolerance_eigen()`. These functions are the same as `base::svd()` and `base::eigen()`, respectively, with the added tolerance feature. In both cases, the `tol` argument is used to check for any eigenvalues or singular values below the tolerance threshold. Any eigen- or singular values below that threshold are discarded, as they are effectively zero. These values occur when data are collinear, which is common in high dimensional cases or in techniques such as Multiple Correspondence Analysis. However, the `tol` argument can be effectively turned off with the use of `NA`, `NULL`, `Inf`, `-Inf`, `NaN`, or any value $< 0$. In this case, both `tolerance_svd()` and `tolerance_eigen()` simply call `base::svd()` and `base::eigen()` with no changes. When using the `tol` argument, eigen- and singular values are also checked to ensure that they are real and positive values. If they are not, then `geigen()`, `gsvd()`, and `gplssvd()` stop. The motivation behind this behavior is because the `geigen()`, `gsvd()`, and `gplssvd()` functions are meant to perform routine multivariate analyses---such as MDS, PCA, CA, CCA, or PLS---that require data and/or constraint matrices assumed to be positive semi-definite.
+
+
+Data matrices are the minimally required objects for `geigen()`, `gsvd()`, and `gplssvd()`. All other arguments (input) either have suitable defaults or are allowed to be missing. For example, when any of the constraints ("weights") are missing, then the constraints are mathematically equivalent to identity matrices (i.e., ${\bf I}$) which contain $1$s on the diagonal with $0$s off-diagonal. Table \ref{tab:arguments} shows a mapping between our (more formal) notation above and our more intuitively named arguments for the functions. The rows of Table \ref{tab:arguments} are the three primary functions---`geigen()`, `gsvd()`, and `gplssvd()`---where the columns are the elements used in the formal notation (and also used in the tuple notation).
+
+
+```{r, echo = F}
+
+test_tab <- rbind(c("","$\\bf{X}$","$\\bf{Y}$","${\\bf{M}_{\\bf X}}$","${\\bf{W}_{\\bf X}}$","${\\bf{M}_{\\bf Y}}$","${\\bf{W}_{\\bf Y}}$","$C$"),
+c("`geigen()`","`X`","","","`W`","","","`k`"),
+c("`gsvd()`","`X`",""," `LW`","`RW`","","","`k`"),
+c("`gplssvd()`","`X`"," `Y`","`XRW`","`XLW`","`YRW`","`YLW`"," `k`"))
+
+kable(test_tab, escape = FALSE, booktabs = TRUE, caption = "\\label{tab:arguments}Mapping between arguments (input) to functions (rows) and notation for the analysis tuples (columns).")
+
+```
+
+Additionally, there are some "helper" and convenience functions used internally to the `geigen()`, `gsvd()`, and `gplssvd()` functions that are made available for use. These include `sqrt_psd_matrix()` and `invsqrt_psd_matrix()` which compute the square root (`sqrt`) and inverse square root (`invsqrt`) of positive semi-definite (`psd`) matrices (`matrix`), respectively. The `GSVD` package also includes helpful functions for testing matrices: `is_diagaonal_matrix()` and `is_empty_matrix()`. Both of these tests help minimize the memory and computational footprints for, or check validity of, the constraints matrices. 
+
+
+Finally, the three core functions in `GSVD`---`geigen()`, `gsvd()`, and `gplssvd()`---each have their own class objects but provide overlapping and identical outputs. The class object is hierarchical from a list, to a package, to the specific function: `c("geigen","GSVD","list")`, `c("gsvd","GSVD","list")`, and `c("gplssvd","GSVD","list")` for `geigen()`, `gsvd()`, and `gplssvd()` respectively. Table \ref{tab:values} list the possible outputs across `geigen()`, `gsvd()`, and `gplssvd()`. The first column of Table \ref{tab:values} explains the returned value, where the second column provides a mapping back to the notation used here. The last three columns indicate---with a $\checkmark$---which of the returned values are available from the `geigen`, `gsvd`, or `gplssvd` functions.
+
+
+```{r echo=FALSE}
+test_tab2 <- rbind(
+  c("","What it is","Notation","`geigen`","`gsvd`","`gplssvd`"),
+c("`d`","`k` singular values","${\\bf \\Delta}$","$\\checkmark$","$\\checkmark$", "$\\checkmark$"),
+c("`d_full`","all singular values","${\\bf \\Delta}$","$\\checkmark$","$\\checkmark$","$\\checkmark$"),
+c("`l`","`k` eigenvalues","${\\bf \\Lambda}$","$\\checkmark$", "$\\checkmark$","$\\checkmark$"),
+c("`l_full`","all eigenvalues", "${\\bf \\Lambda}$", "$\\checkmark$", "$\\checkmark$", "$\\checkmark$"),
+c("`u`", "`k` Left singular/eigen vectors", "${\\bf U}$", "",  "$\\checkmark$" , "$\\checkmark$"),
+c("`v`","`k` Right singular/eigen vectors", "${\\bf V}$", "$\\checkmark$", "$\\checkmark$","$\\checkmark$"),
+c("`p`", "`k` Left generalized singular/eigen vectors", "${\\bf P}$","","$\\checkmark$", "$\\checkmark$"),
+c("`q`", "`k` Right generalized singular/eigen vectors", "${\\bf Q}$", "$\\checkmark$", "$\\checkmark$", "$\\checkmark$"),
+c("`fi`","`k` Left component scores", "${\\bf F}_{I}$" ," ", "$\\checkmark$", "$\\checkmark$"),
+c("`fj`", "`k` Right component scores", "${\\bf F}_{J}$", "$\\checkmark$", "$\\checkmark$", "$\\checkmark$"),
+c("`lx`", "`k` Latent variable scores for `X`","${\\bf L}_{\\bf X}$", "","","$\\checkmark$"),
+c("`ly`", "`k` Latent variable scores for `Y`", "${\\bf L}_{\\bf Y}$","","","$\\checkmark$"))
+
+kable(test_tab2, escape = FALSE, caption = "\\label{tab:values}Mapping of values (output from functions; rows) to their conceptual meanings, notation used here, and which `GSVD` functions have these values.", booktabs = T)
+
+```

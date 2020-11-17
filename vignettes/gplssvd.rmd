@@ -1,0 +1,163 @@
+---
+title: "Examples with the GPLSSVD"
+author: "Derek Beaton"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Examples with the GPLSSVD}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(knitr)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r load_data, echo = F}
+library(GSVD)
+data("synthetic_ONDRI", package="GSVD")
+```
+
+
+The following are commonly used acronyms:
+
+
+* PLS: Partial least squares
+
+* RRR: Reduced rank regression (a.k.a. RDA)
+
+* RDA: Redundancy analysis (a.k.a. RRR)
+
+* CCA: Canonical correlation analysis
+
+* PLS-CA: Partial least squares-correspondence analysis
+
+
+The GPLSSVD requires at minimum two data matrices, and allows for the inclusion of positive semi-definite constraints matrices for the rows and columns of both data matrices. Here, I illustrate four methods that make use of the GPLSSVD. These four individual methods fall under more broad concepts. The first concept shows PLS, RRR/RDA, and CCA because they are all closely related techniques (hint: they try to do the same thing, but with different constraints). The second concept (and fourth example) is PLS-CA, which is a method to combine the features of PLS and CA, so that we can perform PLS for categorical (and heterogeneous) data. All of these methods are performed with the GPLSSVD through `gplssvd()`.
+
+
+
+
+## PLS, RRR, CCA
+
+In the PLS/RRR/CCA examples, we have two data matrices of generally continuous data. One matrix contains age, total gray matter volume (in percentage of total intracranial volume), and total white matter volume (in percentage of total intracranial volume). The other matrix contains the cognitive tasks seen in the PCA and MDS examples. Here, the respective GPLSSVD models for each method are:
+
+* PLS: $\mathrm{GPLSSVD(}{\bf I}_{N}, {\bf X},{\bf I}_{I},{\bf I}_{N},{\bf Y},{\bf I}_{J}\mathrm{)}$
+
+* RRR: $\mathrm{GPLSSVD(}{\bf I}_{N}, {\bf X}, ({\bf X}^{T}{\bf X})^{-1},{\bf I}_{N},{\bf Y},{\bf I}_{J}\mathrm{)}$
+
+* CCA: $\mathrm{GPLSSVD(}{\bf I}_{N}, {\bf X}, ({\bf X}^{T}{\bf X})^{-1},{\bf I}_{N},{\bf Y},({\bf Y}^{T}{\bf Y})^{-1}\mathrm{)}$
+
+
+Before an illustration of these techniques, it is worth noting that PLS, RRR, and CCA are multivariate extensions of univariate concepts. PLS emphasizes the covariance between ${\bf X}$ and ${\bf Y}$, RRR emphasizes the least squares fit (i.e., regression) of ${\bf Y}$ onto space defined by ${\bf X}$, and CCA emphasizes the correlation between ${\bf X}$ and ${\bf Y}$. For the first illustrations of PLS, RRR, and CCA, I use column-wise centered and scaled ${\bf X}$ and ${\bf Y}$ matrices.
+
+
+```{r two_tables}
+
+X <- synthetic_ONDRI[,
+                     c("TMT_A_sec", "TMT_B_sec",
+                       "Stroop_color_sec","Stroop_word_sec",
+                       "Stroop_inhibit_sec","Stroop_switch_sec")]
+Y <- synthetic_ONDRI[,c("AGE","NAGM_PERCENT","NAWM_PERCENT")]
+
+scaled_X <- scale(X, center = T, scale = T)
+scaled_Y <- scale(Y, center = T, scale = T)
+
+
+pls_gplssvd <- gplssvd(scaled_X, scaled_Y)
+
+rrr_gplssvd <- gplssvd(scaled_X, scaled_Y, 
+                       XRW = MASS::ginv(crossprod(scaled_X)))
+
+cca_gplssvd <- gplssvd(scaled_X, scaled_Y, 
+                       XRW = MASS::ginv(crossprod(scaled_X)), 
+                       YRW = MASS::ginv(crossprod(scaled_Y)))
+
+```
+
+
+All three approaches provide the same types of outputs: singular and eigenvalues, latent variable scores (for the participants), standard and generalized singular vectors, and component scores. The output object is identical for all three approaches because they all make use of `gplssvd()`, so let's only look at one of the objects, `cca_gplssvd`.
+
+```{r cca_gplsvd_vis}
+
+cca_gplssvd
+
+```
+
+Like both the `geigen()` and `gsvd()` outputs, we have many common objects (e.g., vectors, scores, eigenvalues). However `gplssvd()` also provides the latent variable scores---`lx` and `ly`---which are row scores---for ${\bf X}$ and ${\bf Y}$, respectively---with respect to the singular vectors.
+
+These three examples are also *considerably* extendable. For examples, we can alter the various constraints to introduce ridge-like regularization, or even impose weights on the rows. We can also see how the three (arguably) most popular cross-decomposition techniques (PLS, RRR, CCA) are ultimately the same key concept with different constraints.
+
+## PLS-CA
+
+PLS-CA is a technique that makes use of *all sets of constraints* for `gplssvd()`. PLS-CA was initially designed as a PLS approach for categorical data. Here, let's focus on the problem of two categorical tables. The data for PLS-CA are processed in the same way they are for MCA, except now there are two tables. For the PLS-CA example, we have genetics in one table and age plus a clinical measure in the other table.
+
+```{r plsca_data, echo = T}
+
+pls_table_1 <- data.frame(
+  MAPT = as.factor(synthetic_ONDRI$MAPT_DIPLOTYPE),
+  APOE = as.factor(synthetic_ONDRI$APOE_GENOTYPE)
+)
+rownames(pls_table_1) <- synthetic_ONDRI$SUBJECT
+
+
+pls_table_2 <- data.frame(
+  SEX = as.factor(synthetic_ONDRI$SEX),
+  NIHSS = as.factor(synthetic_ONDRI$NIHSS)
+)
+rownames(pls_table_2) <- synthetic_ONDRI$SUBJECT
+
+## from: https://community.rstudio.com/t/how-to-get-a-full-set-of-dummy-variables/21682/2
+disjunctive_data_X <- 
+  model.matrix( ~. , 
+    data=pls_table_1, 
+    contrasts.arg = 
+      lapply(
+        data.frame(pls_table_1[,sapply(data.frame(pls_table_1), is.factor)]),
+        contrasts, 
+        contrasts = FALSE)
+    )
+disjunctive_data_X <- disjunctive_data_X[,-1]
+
+disjunctive_data_Y <- 
+  model.matrix( ~. , 
+    data=pls_table_2, 
+    contrasts.arg = 
+      lapply(
+        data.frame(pls_table_2[,sapply(data.frame(pls_table_2), is.factor)]),
+        contrasts, 
+        contrasts = FALSE)
+    )
+disjunctive_data_Y <- disjunctive_data_Y[,-1]
+
+
+observed_matrix_X <- disjunctive_data_X / sum(disjunctive_data_X)
+row_probabilities_X <- rowSums(observed_matrix_X)
+col_probabilities_X <- colSums(observed_matrix_X)
+expected_matrix_X <- row_probabilities_X %o% col_probabilities_X
+deviations_matrix_X <- observed_matrix_X - expected_matrix_X
+
+observed_matrix_Y <- disjunctive_data_Y / sum(disjunctive_data_Y)
+row_probabilities_Y <- rowSums(observed_matrix_Y)
+col_probabilities_Y <- colSums(observed_matrix_Y)
+expected_matrix_Y <- row_probabilities_Y %o% col_probabilities_Y
+deviations_matrix_Y <- observed_matrix_Y - expected_matrix_Y
+
+
+
+plsca_gplssvd <- gplssvd( 
+                  X = deviations_matrix_X,
+                  Y = deviations_matrix_Y,
+                  XLW = 1/row_probabilities_X,
+                  YLW = 1/row_probabilities_Y,
+                  XRW = 1/col_probabilities_X,
+                  YRW = 1/col_probabilities_Y
+                  )
+
+```
+
+

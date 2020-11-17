@@ -1,0 +1,143 @@
+---
+title: "Generalized decompositions"
+author: "Derek Beaton"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generalized decompositions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Precursor
+
+Please make sure to see the companion manuscript to this package, especially for this vignette (here: https://arxiv.org/abs/2010.14734)
+
+## Notation
+
+Bold uppercase letters denote matrices
+(e.g., $\mathbf{X}$). Upper case italic letters (e.g., $I$) 
+denote cardinality, size, or length. Subscripts for matrices denote relationships with certain other matrices, for examples ${\mathbf Z}_{\mathbf X}$ is some matrix derived from or related to the ${\bf X}$ matrix, where something like ${\bf F}_{I}$ is a matrix related to the $I$ set of elements. When these matrices are introduced, they are also specified. 
+Two matrices side-by-side denotes standard matrix multiplication 
+(e.g., $\bf{X}\bf{Y}$).
+ Superscript $^{T}$ denotes the transpose operation, 
+ and superscript $^{-1}$ denotes standard matrix inversion.
+The diagonal operator, denoted $\mathrm{diag\{\}}$, 
+transforms a vector into a diagonal matrix, 
+or extracts the diagonal of a matrix in order to produce a vector.
+
+
+## Generalized eigendecomposition
+
+The generalized eigendecomposition (GEVD) requires two matrices: a $J \times J$ (square) data matrix ${\bf X}$ and a $J \times J$ constraints matrix ${\bf W}_{\bf X}$. For the GEVD, ${\bf X}$ is typically positive semi-definite and symmetric (e.g., a covariance matrix) and ${\bf W}_{\bf X}$ is required to be positive semi-definite. The GEVD decomposes the data matrix ${\bf X}$---with respect to its constraints ${\bf W}_{\bf X}$---into two matrices as
+\begin{equation}
+{\bf X} = {\bf Q}{\bf \Lambda}{\bf Q}^{T},
+\end{equation}
+where ${\bf \Lambda}$ is a diagonal matrix that contains the eigenvalues and ${\bf Q}$ are the *generalized* eigenvectors. The GEVD finds orthogonal slices of a data matrix, with respect to its constraints, where each orthogonal slice explains the maximum possible variance. That is, the GEVD maximizes ${\bf \Lambda} = {\bf Q}^{T}{\bf W}_{\bf X}{\bf X}{\bf W}_{\bf X}{\bf Q}$ under the constraint of orthogonality where ${\bf Q}^{T}{\bf W}_{\bf X}{\bf Q} = {\bf I}$. Practically, the GEVD is performed with the standard eigenvalue decomposition (EVD) as
+\begin{equation}
+\widetilde{\bf X} = {\bf V}{\bf \Lambda}{\bf V},
+\end{equation}
+where $\widetilde{\bf X} = {\bf W}_{\bf X}^{\frac{1}{2}}{\bf X}{\bf W}_{\bf X}^{\frac{1}{2}}$ and ${\bf V}$ are the eigenvectors which are orthonormal, such that ${\bf V}^{T}{\bf V} = {\bf I}$.  <!-- Like with the GEVD, the plain EVD maximizes the variance as ${\bf \Lambda} = {\bf V}^{T}\widetilde{\bf X}{\bf V}$ under the constraint of orthogonality where ${\bf V}^{T}{\bf V} = {\bf I}$.  --> The relationship between the GEVD and EVD can be explained as the relationship between the generalized and standard eigenvectors where 
+\begin{equation}
+{\bf Q} = {\bf W}_{\bf X}^{-\frac{1}{2}}{\bf V} \Longleftrightarrow {\bf V} = {\bf W}_{\bf X}^{\frac{1}{2}}{\bf Q}.
+\end{equation}
+When ${\bf W}_{\bf X} = {\bf I}$, the GEVD produces exactly the same results as the EVD because $\widetilde{\bf X} = {\bf X}$ and thus ${\bf Q} = {\bf V}$. Analyses with the EVD and GEVD---such as PCA---typically produce component or factor scores. With the GEVD, component scores are defined as
+\begin{equation}
+{\bf F}_{J} = {\bf W}_{\bf X}{\bf Q}{\bf \Delta},
+\end{equation}
+where ${\bf \Delta} = {\bf \Lambda}^{\frac{1}{2}}$, which are singular values. The maximization in the GEVD can be reframed as the maximization of the component scores where ${\bf \Lambda} = {\bf F}_{J}^{T}{\bf W}_{\bf X}^{-1}{\bf F}_{J}$, still subject to ${\bf Q}^{T}{\bf W}_{\bf X}{\bf Q} = {\bf I}$.
+
+
+## Generalized singular value decomposition
+
+The generalized singular value decomposition (GSVD) requires three matrices: an $I \times J$ (rectangular) data matrix ${\bf X}$, an $I \times I$ row constraints matrix ${\bf M}_{\bf X}$, and a $J \times J$ columns constraints matrix ${\bf W}_{\bf X}$. For the GSVD ${\bf M}_{\bf X}$ and ${\bf W}_{\bf X}$ are each required to be positive semi-definite. The GSVD decomposes the data matrix ${\bf X}$---with respect to both of its constraints ${\bf M}_{\bf X}$ and ${\bf W}_{\bf X}$---into three matrices as
+
+\begin{equation}
+{\bf X} = {\bf P}{\bf \Delta}{\bf Q}^{T},
+\end{equation}
+where ${\bf \Delta}$ is a diagonal matrix that contains the singular values, and where ${\bf P}$ and ${\bf Q}$ are the left and right *generalized* singular vectors, respectively. From the GSVD we can obtain eigenvalues as ${\bf \Lambda}^{2} = {\bf \Delta}$. The GSVD finds orthogonal slices of a data matrix, with respect to its constraints, where each slice explains the maximum possible *square root* of the variance. That is, the GSVD maximizes ${\bf \Delta} = {\bf P}^{T}{\bf M}_{\bf X}{\bf X}{\bf W}_{\bf X}{\bf Q}$ under the constraint of orthogonality where ${\bf P}^{T}{\bf M}_{\bf X}{\bf P} = {\bf I} = {\bf Q}^{T}{\bf W}_{\bf X}{\bf Q}$. Typically, the GSVD is performed with the standard SVD as
+\begin{equation}
+\widetilde{\bf X} = {\bf U}{\bf \Delta}{\bf V},
+\end{equation}
+where $\widetilde{\bf X} = {{\bf M}_{\bf X}^{\frac{1}{2}}}{\bf X}{{\bf W}^{\frac{1}{2}}_{\bf X}}$, and where ${\bf U}$ and ${\bf V}$ are the left and right singular vectors, respectively, which are orthonormal such that ${\bf U}^{T}{\bf U} = {\bf I} = {\bf V}^{T}{\bf V}$. The relationship between the GSVD and SVD can be explained as the relationship between the generalized and standard singular vectors where 
+\begin{equation}
+\begin{aligned}
+{\bf P} = {{\bf M}^{-\frac{1}{2}}_{\bf X}}{\bf U} \Longleftrightarrow {\bf U} = {{\bf M}^{\frac{1}{2}}_{\bf X}}{\bf P} \\
+{\bf Q} = {{\bf W}^{-\frac{1}{2}}_{\bf X}}{\bf V} \Longleftrightarrow {\bf V} = {{\bf W}^{\frac{1}{2}}_{\bf X}}{\bf Q}.
+\end{aligned}
+\end{equation}
+When ${\bf M}_{\bf X} = {\bf I} = {\bf W}_{\bf X}$, the GSVD produces exactly the same results as the SVD because $\widetilde{\bf X} = {\bf X}$ and thus ${\bf P} = {\bf U}$ and ${\bf Q} = {\bf V}$. Analyses with the SVD and GSVD---such as PCA or CA---typically produce component or factor scores. With the GSVD, component scores are defined as
+\begin{equation}
+{\bf F}_{I} = {\bf M}_{\bf X}{\bf P}{\bf \Delta} \textrm{ and } {\bf F}_{J} = {\bf W}_{\bf X}{\bf Q}{\bf \Delta},
+\end{equation}
+for the left (rows) and right (columns) of ${\bf X}$, respectively. The optimization in the GSVD can be reframed as the maximization of the component scores where ${\bf F}_{I}^{T}{\bf M}_{\bf X}^{-1}{\bf F}_{I} = {\bf \Lambda} = {\bf F}_{J}^{T}{\bf W}_{\bf X}^{-1}{\bf F}_{J}$, still subject to ${\bf P}^{T}{\bf M}_{\bf X}{\bf P} = {\bf I} = {\bf Q}^{T}{\bf W}_{\bf X}{\bf Q}$. Note how the optimization with respect to the component scores shows a maximization for the eigenvalues. 
+
+## Generalized partial least squares singular value decomposition
+
+The GPLSSVD requires six matrices: an $N \times I$ (rectangular) data matrix ${\bf X}$ with its $N \times N$ row constraints matrix ${\bf M}_{\bf X}$ and its $I \times I$ columns constraints matrix ${\bf W}_{\bf X}$, and an $N \times J$ (rectangular) data matrix ${\bf Y}$ with its $N \times N$ row constraints matrix ${\bf M}_{\bf Y}$ and its $J \times J$ columns constraints matrix ${\bf W}_{\bf Y}$. For the GPLSSVD all constraint matrices are required to be positive semi-definite. The GPLSSVD decomposes *the relationship between* the data matrices, with respect to their constraints, and expresses the common information as the relationship between latent variables. The goal of partial least squares-SVD (PLSSVD) is to find a combination of orthogonal latent variables that maximize the relationship between two data matrices. PLS is often presented as $\mathrm{arg max(} {\bf {l_{\bf X}}_{\ell}^{T}}{{\bf l}_{\bf Y}}_{\ell}\mathrm{)} = \mathrm{arg max}\textrm{ }\mathrm{cov(} {\bf {l_{\bf X}}_{\ell}}, {{\bf l}_{\bf Y}}_{\ell}\mathrm{)}$, under the condition that ${\bf {l_{\bf X}}_{\ell}^{T}}{{\bf l}_{\bf Y}}_{\ell'} = 0$ when ${\ell} \neq {\ell'}$. This maximization can be framed as 
+\begin{equation}
+{{\bf L}_{\bf X}^{T}}{\bf L}_{\bf Y} = {\bf \Delta},
+\end{equation}
+where ${\bf \Delta}$ is the diagonal matrix of singular values, and so ${\bf \Delta}^{2} = {\bf \Lambda}$ which are eigenvalues. Like with the GSVD, the GPLSSVD decomposes the relationship between two data matrices into three matrices as
+\begin{equation}
+[({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X})^{T}({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y})] = {\bf P}{\bf \Delta}{\bf Q}^{T},
+\end{equation}
+where ${\bf \Delta}$ is the diagonal matrix of singular values, and where ${\bf P}$ and ${\bf Q}$ are the left and right *generalized* singular vectors, respectively. Like the GSVD and GEVD, the GPLSSVD finds orthogonal slices of $({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X})^{T}({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y})$ with respect to the column constraints. The GPLSSVD maximizes ${\bf \Delta} = {\bf P}^{T}{\bf W}_{\bf X}[({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X})^{T}({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y})]{\bf W}_{\bf Y}{\bf Q}$ under the constraint of orthogonality where ${\bf P}^{T}{\bf W}_{\bf X}{\bf P} = {\bf I} = {\bf Q}^{T}{\bf W}_{\bf Y}{\bf Q}$. Typically, the GPLSSVD is performed with the SVD as
+\begin{equation}
+\widetilde{\bf X}^{T}\widetilde{\bf Y} = {\bf U}{\bf \Delta}{\bf V},
+\end{equation}
+where $\widetilde{\bf X} = {{\bf M}_{\bf X}^{\frac{1}{2}}}{\bf X}{{\bf W}^{\frac{1}{2}}_{\bf X}}$ and $\widetilde{\bf Y} = {{\bf M}_{\bf Y}^{\frac{1}{2}}}{\bf Y}{{\bf W}^{\frac{1}{2}}_{\bf Y}}$, and where ${\bf U}$ and ${\bf V}$ are the left and right singular vectors, respectively, which are orthonormal such that ${\bf U}^{T}{\bf U} = {\bf I} = {\bf V}^{T}{\bf V}$. The relationship between the generalized and standard singular vectors are 
+\begin{equation}
+\begin{aligned}
+{\bf P} = {{\bf W}^{-\frac{1}{2}}_{\bf X}}{\bf U} \Longleftrightarrow {\bf U} = {{\bf W}^{\frac{1}{2}}_{\bf X}}{\bf P} \\
+{\bf Q} = {{\bf W}^{-\frac{1}{2}}_{\bf Y}}{\bf V} \Longleftrightarrow {\bf V} = {{\bf W}^{\frac{1}{2}}_{\bf Y}}{\bf Q}.
+\end{aligned}
+\end{equation}
+When all constraint matrices are ${\bf I}$, the GPLSSVD produces exactly the same results as the PLSSVD because $\widetilde{\bf X} = {\bf X}$ and $\widetilde{\bf Y} = {\bf Y}$ and thus ${\bf P} = {\bf U}$ and ${\bf Q} = {\bf V}$. 
+
+The latent variables are then expressed with respect to the constraints and *generalized* singular vectors as ${\bf L}_{\bf X} = ({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X}{\bf W}_{\bf X}{\bf P})$ and ${\bf L}_{\bf Y} = ({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y}{\bf W}_{\bf Y}{\bf Q})$. These latent variables maximize the weighted covariance (by way of the constraints) subject to orthogonality where
+\begin{equation}
+\begin{aligned}
+{\bf L}_{\bf X}^{T}{\bf L}_{\bf Y} = \\
+({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X}{\bf W}_{\bf X}{\bf P})^{T}({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y}{\bf W}_{\bf Y}{\bf Q}) =\\
+(\widetilde{\bf X}{\bf U})^{T}(\widetilde{\bf Y}{\bf V}) =\\
+{\bf U}^{T}\widetilde{\bf X}^{T}\widetilde{\bf Y}{\bf V} = {\bf \Delta}.
+\end{aligned}
+\end{equation}
+
+We will see in the following section that the "weighted covariance" could be the correlation, which allows us to use the GPLSSVD to perform various types of "cross-decomposition" techniques. Like with the GEVD and GSVD, the GPLSSVD produces component or factor scores. The component scores are defined as
+\begin{equation}
+{\bf F}_{I} = {\bf W}_{\bf X}{\bf P}{\bf \Delta} \textrm{ and } {\bf F}_{J} = {\bf W}_{\bf Y}{\bf Q}{\bf \Delta},
+\end{equation}
+for the columns of ${\bf X}$ and the columns of ${\bf Y}$, respectively. The optimization in the GPLSSVD can be reframed as the maximization of the component scores where ${\bf F}_{I}^{T}{\bf W}_{\bf X}^{-1}{\bf F}_{I} = {\bf \Lambda} = {\bf F}_{J}^{T}{\bf W}_{\bf Y}^{-1}{\bf F}_{J}$ where ${\bf \Lambda}$ are the eigenvalues, and this maximization is still subject to ${\bf P}^{T}{\bf W}_{\bf X}{\bf P} = {\bf I} = {\bf Q}^{T}{\bf W}_{\bf Y}{\bf Q}$.
+
+
+## Decomposition tuples
+
+For simplicity, the GSVD is often referred to as a "triplet" or "the GSVD triplet"  comprised of (1) the data matrix, (2) the column constraints, and (3) the row constraints. We can use the same concept to also define "tuples" for the GEVD and GPLSSVD. To note, the traditional way to present the GSVD triplet is in the above order (data, column constraints, row constraints). However, here I present a different order for the elements in the tuples so that I can (1) better harmonize the tuples across the three decompositions presented here, and (2) simplify the tuples such that the order of the elements within the tuples reflects the matrix multiplication steps. Furthermore, I present two different tuples for each decomposition---a complete and a partial---where the partial is a lower rank solution. The complete decomposition tuples are:
+
+
+* The complete GEVD 2-tuple: $\mathrm{GEVD(}{\bf X}, {\bf W}_{\bf X}\mathrm{)}$
+
+* The complete GSVD decomposition 3-tuple: $\mathrm{GSVD(}{\bf M}_{\bf X}, {\bf X}, {\bf W}_{\bf X}\mathrm{)}$ 
+
+* The complete GPLSSVD decomposition 6-tuple: $\mathrm{GPLSSVD(}{\bf M}_{\bf X}, {\bf X}, {\bf W}_{\bf X}, {\bf M}_{\bf Y}, {\bf Y}, {\bf W}_{\bf Y}\mathrm{)}$.
+
+
+Additionally, we can take the idea of tuples one step further and allow for the these tuples to also define the desired *returned rank* of the results referred to as "partial decompositions". The partial decompositions produce (return) only the first $C$ components, and are defined as:
+
+* The partial GEVD decomposition 3-tuple: $\mathrm{GEVD(}{\bf X}, {\bf W}_{\bf X}, C\mathrm{)}$
+
+* The partial GSVD decomposition 4-tuple: $\mathrm{GSVD(}{\bf M}_{\bf X}, {\bf X}, {\bf W}_{\bf X}, C\mathrm{)}$
+
+* The partial GPLSSVD decomposition 7-tuple: $\mathrm{GPLSSVD(}{\bf M}_{\bf X}, {\bf X}, {\bf W}_{\bf X}, {\bf M}_{\bf Y}, {\bf Y}, {\bf W}_{\bf Y}, C\mathrm{)}$.
+
+
+Overall, these tuples provide short and convenient ways to express the decompositions. And as we will see in later sections, these tuples provide a simpler way to express specific techniques under the same framework (e.g., PLS and CCA via GPLSSVD).

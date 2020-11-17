@@ -1,0 +1,196 @@
+---
+title: "Examples with the GEVD"
+author: "Derek Beaton"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Examples with the GEVD}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(knitr)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r load_data, echo = F}
+library(GSVD)
+data("synthetic_ONDRI", package="GSVD")
+```
+
+
+The following are commonly used acronyms:
+
+
+* PCA: Principal components analysis
+
+* MDS: Multidimensional scaling
+
+* ICA: Independent components analysis
+
+* ICS: Invariant coordinate selection
+
+
+This vignette includes several examples: covariance PCA, correlation PCA, MDS, weighted MDS, and ICA
+
+## Principal components analysis
+
+Generally, there are two ways to approach PCA: with a covariance matrix or with a correlation matrix. First, I show both of these PCA approaches on a subset of continuous measures from the `synthetic_ONDRI` dataset. Then I focus on correlation PCA, but with an emphasis on (some of) the variety of ways we can perform correlation PCA with generalized decompositions. PCA is illustrated with a subset of continuous measures from cognitive tasks.
+
+We can perform a covariance PCA and a correlation PCA with the generalized eigendecomposition as:
+
+```{r pca_1}
+
+continuous_data <- synthetic_ONDRI[,c("TMT_A_sec", "TMT_B_sec",
+                                      "Stroop_color_sec", "Stroop_word_sec", 
+                                      "Stroop_inhibit_sec", "Stroop_switch_sec")]
+
+cov_pca_geigen <- geigen( cov(continuous_data) )
+cor_pca_geigen <- geigen( cor(continuous_data) )
+
+```
+
+In these cases, the use here is no different---from a user perspective---of how PCA would be performed with the plain `eigen`. For now, the major advantage of the `geigen` approach is that the output (values) also include component scores and other measures common to these decompositions, such as singular values. The following code chunk shows the results of the `print` method for `geigen`, which highlights that.
+
+```{r pca_1_print}
+
+cov_pca_geigen
+
+cor_pca_geigen
+
+```
+
+To note: The results from the two approaches are *not* the same. We explore this a bit more when we get to PCA with the `gsvd()`. 
+
+## (Metric) Multidimensional scaling
+
+Metric multidimensional scaling (MDS) is a technique akin to PCA, but specifically for the factorization of distance matrix. MDS, like PCA, is also an eigen-technique. First we see how to perform MDS as a plain EVD problem. Then we see how to performed a weighted MDS---effectively, a MDS with constraints. For the weighted MDS example we will (eventually) make use of some known or *a priori* information as the constraints.
+
+```{r mds_setup}
+
+data_for_distances <- synthetic_ONDRI[,
+                                      c("TMT_A_sec", "TMT_B_sec", 
+                                        "Stroop_color_sec", "Stroop_word_sec",
+                                        "Stroop_inhibit_sec","Stroop_switch_sec")]
+scaled_data <- scale(data_for_distances, center = T, scale = T)
+
+distance_matrix <- as.matrix( dist( scaled_data ) )
+
+row_weights <- rep(1/nrow(distance_matrix), nrow(distance_matrix))
+
+centering_matrix <- diag(nrow(distance_matrix)) - 
+  ( rep(1,nrow(distance_matrix)) %o% row_weights )
+
+matrix_to_decompose <- centering_matrix %*% 
+  (-(distance_matrix^2)/2) %*% 
+  t(centering_matrix)
+
+mds_geigen <- geigen(matrix_to_decompose)
+
+```
+
+The results from `geigen(matrix_to_decompose)` produce a variety of outputs that align with the concept of eigenvectors, generalized eigenvectors, and component scores. But, more specifically, the results of `base::cmdscale(distance_matrix)` are identical to `mds_geigen$fj[,1:2]`; that is, MDS scores as viewed through `geigen` are component scores.
+
+However, the generalized approach allows us to include constraints. In the following example, we can now include a weighting factor per observation as a constraint to impose on that observation. Here we use the inverse of age, so that we effectively downweight older individuals and upweight younger individuals.
+
+```{r mds_setup2, warning=FALSE}
+
+row_weights <- 1/synthetic_ONDRI$AGE
+
+centering_matrix <- 
+  diag(nrow(distance_matrix)) - (
+  rep(1,nrow(distance_matrix)) %o% ( row_weights/sum(row_weights) )
+)
+
+
+matrix_to_decompose <- 
+  -(centering_matrix %*% (distance_matrix^2) %*% t(centering_matrix))/2
+
+mds_weighted_geigen <- geigen( matrix_to_decompose , W = row_weights, tol = NA )
+
+
+```
+
+In `mds_weighted_geigen` we require the use of `tol=NA`. This is because `matrix_to_decompose` is not positive semi-definite. Recall that one of the key principles of the `GSVD` package is that we require positive semi-definite matrices for the constraints, and that the design of `geigen` also---by default---assumes positive semi-definite matrices. This is because most multivariate analyses---from the eigendecomposition perspective---require correlation or covariance matrices which are by definition positive semi-definite. If we were to run `geigen(matrix_to_decompose, diag(row_weights))` we would get an error. In fact, we are unable to set an appropriate tolerance parameter in this case because the last few eigenvalues have large *negative* values. But the use of `tol=NA` allows for a direct computation of the eigendecomposition, without dropping any of the dimensions (e.g., those below tolerance). For such an analysis, it is typical to discard dimensions with such eigenvalues (which is why it is a default in the package). However, some standard analyses do violate those assumptions. For examples: the weighted MDS here, principal axis factoring, and other approaches to factor analysis where.
+
+
+## Invariant coordinate scaling
+
+Invariant coordinate scaling (ICS) is another multivariate tool that can obtain (a specific form) of independent components as in independent components analysis (ICA). ICS is, effectively, the decomposition of one "scatter matrix" with respect to a second "scatter matrix". A covariance matrix is the "typical" scatter matrix. In standard ICS, we would decompose a *fourth moments* covariance matrix with respect to a standard covariance matrix. Let's see how to perform ICS through the `gevd()`. For ICS, we have a few extra steps of preprocessing and data preparation than we do for PCA. We'll use the same data in ICS as we do in PCA. However, for the ICS example we'll use data that are centered *and scaled* because the measures are not necessarily on the same scale (NOTE: while they all measure time, the amount of *maximum* possible time for each varies). 
+
+
+```{r ics_prep}
+
+
+continuous_data <- synthetic_ONDRI[,c("TMT_A_sec", "TMT_B_sec",
+                                      "Stroop_color_sec", "Stroop_word_sec", 
+                                      "Stroop_inhibit_sec", "Stroop_switch_sec")]
+scaled_data <- scale(data_for_distances, center = T, scale = T)
+cov_data <- cov(scaled_data)
+
+### the following three lines help us compute the fourth moments covariance matrix.
+sigma.data.sqrt <- GSVD::sqrt_psd_matrix(cov_data)
+radius <- sqrt(rowSums((scaled_data %*% solve(sigma.data.sqrt))^2))
+cov4_data <- crossprod(radius * scaled_data)
+
+```
+
+The above code provides us the two scatter matrices of interest: `cov4_data` which is the fourth moments covariance matrix, and `cov_data` which is the standard covariance matrix. We now use both of these in a `gevd()` to obtain the ICS solution. the GEVD provides the basis of the ICS solution, but ICS (and related methods) require a few extra steps.
+
+
+```{r ics}
+
+ics_geigen <- GSVD::geigen(cov4_data, solve(cov_data))
+
+ics_unmixing_matrix <- crossprod(ics_geigen$v, GSVD::invsqrt_psd_matrix(cov_data))
+ics_generalzied_kurtosis <- ics_geigen$l_full / prod(ics_geigen$l_full)^(1/ncol(scaled_data))
+ics_row_scores <- tcrossprod(scaled_data, ics_unmixing_matrix)
+
+```
+
+For ICS, our extra steps were to compute:
+
+* the unmixing matrix which is akin to, but not the same as loadings
+
+* the generalized kurtosis values which are akin to and compute from (but again: not the same as) the eigenvalues
+
+* the row scores, which are a projection of the rows from our original data (`scaled_data`) onto the unmixing matrix
+
+
+Next let's highlight the some of the similarities and differences between what we obtained from ICS and our correlation PCA (i.e., `cor_pca_geigen`). First, we'll need to compute row scores for PCA.
+
+```{r pca_row_scores}
+
+pca_row_scores <- tcrossprod(scaled_data, t(cor_pca_geigen$v))
+
+```
+
+The first similarity to note across all of these row scores is that the columns of the row scores (i.e., the components) are *orthogonal*. That means all components have a zero correlation with each other within any of these solutions. You can see that with the following code (results not shown for brevity).
+
+```{r orthogonawesome, eval = F}
+
+cor(pca_row_scores)
+cor(ics_row_scores)
+
+```
+
+
+Next, let's compare the results of the row scores to one another, to see how similar (or different) the results are between the row scores from ICS vs. PCA. Here let's instead look at the results, but hide the code (you can see the code for itself in the `vignette` folder)
+
+```{r ics_vs_pca, echo = F}
+
+cor_pca_ics <- cor(pca_row_scores, ics_row_scores)
+rownames(cor_pca_ics) <- paste0("PCA Component", 1:nrow(cor_pca_ics))
+colnames(cor_pca_ics) <- paste0("ICS Component", 1:ncol(cor_pca_ics))
+
+kable(cor_pca_ics, digits = 3)
+
+
+```
+
+
+Both approaches provide a different perspective of the data (MDS does as well!). We'll see PCA and ICS again in the GSVD vignette.

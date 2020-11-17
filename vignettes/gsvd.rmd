@@ -1,0 +1,208 @@
+---
+title: "Examples with the GSVD"
+author: "Derek Beaton"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Examples with the GSVD}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(knitr)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r load_data, echo = F}
+library(GSVD)
+data("synthetic_ONDRI", package="GSVD")
+```
+
+
+The following are commonly used acronyms:
+
+
+* PCA: Principal components analysis
+
+* ICS: Invariant coordinate selection
+
+* CA: Correspondence analysis
+
+* MCA: Multiple correspondence analysis
+
+* RMCA: Regularized multiple correspondence analysis
+
+
+This vignette includes several examples: correlation PCA (now with `gsvd()`), ICS (also now with `gsvd()`), 
+
+
+## Principal components analysis
+
+A more comprehensive approach to PCA is through the analysis of a rectangular table---i.e., the observations(rows) by the measures (columns)---as opposed to the square symmetric matrix of relationships between the variables (as in the GEVD vignette).For this example of correlation PCA, we will also use a set of constraints for the rows. This set of constraints helps us by ensuring that the sum of the eigenvalues (total variance in the data) is equal to the number of variables we have. It's a nice and convenient property that also is used as a "rule" (albeit not a great one) on how to select which components to keep for interpretation (those with eigenvalues $>1$, because 1 the expected value). For PCA, the row constraints are just $\frac{1}{I}$ where $I$ is the number of rows in the data matrix (which gives us that nice property, where the sums of squares of each variables is equal to 1).
+
+
+```{r pca_2}
+
+continuous_data <- synthetic_ONDRI[,c("TMT_A_sec", "TMT_B_sec",
+                                      "Stroop_color_sec", "Stroop_word_sec", 
+                                      "Stroop_inhibit_sec", "Stroop_switch_sec")]
+
+scaled_data <- scale(continuous_data, center = T, scale = T)
+degrees_of_freedom <- nrow(continuous_data)-1
+row_constraints <- rep(1/(degrees_of_freedom), nrow(scaled_data))
+
+cor_pca_gsvd <- gsvd( scaled_data, LW = row_constraints )
+
+cor_pca_gsvd
+
+```
+
+There are numerous alternatives to standard PCA by way of the GSVD that all give the same result. We won't explore them here, but it is worth knowing that the GSVD provides incredible flexibility to obtain the same results. 
+
+## Correspondence analysis
+
+Correspondence analysis (CA) is one of---if not *the*---prototypical GSVD method. CA is like PCA, but was originally designed for two-way contingency tables, and was then expanded into multiple correspondence analysis (MCA) for N-way contingency tables (we'll see MCA in the next section). CA methods can be thought of as a "${\chi^2}$ PCA". Prior to decomposition, the data matrix for CA methods are preprocessed in a way to make the data table analogous to that of a ${\chi^2}$ table, where we decompose the (weighted) deviations under the assumption of independence.
+
+Let's begin with standard CA---which is applied to a two-way contingency table. Here we'll use genotypes from two genes: ApoE and MAPT. Both are risk factors in neurodegenerative disorders.
+
+```{r ca_setup, echo = T}
+
+mapt_by_apoe_table <- table(synthetic_ONDRI$MAPT_DIPLOTYPE, synthetic_ONDRI$APOE_GENOTYPE)
+
+rownames(mapt_by_apoe_table) <- paste0("MAPT_",rownames(mapt_by_apoe_table))
+colnames(mapt_by_apoe_table) <- paste0("APOE_",colnames(mapt_by_apoe_table))
+
+```
+
+```{r ca}
+
+observed_matrix <- mapt_by_apoe_table / sum(mapt_by_apoe_table)
+row_frequencies <- rowSums(observed_matrix)
+col_frequencies <- colSums(observed_matrix)
+expected_matrix <- row_frequencies %o% col_frequencies
+deviations_matrix <- observed_matrix - expected_matrix
+
+ca_gsvd <- gsvd( deviations_matrix, 
+                 LW = 1/row_frequencies, 
+                 RW = 1/col_frequencies )
+
+```
+
+In CA, the primarily and almost exclusively visualized items are the component scores: `fi` and `fj`. Recall that the components scores are the generalized singular vectors, scaled by the singular values, under the metric defined by the constraints, or ${\bf M}_{\bf X}{\bf P}{\bf \Delta}$ and ${\bf W}_{\bf X}{\bf P}{\bf \Delta}$. The reason behind the scores as visuals in CA is that the scores reflect the ${\bf \chi}^2$ distance projected into a Euclidean space. 
+
+## Multiple correspondence analysis
+
+MCA is more akin to PCA in that the rows are typically observations and the columns are measures, where the data are transformed into "complete disjunctive coding" (a.k.a. nominal coding, dummy coding, one-hot encoding, and a variety of other names). We're going to use the same data as in the CA example, with some other categorical variables. Here we use four variables: MAPT and ApoE like before, and now also include sex, and a clinical measure with a few ordinal levels (but here we treat those as levels of a categorical variable). The computation for MCA is exactly the same as CA, but now the data are disjunctive (see the table below).
+
+
+```{r mca_data_prep, echo = T}
+
+mapt_apoe_sex <- data.frame(
+  MAPT = as.factor(synthetic_ONDRI$MAPT_DIPLOTYPE),
+  APOE = as.factor(synthetic_ONDRI$APOE_GENOTYPE),
+  SEX = as.factor(synthetic_ONDRI$SEX),
+  NIHSS = as.factor(synthetic_ONDRI$NIHSS)
+)
+rownames(mapt_apoe_sex) <- synthetic_ONDRI$SUBJECT
+
+## from: https://community.rstudio.com/t/how-to-get-a-full-set-of-dummy-variables/21682/2
+disjunctive_data <- 
+  model.matrix( ~. , 
+    data=mapt_apoe_sex, 
+    contrasts.arg = 
+      lapply(
+        data.frame(mapt_apoe_sex[,sapply(data.frame(mapt_apoe_sex), is.factor)]),
+        contrasts, 
+        contrasts = FALSE)
+    )
+
+
+disjunctive_data <- disjunctive_data[,-1]
+
+kable(disjunctive_data[c(1,10,20,40,80),c(1:5)], booktabs = T, caption = "Illustration of complete disjunctive coding (a.k.a. dummy coding, one-hot encoding) where each level of a categorical variable is represented. A value of '1' indicates the presence of that level for that row ('0' otherwise).")
+
+```
+
+MCA is more akin to PCA with observations on the rows and measures on the columns, as opposed to standard CA which has measures on both the rows and columns.
+
+```{r mca}
+
+observed_matrix <- disjunctive_data / sum(disjunctive_data)
+row_frequencies <- rowSums(observed_matrix)
+col_frequencies <- colSums(observed_matrix)
+expected_matrix <- row_frequencies %o% col_frequencies
+deviations_matrix <- observed_matrix - expected_matrix
+
+mca_gsvd <- gsvd( deviations_matrix, 
+                  LW = 1/row_frequencies,
+                  RW = 1/col_frequencies)
+
+```
+
+## Non-diagonal matrices as constraints
+
+Up until this point, all constraints matrices have been diagonal matrices. The next two examples highlight methods that make use of more sophisticated constraints. The first example is one we've seen before, but with a new perspective: ICS. The second is an extension of the previous example: regularized MCA.
+
+### Invariant coordinate selection
+
+Building on the idea of flexibility---as well as simplicity---we can compute ICS just like we did in the GEVD example. But now, we can do so with the `gsvd()` and with fewer steps, and some of those steps are simplified. 
+
+```{r ics_prep}
+
+
+continuous_data <- synthetic_ONDRI[,c("TMT_A_sec", "TMT_B_sec",
+                                      "Stroop_color_sec", "Stroop_word_sec", 
+                                      "Stroop_inhibit_sec", "Stroop_switch_sec")]
+scaled_data <- scale(continuous_data, center = T, scale = T)
+cov_data <- cov(scaled_data)
+
+sigma.data.sqrt <- GSVD::sqrt_psd_matrix(cov_data)
+radius_squared <- rowSums((scaled_data %*% solve(sigma.data.sqrt))^2)
+
+ics_gsvd <- GSVD::gsvd(scaled_data, LW = radius_squared, RW = solve(cov_data))
+ics_gsvd_unmix <- crossprod(ics_gsvd$q, solve(cov_data))
+ics_gsvd_components <- tcrossprod(scaled_data, ics_gsvd_unmix)
+
+```
+
+With `gsvd` we see a few big conceptual simplifications for ICS. The first is that we are directly analyzing our original data, whereas in the GEVD example we were analyzing the fourth moments covariance matrix. Another major simplification is that we can think of `radius_squared` as a set of *row constraints*, where `radius_squared` is a key step in computing the fourth moments covariance matrix. We also simplified part of the unmixing computation by using the *generalized* singular vectors for the measures (i.e., `ics_gsvd$q`). 
+
+The results we have in `ics_gsvd` for this ICS approach with the `gsvd` is, clearly, a type of constrained PCA. Which means that the `gsvd` solution to ICS gives us two sets of solutions: the (constrained) PCA solution directly from `gsvd()` and the independent component/invariant coordinate solution with the unmixing matrix.
+
+
+### Regularized MCA
+
+Regularized MCA (RMCA) is a ridge regularization-like approach for MCA. The ridge-like approach requires a cross product matrix for the row (observation) constraints, and a block-diagonal matrix for the column (measures) constraints. The next block of code shows how the procedure works through the GSVD. When the regularization parameter---$\omega$---is 0, then this is the same as standard MCA (within a scaling factor). Also note that for each iteration of RMCA, we now make use of the `k` parameter where `gsvd(..., k = 2)`, so that we only return a subset of possible results. All sets of vectors and scores are just the first two components, with the exception of `d_full` and `l_full` which return the full set of singular and eigenvalues, respectively. Note the small changes in the output object that indicate how many full (possible) components exist, and also how many were returned (`k=2`).
+
+
+
+```{r rmca}
+
+omegas <- c(0, 1, 2, 3, 4, 5, 10, 25, 50)
+rmca_results <- vector("list",length(omegas))
+
+centered_data <- scale(disjunctive_data,scale=F)
+projection_matrix <- t(centered_data) %*% 
+  MASS::ginv( tcrossprod(centered_data) ) %*% 
+  centered_data
+  
+for(i in 1:length(omegas)){
+  
+  LW <- diag(nrow(centered_data)) + 
+    (omegas[i] * MASS::ginv(tcrossprod(centered_data)))
+  RW <- diag(colSums(disjunctive_data)) + (omegas[i] * projection_matrix)
+  invRW <- t(MASS::ginv(RW))
+  
+  rownames(LW) <- colnames(LW) <- rownames(centered_data)
+  rownames(invRW) <- rownames(RW)
+  colnames(invRW) <- colnames(RW)
+  
+  rmca_results[[i]] <- gsvd(centered_data, LW = LW, RW = invRW, k = 2)
+  
+}
+
+```

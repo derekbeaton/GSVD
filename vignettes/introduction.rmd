@@ -1,0 +1,41 @@
+---
+title: "An introduction to the GSVD package"
+author: "Derek Beaton"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{An introduction to the GSVD package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`GSVD` is a lightweight implementation of the generalized singular value decomposition (GSVD) and two other generalized decompositions: the generalized eigenvalue decomposition (GEVD) and the generalized partial least squares-SVD (GPLSSVD). `GSVD` was designed for a wide range of users, from analysts to package developers, all of whom would benefit from more direct access to the GSVD and similar decompositions. More importantly, the `GSVD` package and the idea of the GSVD provide a basis to unify concepts, nomenclature, and techniques across a wide array of statistical traditions and multivariate analyses approaches. `GSVD` has three core functions: `geigen()`, `gsvd()`, and `gplsssvd()`. These core functions provide a way for users to implement a wide array of methods including (but not limited to) multidimensional scaling, principal components analysis, correspondence analysis, canonical correlation, partial least squares, and numerous variants and extensions of the aforementioned. `GSVD` also helps simplify and unify concepts across techniques because, at their core, all of these techniques can be accomplished with the SVD.
+
+
+This package includes several vignettes. All of the vignettes (including this one) are, effectively, slightly altered versions of a manuscript that describes the package in much more detail. You can find that package here: https://arxiv.org/abs/2010.14734
+
+The vignettes are ordered as follows:
+
+- "An introduction to the GSVD package" (this one). This vignette also includes a similar section as the manuscript: "Package description", which outlines some key aspects of the package.
+
+- "Generalized decompositions" which explains the mathematics of the the core techniques in `GSVD`. This particular vignette includes no code, only math. It includes background, notation, and the mathematical explanations of the three decompositions discussed here (GEVD, GSVD, and GPLSSVD). 
+
+- "Decomposition functions" which explains the mapping between the notation ("Generalized decompositions") and the functions with their parameters. 
+
+
+There are then three vignettes here that are all included in a single section (*Examples of multivariate analyses*) of the aforementioned manuscript. 
+
+
+- "Examples with the GEVD". This includes multidimensional scaling, weighted multidimensional scaling, and several variations of principal components analyses (by way of square symmetric matrices, i.e., covariance or correlation).
+
+- "Examples with the GSVD". This includes principal components analysis, correspondence analysis, multiple correspondence analysis, and regularized multiple correspondence analysis.
+
+- "Examples with the GPLSSVD". This includes canonical correlation, reduced rank regression, and one of the flavors of partial least squares (i.e., "partial least squares correlation"). However, we will also direct readers to another package for examples with other types of partial least squares approaches that rely on `GSVD`. 
+
