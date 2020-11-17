@@ -85,6 +85,10 @@ devtools::install_github("derekbeaton/GSVD")
 
 ## Usage
 
+The snippets below are very abbreviated examples. There are more—and
+more detailed—examples in `vignettes` as well as in the preprint for
+this package [(Beaton, 2020)](http://arxiv.org/abs/2010.14734).
+
 ### One table analyses
 
 Here we provide three examples of “one table” analyses: principal
@@ -225,3 +229,7 @@ to come soon\!
 3.  Beaton, D., Fatt, C. R. C., & Abdi, H. (2014). An ExPosition of
     multivariate analysis with the singular value decomposition in R.
     Computational Statistics & Data Analysis, 72, 176-189.
+
+4.  Beaton, D. (2020). Generalized eigen, singular value, and partial
+    least squares decompositions: The GSVD package. ArXiv:2010.14734
+    \[Cs, Stat\]. <http://arxiv.org/abs/2010.14734>
