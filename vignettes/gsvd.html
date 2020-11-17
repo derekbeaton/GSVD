@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Derek Beaton" />
+
+<meta name="date" content="2020-11-17" />
+
+<title>Examples with the GSVD</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Examples with the GSVD</h1>
+<h4 class="author">Derek Beaton</h4>
+<h4 class="date">2020-11-17</h4>
+
+
+
+<p>The following are commonly used acronyms:</p>
+<ul>
+<li><p>PCA: Principal components analysis</p></li>
+<li><p>ICS: Invariant coordinate selection</p></li>
+<li><p>CA: Correspondence analysis</p></li>
+<li><p>MCA: Multiple correspondence analysis</p></li>
+<li><p>RMCA: Regularized multiple correspondence analysis</p></li>
+</ul>
+<p>This vignette includes several examples: correlation PCA (now with <code>gsvd()</code>), ICS (also now with <code>gsvd()</code>),</p>
+<div id="principal-components-analysis" class="section level2">
+<h2>Principal components analysis</h2>
+<p>A more comprehensive approach to PCA is through the analysis of a rectangular table—i.e., the observations(rows) by the measures (columns)—as opposed to the square symmetric matrix of relationships between the variables (as in the GEVD vignette).For this example of correlation PCA, we will also use a set of constraints for the rows. This set of constraints helps us by ensuring that the sum of the eigenvalues (total variance in the data) is equal to the number of variables we have. It’s a nice and convenient property that also is used as a “rule” (albeit not a great one) on how to select which components to keep for interpretation (those with eigenvalues <span class="math inline">\(&gt;1\)</span>, because 1 the expected value). For PCA, the row constraints are just <span class="math inline">\(\frac{1}{I}\)</span> where <span class="math inline">\(I\)</span> is the number of rows in the data matrix (which gives us that nice property, where the sums of squares of each variables is equal to 1).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2"></a>continuous_data &lt;-<span class="st"> </span>synthetic_ONDRI[,<span class="kw">c</span>(<span class="st">&quot;TMT_A_sec&quot;</span>, <span class="st">&quot;TMT_B_sec&quot;</span>,</span>
+<span id="cb1-3"><a href="#cb1-3"></a>                                      <span class="st">&quot;Stroop_color_sec&quot;</span>, <span class="st">&quot;Stroop_word_sec&quot;</span>, </span>
+<span id="cb1-4"><a href="#cb1-4"></a>                                      <span class="st">&quot;Stroop_inhibit_sec&quot;</span>, <span class="st">&quot;Stroop_switch_sec&quot;</span>)]</span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
+<span id="cb1-6"><a href="#cb1-6"></a>scaled_data &lt;-<span class="st"> </span><span class="kw">scale</span>(continuous_data, <span class="dt">center =</span> T, <span class="dt">scale =</span> T)</span>
+<span id="cb1-7"><a href="#cb1-7"></a>degrees_of_freedom &lt;-<span class="st"> </span><span class="kw">nrow</span>(continuous_data)<span class="op">-</span><span class="dv">1</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>row_constraints &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">/</span>(degrees_of_freedom), <span class="kw">nrow</span>(scaled_data))</span>
+<span id="cb1-9"><a href="#cb1-9"></a></span>
+<span id="cb1-10"><a href="#cb1-10"></a>cor_pca_gsvd &lt;-<span class="st"> </span><span class="kw">gsvd</span>( scaled_data, <span class="dt">LW =</span> row_constraints )</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a>cor_pca_gsvd</span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">#&gt; **GSVD package object of class type &#39;gsvd&#39;.**</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">#&gt; </span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">#&gt; gsvd() was performed on a matrix with 138 rows and 6 columns</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">#&gt; Number of components = 6.</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">#&gt; Number of retained components = 6.</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">#&gt; </span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">#&gt; The &#39;gsvd&#39; object contains:                                                                </span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">#&gt;  $d_full Full set of singular values                            </span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="co">#&gt;  $l_full Full set of eigen values                               </span></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">#&gt;  $d      Retained set of singular values (k)                    </span></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co">#&gt;  $l      Retained set of eigen values (k)                       </span></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="co">#&gt;  $u      Left singular vectors (for rows of DAT)                </span></span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="co">#&gt;  $v      Right singular vectors (for columns of DAT)            </span></span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="co">#&gt;  $p      Left generalized singular vectors (for rows of DAT)    </span></span>
+<span id="cb1-27"><a href="#cb1-27"></a><span class="co">#&gt;  $q      Right generalized singular vectors (for columns of DAT)</span></span>
+<span id="cb1-28"><a href="#cb1-28"></a><span class="co">#&gt;  $fi     Left component scores (for rows of DAT)                </span></span>
+<span id="cb1-29"><a href="#cb1-29"></a><span class="co">#&gt;  $fj     Right component scores (for columns of DAT)</span></span></code></pre></div>
+<p>There are numerous alternatives to standard PCA by way of the GSVD that all give the same result. We won’t explore them here, but it is worth knowing that the GSVD provides incredible flexibility to obtain the same results.</p>
+</div>
+<div id="correspondence-analysis" class="section level2">
+<h2>Correspondence analysis</h2>
+<p>Correspondence analysis (CA) is one of—if not <em>the</em>—prototypical GSVD method. CA is like PCA, but was originally designed for two-way contingency tables, and was then expanded into multiple correspondence analysis (MCA) for N-way contingency tables (we’ll see MCA in the next section). CA methods can be thought of as a “<span class="math inline">\({\chi^2}\)</span> PCA”. Prior to decomposition, the data matrix for CA methods are preprocessed in a way to make the data table analogous to that of a <span class="math inline">\({\chi^2}\)</span> table, where we decompose the (weighted) deviations under the assumption of independence.</p>
+<p>Let’s begin with standard CA—which is applied to a two-way contingency table. Here we’ll use genotypes from two genes: ApoE and MAPT. Both are risk factors in neurodegenerative disorders.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2"></a>mapt_by_apoe_table &lt;-<span class="st"> </span><span class="kw">table</span>(synthetic_ONDRI<span class="op">$</span>MAPT_DIPLOTYPE, synthetic_ONDRI<span class="op">$</span>APOE_GENOTYPE)</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">rownames</span>(mapt_by_apoe_table) &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;MAPT_&quot;</span>,<span class="kw">rownames</span>(mapt_by_apoe_table))</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="kw">colnames</span>(mapt_by_apoe_table) &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;APOE_&quot;</span>,<span class="kw">colnames</span>(mapt_by_apoe_table))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2"></a>observed_matrix &lt;-<span class="st"> </span>mapt_by_apoe_table <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(mapt_by_apoe_table)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>row_frequencies &lt;-<span class="st"> </span><span class="kw">rowSums</span>(observed_matrix)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>col_frequencies &lt;-<span class="st"> </span><span class="kw">colSums</span>(observed_matrix)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>expected_matrix &lt;-<span class="st"> </span>row_frequencies <span class="op">%o%</span><span class="st"> </span>col_frequencies</span>
+<span id="cb3-6"><a href="#cb3-6"></a>deviations_matrix &lt;-<span class="st"> </span>observed_matrix <span class="op">-</span><span class="st"> </span>expected_matrix</span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a>ca_gsvd &lt;-<span class="st"> </span><span class="kw">gsvd</span>( deviations_matrix, </span>
+<span id="cb3-9"><a href="#cb3-9"></a>                 <span class="dt">LW =</span> <span class="dv">1</span><span class="op">/</span>row_frequencies, </span>
+<span id="cb3-10"><a href="#cb3-10"></a>                 <span class="dt">RW =</span> <span class="dv">1</span><span class="op">/</span>col_frequencies )</span></code></pre></div>
+<p>In CA, the primarily and almost exclusively visualized items are the component scores: <code>fi</code> and <code>fj</code>. Recall that the components scores are the generalized singular vectors, scaled by the singular values, under the metric defined by the constraints, or <span class="math inline">\({\bf M}_{\bf X}{\bf P}{\bf \Delta}\)</span> and <span class="math inline">\({\bf W}_{\bf X}{\bf P}{\bf \Delta}\)</span>. The reason behind the scores as visuals in CA is that the scores reflect the <span class="math inline">\({\bf \chi}^2\)</span> distance projected into a Euclidean space.</p>
+</div>
+<div id="multiple-correspondence-analysis" class="section level2">
+<h2>Multiple correspondence analysis</h2>
+<p>MCA is more akin to PCA in that the rows are typically observations and the columns are measures, where the data are transformed into “complete disjunctive coding” (a.k.a. nominal coding, dummy coding, one-hot encoding, and a variety of other names). We’re going to use the same data as in the CA example, with some other categorical variables. Here we use four variables: MAPT and ApoE like before, and now also include sex, and a clinical measure with a few ordinal levels (but here we treat those as levels of a categorical variable). The computation for MCA is exactly the same as CA, but now the data are disjunctive (see the table below).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a></span>
+<span id="cb4-2"><a href="#cb4-2"></a>mapt_apoe_sex &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">MAPT =</span> <span class="kw">as.factor</span>(synthetic_ONDRI<span class="op">$</span>MAPT_DIPLOTYPE),</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  <span class="dt">APOE =</span> <span class="kw">as.factor</span>(synthetic_ONDRI<span class="op">$</span>APOE_GENOTYPE),</span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="dt">SEX =</span> <span class="kw">as.factor</span>(synthetic_ONDRI<span class="op">$</span>SEX),</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  <span class="dt">NIHSS =</span> <span class="kw">as.factor</span>(synthetic_ONDRI<span class="op">$</span>NIHSS)</span>
+<span id="cb4-7"><a href="#cb4-7"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="kw">rownames</span>(mapt_apoe_sex) &lt;-<span class="st"> </span>synthetic_ONDRI<span class="op">$</span>SUBJECT</span>
+<span id="cb4-9"><a href="#cb4-9"></a></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="co">## from: https://community.rstudio.com/t/how-to-get-a-full-set-of-dummy-variables/21682/2</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>disjunctive_data &lt;-<span class="st"> </span></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="st">  </span><span class="kw">model.matrix</span>( <span class="op">~</span>. , </span>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="dt">data=</span>mapt_apoe_sex, </span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="dt">contrasts.arg =</span> </span>
+<span id="cb4-15"><a href="#cb4-15"></a>      <span class="kw">lapply</span>(</span>
+<span id="cb4-16"><a href="#cb4-16"></a>        <span class="kw">data.frame</span>(mapt_apoe_sex[,<span class="kw">sapply</span>(<span class="kw">data.frame</span>(mapt_apoe_sex), is.factor)]),</span>
+<span id="cb4-17"><a href="#cb4-17"></a>        contrasts, </span>
+<span id="cb4-18"><a href="#cb4-18"></a>        <span class="dt">contrasts =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb4-19"><a href="#cb4-19"></a>    )</span>
+<span id="cb4-20"><a href="#cb4-20"></a></span>
+<span id="cb4-21"><a href="#cb4-21"></a></span>
+<span id="cb4-22"><a href="#cb4-22"></a>disjunctive_data &lt;-<span class="st"> </span>disjunctive_data[,<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb4-23"><a href="#cb4-23"></a></span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="kw">kable</span>(disjunctive_data[<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">20</span>,<span class="dv">40</span>,<span class="dv">80</span>),<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)], <span class="dt">booktabs =</span> T, <span class="dt">caption =</span> <span class="st">&quot;Illustration of complete disjunctive coding (a.k.a. dummy coding, one-hot encoding) where each level of a categorical variable is represented. A value of &#39;1&#39; indicates the presence of that level for that row (&#39;0&#39; otherwise).&quot;</span>)</span></code></pre></div>
+<table>
+<caption>
+Illustration of complete disjunctive coding (a.k.a. dummy coding, one-hot encoding) where each level of a categorical variable is represented. A value of ‘1’ indicates the presence of that level for that row (‘0’ otherwise).
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+MAPTH1H1
+</th>
+<th style="text-align:right;">
+MAPTH1H2
+</th>
+<th style="text-align:right;">
+MAPTH2H2
+</th>
+<th style="text-align:right;">
+APOEE32
+</th>
+<th style="text-align:right;">
+APOEE33
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+OND01_SYN_0001
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OND01_SYN_0011
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OND01_SYN_0021
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OND01_SYN_0041
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OND01_SYN_0083
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<p>MCA is more akin to PCA with observations on the rows and measures on the columns, as opposed to standard CA which has measures on both the rows and columns.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2"></a>observed_matrix &lt;-<span class="st"> </span>disjunctive_data <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(disjunctive_data)</span>
+<span id="cb5-3"><a href="#cb5-3"></a>row_frequencies &lt;-<span class="st"> </span><span class="kw">rowSums</span>(observed_matrix)</span>
+<span id="cb5-4"><a href="#cb5-4"></a>col_frequencies &lt;-<span class="st"> </span><span class="kw">colSums</span>(observed_matrix)</span>
+<span id="cb5-5"><a href="#cb5-5"></a>expected_matrix &lt;-<span class="st"> </span>row_frequencies <span class="op">%o%</span><span class="st"> </span>col_frequencies</span>
+<span id="cb5-6"><a href="#cb5-6"></a>deviations_matrix &lt;-<span class="st"> </span>observed_matrix <span class="op">-</span><span class="st"> </span>expected_matrix</span>
+<span id="cb5-7"><a href="#cb5-7"></a></span>
+<span id="cb5-8"><a href="#cb5-8"></a>mca_gsvd &lt;-<span class="st"> </span><span class="kw">gsvd</span>( deviations_matrix, </span>
+<span id="cb5-9"><a href="#cb5-9"></a>                  <span class="dt">LW =</span> <span class="dv">1</span><span class="op">/</span>row_frequencies,</span>
+<span id="cb5-10"><a href="#cb5-10"></a>                  <span class="dt">RW =</span> <span class="dv">1</span><span class="op">/</span>col_frequencies)</span></code></pre></div>
+</div>
+<div id="non-diagonal-matrices-as-constraints" class="section level2">
+<h2>Non-diagonal matrices as constraints</h2>
+<p>Up until this point, all constraints matrices have been diagonal matrices. The next two examples highlight methods that make use of more sophisticated constraints. The first example is one we’ve seen before, but with a new perspective: ICS. The second is an extension of the previous example: regularized MCA.</p>
+<div id="invariant-coordinate-selection" class="section level3">
+<h3>Invariant coordinate selection</h3>
+<p>Building on the idea of flexibility—as well as simplicity—we can compute ICS just like we did in the GEVD example. But now, we can do so with the <code>gsvd()</code> and with fewer steps, and some of those steps are simplified.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a>continuous_data &lt;-<span class="st"> </span>synthetic_ONDRI[,<span class="kw">c</span>(<span class="st">&quot;TMT_A_sec&quot;</span>, <span class="st">&quot;TMT_B_sec&quot;</span>,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>                                      <span class="st">&quot;Stroop_color_sec&quot;</span>, <span class="st">&quot;Stroop_word_sec&quot;</span>, </span>
+<span id="cb6-5"><a href="#cb6-5"></a>                                      <span class="st">&quot;Stroop_inhibit_sec&quot;</span>, <span class="st">&quot;Stroop_switch_sec&quot;</span>)]</span>
+<span id="cb6-6"><a href="#cb6-6"></a>scaled_data &lt;-<span class="st"> </span><span class="kw">scale</span>(continuous_data, <span class="dt">center =</span> T, <span class="dt">scale =</span> T)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>cov_data &lt;-<span class="st"> </span><span class="kw">cov</span>(scaled_data)</span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a>sigma.data.sqrt &lt;-<span class="st"> </span>GSVD<span class="op">::</span><span class="kw">sqrt_psd_matrix</span>(cov_data)</span>
+<span id="cb6-10"><a href="#cb6-10"></a>radius_squared &lt;-<span class="st"> </span><span class="kw">rowSums</span>((scaled_data <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(sigma.data.sqrt))<span class="op">^</span><span class="dv">2</span>)</span>
+<span id="cb6-11"><a href="#cb6-11"></a></span>
+<span id="cb6-12"><a href="#cb6-12"></a>ics_gsvd &lt;-<span class="st"> </span>GSVD<span class="op">::</span><span class="kw">gsvd</span>(scaled_data, <span class="dt">LW =</span> radius_squared, <span class="dt">RW =</span> <span class="kw">solve</span>(cov_data))</span>
+<span id="cb6-13"><a href="#cb6-13"></a>ics_gsvd_unmix &lt;-<span class="st"> </span><span class="kw">crossprod</span>(ics_gsvd<span class="op">$</span>q, <span class="kw">solve</span>(cov_data))</span>
+<span id="cb6-14"><a href="#cb6-14"></a>ics_gsvd_components &lt;-<span class="st"> </span><span class="kw">tcrossprod</span>(scaled_data, ics_gsvd_unmix)</span></code></pre></div>
+<p>With <code>gsvd</code> we see a few big conceptual simplifications for ICS. The first is that we are directly analyzing our original data, whereas in the GEVD example we were analyzing the fourth moments covariance matrix. Another major simplification is that we can think of <code>radius_squared</code> as a set of <em>row constraints</em>, where <code>radius_squared</code> is a key step in computing the fourth moments covariance matrix. We also simplified part of the unmixing computation by using the <em>generalized</em> singular vectors for the measures (i.e., <code>ics_gsvd$q</code>).</p>
+<p>The results we have in <code>ics_gsvd</code> for this ICS approach with the <code>gsvd</code> is, clearly, a type of constrained PCA. Which means that the <code>gsvd</code> solution to ICS gives us two sets of solutions: the (constrained) PCA solution directly from <code>gsvd()</code> and the independent component/invariant coordinate solution with the unmixing matrix.</p>
+</div>
+<div id="regularized-mca" class="section level3">
+<h3>Regularized MCA</h3>
+<p>Regularized MCA (RMCA) is a ridge regularization-like approach for MCA. The ridge-like approach requires a cross product matrix for the row (observation) constraints, and a block-diagonal matrix for the column (measures) constraints. The next block of code shows how the procedure works through the GSVD. When the regularization parameter—<span class="math inline">\(\omega\)</span>—is 0, then this is the same as standard MCA (within a scaling factor). Also note that for each iteration of RMCA, we now make use of the <code>k</code> parameter where <code>gsvd(..., k = 2)</code>, so that we only return a subset of possible results. All sets of vectors and scores are just the first two components, with the exception of <code>d_full</code> and <code>l_full</code> which return the full set of singular and eigenvalues, respectively. Note the small changes in the output object that indicate how many full (possible) components exist, and also how many were returned (<code>k=2</code>).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a></span>
+<span id="cb7-2"><a href="#cb7-2"></a>omegas &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">25</span>, <span class="dv">50</span>)</span>
+<span id="cb7-3"><a href="#cb7-3"></a>rmca_results &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="st">&quot;list&quot;</span>,<span class="kw">length</span>(omegas))</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a>centered_data &lt;-<span class="st"> </span><span class="kw">scale</span>(disjunctive_data,<span class="dt">scale=</span>F)</span>
+<span id="cb7-6"><a href="#cb7-6"></a>projection_matrix &lt;-<span class="st"> </span><span class="kw">t</span>(centered_data) <span class="op">%*%</span><span class="st"> </span></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="st">  </span>MASS<span class="op">::</span><span class="kw">ginv</span>( <span class="kw">tcrossprod</span>(centered_data) ) <span class="op">%*%</span><span class="st"> </span></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="st">  </span>centered_data</span>
+<span id="cb7-9"><a href="#cb7-9"></a>  </span>
+<span id="cb7-10"><a href="#cb7-10"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(omegas)){</span>
+<span id="cb7-11"><a href="#cb7-11"></a>  </span>
+<span id="cb7-12"><a href="#cb7-12"></a>  LW &lt;-<span class="st"> </span><span class="kw">diag</span>(<span class="kw">nrow</span>(centered_data)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb7-13"><a href="#cb7-13"></a><span class="st">    </span>(omegas[i] <span class="op">*</span><span class="st"> </span>MASS<span class="op">::</span><span class="kw">ginv</span>(<span class="kw">tcrossprod</span>(centered_data)))</span>
+<span id="cb7-14"><a href="#cb7-14"></a>  RW &lt;-<span class="st"> </span><span class="kw">diag</span>(<span class="kw">colSums</span>(disjunctive_data)) <span class="op">+</span><span class="st"> </span>(omegas[i] <span class="op">*</span><span class="st"> </span>projection_matrix)</span>
+<span id="cb7-15"><a href="#cb7-15"></a>  invRW &lt;-<span class="st"> </span><span class="kw">t</span>(MASS<span class="op">::</span><span class="kw">ginv</span>(RW))</span>
+<span id="cb7-16"><a href="#cb7-16"></a>  </span>
+<span id="cb7-17"><a href="#cb7-17"></a>  <span class="kw">rownames</span>(LW) &lt;-<span class="st"> </span><span class="kw">colnames</span>(LW) &lt;-<span class="st"> </span><span class="kw">rownames</span>(centered_data)</span>
+<span id="cb7-18"><a href="#cb7-18"></a>  <span class="kw">rownames</span>(invRW) &lt;-<span class="st"> </span><span class="kw">rownames</span>(RW)</span>
+<span id="cb7-19"><a href="#cb7-19"></a>  <span class="kw">colnames</span>(invRW) &lt;-<span class="st"> </span><span class="kw">colnames</span>(RW)</span>
+<span id="cb7-20"><a href="#cb7-20"></a>  </span>
+<span id="cb7-21"><a href="#cb7-21"></a>  rmca_results[[i]] &lt;-<span class="st"> </span><span class="kw">gsvd</span>(centered_data, <span class="dt">LW =</span> LW, <span class="dt">RW =</span> invRW, <span class="dt">k =</span> <span class="dv">2</span>)</span>
+<span id="cb7-22"><a href="#cb7-22"></a>  </span>
+<span id="cb7-23"><a href="#cb7-23"></a>}</span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

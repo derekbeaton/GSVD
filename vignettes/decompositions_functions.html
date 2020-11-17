@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Derek Beaton" />
+
+<meta name="date" content="2020-11-17" />
+
+<title>Decomposition functions</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Decomposition functions</h1>
+<h4 class="author">Derek Beaton</h4>
+<h4 class="date">2020-11-17</h4>
+
+
+
+<div id="package-description-core-functions-and-features" class="section level1">
+<h1>Package description: core functions and features</h1>
+<p>The <code>GSVD</code> package has three primary “workhorse” functions:</p>
+<ul>
+<li><p><code>geigen(X, W, k = 0, tol = sqrt(.Machine\$double.eps), symmetric)</code>,</p></li>
+<li><p><code>gsvd(X, LW, RW, k = 0, tol = .Machine\$double.eps)</code>, and</p></li>
+<li><p><code>gplssvd(X, Y, XLW, YLW, XRW, YRW, k = 0, tol = .Machine\$double.eps)</code></p></li>
+</ul>
+<p>In <code>geigen()</code> or <code>gsvd()</code> each there is one data matrix <code>X</code>, whereas <code>gplssvd()</code> has two data matrices <code>X</code> and <code>Y</code>. In <code>geigen()</code> there is a single constraint matrix <code>W</code>. In <code>gsvd()</code> there are two constraint matrices, <code>LW</code> or “left weights” for the rows of <code>X</code> and <code>RW</code> or “right weights” for the columns of <code>X</code>. The “left” and “right” references are used because of the association between these weights and the left and right generalized singular vectors. In <code>gplssvd()</code> there are two constraint matrices per data matrix (so four total constraint matrices): <code>XLW</code> and <code>XRW</code> for <code>X</code>’s “left” and “right” weights, and <code>YLW</code> and <code>YRW</code> for <code>Y</code>’s “left” and “right” weights. The <code>geigen()</code> includes the argument <code>symmetric</code> to indicate if <code>X</code> is a symmetric matrix; when missing <code>X</code> is tested via <code>isSymmetric()</code>. The <code>symmetric</code> argument is eventually passed through to, and is the same as, <code>symmetric</code> in <code>base::eigen()</code>. All three functions include <code>k</code> which indicates how many components to return. Finally, all three functions include a tolerance argument <code>tol</code>, which is passed through to <code>tolerance_svd()</code> or <code>tolerance_eigen()</code>. These functions are the same as <code>base::svd()</code> and <code>base::eigen()</code>, respectively, with the added tolerance feature. In both cases, the <code>tol</code> argument is used to check for any eigenvalues or singular values below the tolerance threshold. Any eigen- or singular values below that threshold are discarded, as they are effectively zero. These values occur when data are collinear, which is common in high dimensional cases or in techniques such as Multiple Correspondence Analysis. However, the <code>tol</code> argument can be effectively turned off with the use of <code>NA</code>, <code>NULL</code>, <code>Inf</code>, <code>-Inf</code>, <code>NaN</code>, or any value <span class="math inline">\(&lt; 0\)</span>. In this case, both <code>tolerance_svd()</code> and <code>tolerance_eigen()</code> simply call <code>base::svd()</code> and <code>base::eigen()</code> with no changes. When using the <code>tol</code> argument, eigen- and singular values are also checked to ensure that they are real and positive values. If they are not, then <code>geigen()</code>, <code>gsvd()</code>, and <code>gplssvd()</code> stop. The motivation behind this behavior is because the <code>geigen()</code>, <code>gsvd()</code>, and <code>gplssvd()</code> functions are meant to perform routine multivariate analyses—such as MDS, PCA, CA, CCA, or PLS—that require data and/or constraint matrices assumed to be positive semi-definite.</p>
+<p>Data matrices are the minimally required objects for <code>geigen()</code>, <code>gsvd()</code>, and <code>gplssvd()</code>. All other arguments (input) either have suitable defaults or are allowed to be missing. For example, when any of the constraints (“weights”) are missing, then the constraints are mathematically equivalent to identity matrices (i.e., <span class="math inline">\({\bf I}\)</span>) which contain <span class="math inline">\(1\)</span>s on the diagonal with <span class="math inline">\(0\)</span>s off-diagonal. Table  shows a mapping between our (more formal) notation above and our more intuitively named arguments for the functions. The rows of Table  are the three primary functions—<code>geigen()</code>, <code>gsvd()</code>, and <code>gplssvd()</code>—where the columns are the elements used in the formal notation (and also used in the tuple notation).</p>
+<table>
+<caption>
+Mapping between arguments (input) to functions (rows) and notation for the analysis tuples (columns).
+</caption>
+<tbody>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\bf{X}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\bf{Y}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf{M}_{\bf X}}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf{W}_{\bf X}}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf{M}_{\bf Y}}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf{W}_{\bf Y}}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(C\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>geigen()</code>
+</td>
+<td style="text-align:left;">
+<code>X</code>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<code>W</code>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<code>k</code>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>gsvd()</code>
+</td>
+<td style="text-align:left;">
+<code>X</code>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<code>LW</code>
+</td>
+<td style="text-align:left;">
+<code>RW</code>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<code>k</code>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>gplssvd()</code>
+</td>
+<td style="text-align:left;">
+<code>X</code>
+</td>
+<td style="text-align:left;">
+<code>Y</code>
+</td>
+<td style="text-align:left;">
+<code>XRW</code>
+</td>
+<td style="text-align:left;">
+<code>XLW</code>
+</td>
+<td style="text-align:left;">
+<code>YRW</code>
+</td>
+<td style="text-align:left;">
+<code>YLW</code>
+</td>
+<td style="text-align:left;">
+<code>k</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Additionally, there are some “helper” and convenience functions used internally to the <code>geigen()</code>, <code>gsvd()</code>, and <code>gplssvd()</code> functions that are made available for use. These include <code>sqrt_psd_matrix()</code> and <code>invsqrt_psd_matrix()</code> which compute the square root (<code>sqrt</code>) and inverse square root (<code>invsqrt</code>) of positive semi-definite (<code>psd</code>) matrices (<code>matrix</code>), respectively. The <code>GSVD</code> package also includes helpful functions for testing matrices: <code>is_diagaonal_matrix()</code> and <code>is_empty_matrix()</code>. Both of these tests help minimize the memory and computational footprints for, or check validity of, the constraints matrices.</p>
+<p>Finally, the three core functions in <code>GSVD</code>—<code>geigen()</code>, <code>gsvd()</code>, and <code>gplssvd()</code>—each have their own class objects but provide overlapping and identical outputs. The class object is hierarchical from a list, to a package, to the specific function: <code>c(&quot;geigen&quot;,&quot;GSVD&quot;,&quot;list&quot;)</code>, <code>c(&quot;gsvd&quot;,&quot;GSVD&quot;,&quot;list&quot;)</code>, and <code>c(&quot;gplssvd&quot;,&quot;GSVD&quot;,&quot;list&quot;)</code> for <code>geigen()</code>, <code>gsvd()</code>, and <code>gplssvd()</code> respectively. Table  list the possible outputs across <code>geigen()</code>, <code>gsvd()</code>, and <code>gplssvd()</code>. The first column of Table  explains the returned value, where the second column provides a mapping back to the notation used here. The last three columns indicate—with a <span class="math inline">\(\checkmark\)</span>—which of the returned values are available from the <code>geigen</code>, <code>gsvd</code>, or <code>gplssvd</code> functions.</p>
+<table>
+<caption>
+Mapping of values (output from functions; rows) to their conceptual meanings, notation used here, and which <code>GSVD</code> functions have these values.
+</caption>
+<tbody>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+What it is
+</td>
+<td style="text-align:left;">
+Notation
+</td>
+<td style="text-align:left;">
+<code>geigen</code>
+</td>
+<td style="text-align:left;">
+<code>gsvd</code>
+</td>
+<td style="text-align:left;">
+<code>gplssvd</code>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>d</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> singular values
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf \Delta}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>d_full</code>
+</td>
+<td style="text-align:left;">
+all singular values
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf \Delta}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>l</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> eigenvalues
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf \Lambda}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>l_full</code>
+</td>
+<td style="text-align:left;">
+all eigenvalues
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf \Lambda}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>u</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> Left singular/eigen vectors
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf U}\)</span>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>v</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> Right singular/eigen vectors
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf V}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>p</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> Left generalized singular/eigen vectors
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf P}\)</span>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>q</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> Right generalized singular/eigen vectors
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf Q}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>fi</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> Left component scores
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf F}_{I}\)</span>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>fj</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> Right component scores
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf F}_{J}\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>lx</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> Latent variable scores for <code>X</code>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf L}_{\bf X}\)</span>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>ly</code>
+</td>
+<td style="text-align:left;">
+<code>k</code> Latent variable scores for <code>Y</code>
+</td>
+<td style="text-align:left;">
+<span class="math inline">\({\bf L}_{\bf Y}\)</span>
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+<span class="math inline">\(\checkmark\)</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

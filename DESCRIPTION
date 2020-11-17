@@ -10,6 +10,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
+Depends: R (>= 3.5.0)
 Imports: MASS
-Suggests: knitr, rmarkdown
-VignetteBuilder: knitr
+Suggests: knitr, rmarkdown, kableExtra
+VignetteBuilder: knitr, kableExtra

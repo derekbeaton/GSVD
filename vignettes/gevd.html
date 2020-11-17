@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Derek Beaton" />
+
+<meta name="date" content="2020-11-17" />
+
+<title>Examples with the GEVD</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Examples with the GEVD</h1>
+<h4 class="author">Derek Beaton</h4>
+<h4 class="date">2020-11-17</h4>
+
+
+
+<p>The following are commonly used acronyms:</p>
+<ul>
+<li><p>PCA: Principal components analysis</p></li>
+<li><p>MDS: Multidimensional scaling</p></li>
+<li><p>ICA: Independent components analysis</p></li>
+<li><p>ICS: Invariant coordinate selection</p></li>
+</ul>
+<p>This vignette includes several examples: covariance PCA, correlation PCA, MDS, weighted MDS, and ICA</p>
+<div id="principal-components-analysis" class="section level2">
+<h2>Principal components analysis</h2>
+<p>Generally, there are two ways to approach PCA: with a covariance matrix or with a correlation matrix. First, I show both of these PCA approaches on a subset of continuous measures from the <code>synthetic_ONDRI</code> dataset. Then I focus on correlation PCA, but with an emphasis on (some of) the variety of ways we can perform correlation PCA with generalized decompositions. PCA is illustrated with a subset of continuous measures from cognitive tasks.</p>
+<p>We can perform a covariance PCA and a correlation PCA with the generalized eigendecomposition as:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2"></a>continuous_data &lt;-<span class="st"> </span>synthetic_ONDRI[,<span class="kw">c</span>(<span class="st">&quot;TMT_A_sec&quot;</span>, <span class="st">&quot;TMT_B_sec&quot;</span>,</span>
+<span id="cb1-3"><a href="#cb1-3"></a>                                      <span class="st">&quot;Stroop_color_sec&quot;</span>, <span class="st">&quot;Stroop_word_sec&quot;</span>, </span>
+<span id="cb1-4"><a href="#cb1-4"></a>                                      <span class="st">&quot;Stroop_inhibit_sec&quot;</span>, <span class="st">&quot;Stroop_switch_sec&quot;</span>)]</span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
+<span id="cb1-6"><a href="#cb1-6"></a>cov_pca_geigen &lt;-<span class="st"> </span><span class="kw">geigen</span>( <span class="kw">cov</span>(continuous_data) )</span>
+<span id="cb1-7"><a href="#cb1-7"></a>cor_pca_geigen &lt;-<span class="st"> </span><span class="kw">geigen</span>( <span class="kw">cor</span>(continuous_data) )</span></code></pre></div>
+<p>In these cases, the use here is no different—from a user perspective—of how PCA would be performed with the plain <code>eigen</code>. For now, the major advantage of the <code>geigen</code> approach is that the output (values) also include component scores and other measures common to these decompositions, such as singular values. The following code chunk shows the results of the <code>print</code> method for <code>geigen</code>, which highlights that.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2"></a>cov_pca_geigen</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt; **GSVD package object of class type &#39;geigen&#39;.**</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; </span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt; geigen() was performed on a marix with 6 columns/rows</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt; Number of total components = 6.</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt; Number of retained components = 6.</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt; </span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; The &#39;geigen&#39; object contains:                                            </span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co">#&gt;  $d_full Full set of singular values        </span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="co">#&gt;  $l_full Full set of eigen values           </span></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co">#&gt;  $d      Retained set of singular values (k)</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#&gt;  $l      Retained set of eigen values (k)   </span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#&gt;  $v      Eigen/singular vectors             </span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co">#&gt;  $q      Generalized eigen/singular vectors </span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="co">#&gt;  $fj     Component scores</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a></span>
+<span id="cb2-18"><a href="#cb2-18"></a>cor_pca_geigen</span>
+<span id="cb2-19"><a href="#cb2-19"></a><span class="co">#&gt; **GSVD package object of class type &#39;geigen&#39;.**</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co">#&gt; </span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co">#&gt; geigen() was performed on a marix with 6 columns/rows</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="co">#&gt; Number of total components = 6.</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co">#&gt; Number of retained components = 6.</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="co">#&gt; </span></span>
+<span id="cb2-25"><a href="#cb2-25"></a><span class="co">#&gt; The &#39;geigen&#39; object contains:                                            </span></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co">#&gt;  $d_full Full set of singular values        </span></span>
+<span id="cb2-27"><a href="#cb2-27"></a><span class="co">#&gt;  $l_full Full set of eigen values           </span></span>
+<span id="cb2-28"><a href="#cb2-28"></a><span class="co">#&gt;  $d      Retained set of singular values (k)</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a><span class="co">#&gt;  $l      Retained set of eigen values (k)   </span></span>
+<span id="cb2-30"><a href="#cb2-30"></a><span class="co">#&gt;  $v      Eigen/singular vectors             </span></span>
+<span id="cb2-31"><a href="#cb2-31"></a><span class="co">#&gt;  $q      Generalized eigen/singular vectors </span></span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="co">#&gt;  $fj     Component scores</span></span></code></pre></div>
+<p>To note: The results from the two approaches are <em>not</em> the same. We explore this a bit more when we get to PCA with the <code>gsvd()</code>.</p>
+</div>
+<div id="metric-multidimensional-scaling" class="section level2">
+<h2>(Metric) Multidimensional scaling</h2>
+<p>Metric multidimensional scaling (MDS) is a technique akin to PCA, but specifically for the factorization of distance matrix. MDS, like PCA, is also an eigen-technique. First we see how to perform MDS as a plain EVD problem. Then we see how to performed a weighted MDS—effectively, a MDS with constraints. For the weighted MDS example we will (eventually) make use of some known or <em>a priori</em> information as the constraints.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2"></a>data_for_distances &lt;-<span class="st"> </span>synthetic_ONDRI[,</span>
+<span id="cb3-3"><a href="#cb3-3"></a>                                      <span class="kw">c</span>(<span class="st">&quot;TMT_A_sec&quot;</span>, <span class="st">&quot;TMT_B_sec&quot;</span>, </span>
+<span id="cb3-4"><a href="#cb3-4"></a>                                        <span class="st">&quot;Stroop_color_sec&quot;</span>, <span class="st">&quot;Stroop_word_sec&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>                                        <span class="st">&quot;Stroop_inhibit_sec&quot;</span>,<span class="st">&quot;Stroop_switch_sec&quot;</span>)]</span>
+<span id="cb3-6"><a href="#cb3-6"></a>scaled_data &lt;-<span class="st"> </span><span class="kw">scale</span>(data_for_distances, <span class="dt">center =</span> T, <span class="dt">scale =</span> T)</span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a>distance_matrix &lt;-<span class="st"> </span><span class="kw">as.matrix</span>( <span class="kw">dist</span>( scaled_data ) )</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a>row_weights &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span><span class="op">/</span><span class="kw">nrow</span>(distance_matrix), <span class="kw">nrow</span>(distance_matrix))</span>
+<span id="cb3-11"><a href="#cb3-11"></a></span>
+<span id="cb3-12"><a href="#cb3-12"></a>centering_matrix &lt;-<span class="st"> </span><span class="kw">diag</span>(<span class="kw">nrow</span>(distance_matrix)) <span class="op">-</span><span class="st"> </span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="st">  </span>( <span class="kw">rep</span>(<span class="dv">1</span>,<span class="kw">nrow</span>(distance_matrix)) <span class="op">%o%</span><span class="st"> </span>row_weights )</span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a>matrix_to_decompose &lt;-<span class="st"> </span>centering_matrix <span class="op">%*%</span><span class="st"> </span></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="st">  </span>(<span class="op">-</span>(distance_matrix<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span><span class="dv">2</span>) <span class="op">%*%</span><span class="st"> </span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="st">  </span><span class="kw">t</span>(centering_matrix)</span>
+<span id="cb3-18"><a href="#cb3-18"></a></span>
+<span id="cb3-19"><a href="#cb3-19"></a>mds_geigen &lt;-<span class="st"> </span><span class="kw">geigen</span>(matrix_to_decompose)</span></code></pre></div>
+<p>The results from <code>geigen(matrix_to_decompose)</code> produce a variety of outputs that align with the concept of eigenvectors, generalized eigenvectors, and component scores. But, more specifically, the results of <code>base::cmdscale(distance_matrix)</code> are identical to <code>mds_geigen$fj[,1:2]</code>; that is, MDS scores as viewed through <code>geigen</code> are component scores.</p>
+<p>However, the generalized approach allows us to include constraints. In the following example, we can now include a weighting factor per observation as a constraint to impose on that observation. Here we use the inverse of age, so that we effectively downweight older individuals and upweight younger individuals.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a></span>
+<span id="cb4-2"><a href="#cb4-2"></a>row_weights &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">/</span>synthetic_ONDRI<span class="op">$</span>AGE</span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a>centering_matrix &lt;-<span class="st"> </span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="st">  </span><span class="kw">diag</span>(<span class="kw">nrow</span>(distance_matrix)) <span class="op">-</span><span class="st"> </span>(</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  <span class="kw">rep</span>(<span class="dv">1</span>,<span class="kw">nrow</span>(distance_matrix)) <span class="op">%o%</span><span class="st"> </span>( row_weights<span class="op">/</span><span class="kw">sum</span>(row_weights) )</span>
+<span id="cb4-7"><a href="#cb4-7"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8"></a></span>
+<span id="cb4-9"><a href="#cb4-9"></a></span>
+<span id="cb4-10"><a href="#cb4-10"></a>matrix_to_decompose &lt;-<span class="st"> </span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="st">  </span><span class="op">-</span>(centering_matrix <span class="op">%*%</span><span class="st"> </span>(distance_matrix<span class="op">^</span><span class="dv">2</span>) <span class="op">%*%</span><span class="st"> </span><span class="kw">t</span>(centering_matrix))<span class="op">/</span><span class="dv">2</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a></span>
+<span id="cb4-13"><a href="#cb4-13"></a>mds_weighted_geigen &lt;-<span class="st"> </span><span class="kw">geigen</span>( matrix_to_decompose , <span class="dt">W =</span> row_weights, <span class="dt">tol =</span> <span class="ot">NA</span> )</span></code></pre></div>
+<p>In <code>mds_weighted_geigen</code> we require the use of <code>tol=NA</code>. This is because <code>matrix_to_decompose</code> is not positive semi-definite. Recall that one of the key principles of the <code>GSVD</code> package is that we require positive semi-definite matrices for the constraints, and that the design of <code>geigen</code> also—by default—assumes positive semi-definite matrices. This is because most multivariate analyses—from the eigendecomposition perspective—require correlation or covariance matrices which are by definition positive semi-definite. If we were to run <code>geigen(matrix_to_decompose, diag(row_weights))</code> we would get an error. In fact, we are unable to set an appropriate tolerance parameter in this case because the last few eigenvalues have large <em>negative</em> values. But the use of <code>tol=NA</code> allows for a direct computation of the eigendecomposition, without dropping any of the dimensions (e.g., those below tolerance). For such an analysis, it is typical to discard dimensions with such eigenvalues (which is why it is a default in the package). However, some standard analyses do violate those assumptions. For examples: the weighted MDS here, principal axis factoring, and other approaches to factor analysis where.</p>
+</div>
+<div id="invariant-coordinate-scaling" class="section level2">
+<h2>Invariant coordinate scaling</h2>
+<p>Invariant coordinate scaling (ICS) is another multivariate tool that can obtain (a specific form) of independent components as in independent components analysis (ICA). ICS is, effectively, the decomposition of one “scatter matrix” with respect to a second “scatter matrix”. A covariance matrix is the “typical” scatter matrix. In standard ICS, we would decompose a <em>fourth moments</em> covariance matrix with respect to a standard covariance matrix. Let’s see how to perform ICS through the <code>gevd()</code>. For ICS, we have a few extra steps of preprocessing and data preparation than we do for PCA. We’ll use the same data in ICS as we do in PCA. However, for the ICS example we’ll use data that are centered <em>and scaled</em> because the measures are not necessarily on the same scale (NOTE: while they all measure time, the amount of <em>maximum</em> possible time for each varies).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a>continuous_data &lt;-<span class="st"> </span>synthetic_ONDRI[,<span class="kw">c</span>(<span class="st">&quot;TMT_A_sec&quot;</span>, <span class="st">&quot;TMT_B_sec&quot;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4"></a>                                      <span class="st">&quot;Stroop_color_sec&quot;</span>, <span class="st">&quot;Stroop_word_sec&quot;</span>, </span>
+<span id="cb5-5"><a href="#cb5-5"></a>                                      <span class="st">&quot;Stroop_inhibit_sec&quot;</span>, <span class="st">&quot;Stroop_switch_sec&quot;</span>)]</span>
+<span id="cb5-6"><a href="#cb5-6"></a>scaled_data &lt;-<span class="st"> </span><span class="kw">scale</span>(data_for_distances, <span class="dt">center =</span> T, <span class="dt">scale =</span> T)</span>
+<span id="cb5-7"><a href="#cb5-7"></a>cov_data &lt;-<span class="st"> </span><span class="kw">cov</span>(scaled_data)</span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co">### the following three lines help us compute the fourth moments covariance matrix.</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>sigma.data.sqrt &lt;-<span class="st"> </span>GSVD<span class="op">::</span><span class="kw">sqrt_psd_matrix</span>(cov_data)</span>
+<span id="cb5-11"><a href="#cb5-11"></a>radius &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">rowSums</span>((scaled_data <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(sigma.data.sqrt))<span class="op">^</span><span class="dv">2</span>))</span>
+<span id="cb5-12"><a href="#cb5-12"></a>cov4_data &lt;-<span class="st"> </span><span class="kw">crossprod</span>(radius <span class="op">*</span><span class="st"> </span>scaled_data)</span></code></pre></div>
+<p>The above code provides us the two scatter matrices of interest: <code>cov4_data</code> which is the fourth moments covariance matrix, and <code>cov_data</code> which is the standard covariance matrix. We now use both of these in a <code>gevd()</code> to obtain the ICS solution. the GEVD provides the basis of the ICS solution, but ICS (and related methods) require a few extra steps.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2"></a>ics_geigen &lt;-<span class="st"> </span>GSVD<span class="op">::</span><span class="kw">geigen</span>(cov4_data, <span class="kw">solve</span>(cov_data))</span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a>ics_unmixing_matrix &lt;-<span class="st"> </span><span class="kw">crossprod</span>(ics_geigen<span class="op">$</span>v, GSVD<span class="op">::</span><span class="kw">invsqrt_psd_matrix</span>(cov_data))</span>
+<span id="cb6-5"><a href="#cb6-5"></a>ics_generalzied_kurtosis &lt;-<span class="st"> </span>ics_geigen<span class="op">$</span>l_full <span class="op">/</span><span class="st"> </span><span class="kw">prod</span>(ics_geigen<span class="op">$</span>l_full)<span class="op">^</span>(<span class="dv">1</span><span class="op">/</span><span class="kw">ncol</span>(scaled_data))</span>
+<span id="cb6-6"><a href="#cb6-6"></a>ics_row_scores &lt;-<span class="st"> </span><span class="kw">tcrossprod</span>(scaled_data, ics_unmixing_matrix)</span></code></pre></div>
+<p>For ICS, our extra steps were to compute:</p>
+<ul>
+<li><p>the unmixing matrix which is akin to, but not the same as loadings</p></li>
+<li><p>the generalized kurtosis values which are akin to and compute from (but again: not the same as) the eigenvalues</p></li>
+<li><p>the row scores, which are a projection of the rows from our original data (<code>scaled_data</code>) onto the unmixing matrix</p></li>
+</ul>
+<p>Next let’s highlight the some of the similarities and differences between what we obtained from ICS and our correlation PCA (i.e., <code>cor_pca_geigen</code>). First, we’ll need to compute row scores for PCA.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a></span>
+<span id="cb7-2"><a href="#cb7-2"></a>pca_row_scores &lt;-<span class="st"> </span><span class="kw">tcrossprod</span>(scaled_data, <span class="kw">t</span>(cor_pca_geigen<span class="op">$</span>v))</span></code></pre></div>
+<p>The first similarity to note across all of these row scores is that the columns of the row scores (i.e., the components) are <em>orthogonal</em>. That means all components have a zero correlation with each other within any of these solutions. You can see that with the following code (results not shown for brevity).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">cor</span>(pca_row_scores)</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="kw">cor</span>(ics_row_scores)</span></code></pre></div>
+<p>Next, let’s compare the results of the row scores to one another, to see how similar (or different) the results are between the row scores from ICS vs. PCA. Here let’s instead look at the results, but hide the code (you can see the code for itself in the <code>vignette</code> folder)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+ICS Component1
+</th>
+<th style="text-align:right;">
+ICS Component2
+</th>
+<th style="text-align:right;">
+ICS Component3
+</th>
+<th style="text-align:right;">
+ICS Component4
+</th>
+<th style="text-align:right;">
+ICS Component5
+</th>
+<th style="text-align:right;">
+ICS Component6
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+PCA Component1
+</td>
+<td style="text-align:right;">
+0.460
+</td>
+<td style="text-align:right;">
+0.607
+</td>
+<td style="text-align:right;">
+0.199
+</td>
+<td style="text-align:right;">
+0.572
+</td>
+<td style="text-align:right;">
+0.229
+</td>
+<td style="text-align:right;">
+0.016
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PCA Component2
+</td>
+<td style="text-align:right;">
+-0.587
+</td>
+<td style="text-align:right;">
+0.001
+</td>
+<td style="text-align:right;">
+0.710
+</td>
+<td style="text-align:right;">
+0.080
+</td>
+<td style="text-align:right;">
+0.350
+</td>
+<td style="text-align:right;">
+0.149
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PCA Component3
+</td>
+<td style="text-align:right;">
+0.273
+</td>
+<td style="text-align:right;">
+0.432
+</td>
+<td style="text-align:right;">
+0.313
+</td>
+<td style="text-align:right;">
+-0.798
+</td>
+<td style="text-align:right;">
+0.031
+</td>
+<td style="text-align:right;">
+-0.061
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PCA Component4
+</td>
+<td style="text-align:right;">
+0.112
+</td>
+<td style="text-align:right;">
+-0.214
+</td>
+<td style="text-align:right;">
+-0.247
+</td>
+<td style="text-align:right;">
+-0.114
+</td>
+<td style="text-align:right;">
+0.864
+</td>
+<td style="text-align:right;">
+-0.347
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PCA Component5
+</td>
+<td style="text-align:right;">
+0.258
+</td>
+<td style="text-align:right;">
+-0.185
+</td>
+<td style="text-align:right;">
+-0.085
+</td>
+<td style="text-align:right;">
+-0.105
+</td>
+<td style="text-align:right;">
+0.246
+</td>
+<td style="text-align:right;">
+0.906
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PCA Component6
+</td>
+<td style="text-align:right;">
+0.538
+</td>
+<td style="text-align:right;">
+-0.604
+</td>
+<td style="text-align:right;">
+0.538
+</td>
+<td style="text-align:right;">
+0.077
+</td>
+<td style="text-align:right;">
+-0.129
+</td>
+<td style="text-align:right;">
+-0.182
+</td>
+</tr>
+</tbody>
+</table>
+<p>Both approaches provide a different perspective of the data (MDS does as well!). We’ll see PCA and ICS again in the GSVD vignette.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

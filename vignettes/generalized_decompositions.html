@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Derek Beaton" />
+
+<meta name="date" content="2020-11-17" />
+
+<title>Generalized decompositions</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Generalized decompositions</h1>
+<h4 class="author">Derek Beaton</h4>
+<h4 class="date">2020-11-17</h4>
+
+
+
+<div id="precursor" class="section level2">
+<h2>Precursor</h2>
+<p>Please make sure to see the companion manuscript to this package, especially for this vignette (here: <a href="https://arxiv.org/abs/2010.14734" class="uri">https://arxiv.org/abs/2010.14734</a>)</p>
+</div>
+<div id="notation" class="section level2">
+<h2>Notation</h2>
+<p>Bold uppercase letters denote matrices (e.g., <span class="math inline">\(\mathbf{X}\)</span>). Upper case italic letters (e.g., <span class="math inline">\(I\)</span>) denote cardinality, size, or length. Subscripts for matrices denote relationships with certain other matrices, for examples <span class="math inline">\({\mathbf Z}_{\mathbf X}\)</span> is some matrix derived from or related to the <span class="math inline">\({\bf X}\)</span> matrix, where something like <span class="math inline">\({\bf F}_{I}\)</span> is a matrix related to the <span class="math inline">\(I\)</span> set of elements. When these matrices are introduced, they are also specified. Two matrices side-by-side denotes standard matrix multiplication (e.g., <span class="math inline">\(\bf{X}\bf{Y}\)</span>). Superscript <span class="math inline">\(^{T}\)</span> denotes the transpose operation, and superscript <span class="math inline">\(^{-1}\)</span> denotes standard matrix inversion. The diagonal operator, denoted <span class="math inline">\(\mathrm{diag\{\}}\)</span>, transforms a vector into a diagonal matrix, or extracts the diagonal of a matrix in order to produce a vector.</p>
+</div>
+<div id="generalized-eigendecomposition" class="section level2">
+<h2>Generalized eigendecomposition</h2>
+<p>The generalized eigendecomposition (GEVD) requires two matrices: a <span class="math inline">\(J \times J\)</span> (square) data matrix <span class="math inline">\({\bf X}\)</span> and a <span class="math inline">\(J \times J\)</span> constraints matrix <span class="math inline">\({\bf W}_{\bf X}\)</span>. For the GEVD, <span class="math inline">\({\bf X}\)</span> is typically positive semi-definite and symmetric (e.g., a covariance matrix) and <span class="math inline">\({\bf W}_{\bf X}\)</span> is required to be positive semi-definite. The GEVD decomposes the data matrix <span class="math inline">\({\bf X}\)</span>—with respect to its constraints <span class="math inline">\({\bf W}_{\bf X}\)</span>—into two matrices as <span class="math display">\[\begin{equation}
+{\bf X} = {\bf Q}{\bf \Lambda}{\bf Q}^{T},
+\end{equation}\]</span> where <span class="math inline">\({\bf \Lambda}\)</span> is a diagonal matrix that contains the eigenvalues and <span class="math inline">\({\bf Q}\)</span> are the <em>generalized</em> eigenvectors. The GEVD finds orthogonal slices of a data matrix, with respect to its constraints, where each orthogonal slice explains the maximum possible variance. That is, the GEVD maximizes <span class="math inline">\({\bf \Lambda} = {\bf Q}^{T}{\bf W}_{\bf X}{\bf X}{\bf W}_{\bf X}{\bf Q}\)</span> under the constraint of orthogonality where <span class="math inline">\({\bf Q}^{T}{\bf W}_{\bf X}{\bf Q} = {\bf I}\)</span>. Practically, the GEVD is performed with the standard eigenvalue decomposition (EVD) as <span class="math display">\[\begin{equation}
+\widetilde{\bf X} = {\bf V}{\bf \Lambda}{\bf V},
+\end{equation}\]</span> where <span class="math inline">\(\widetilde{\bf X} = {\bf W}_{\bf X}^{\frac{1}{2}}{\bf X}{\bf W}_{\bf X}^{\frac{1}{2}}\)</span> and <span class="math inline">\({\bf V}\)</span> are the eigenvectors which are orthonormal, such that <span class="math inline">\({\bf V}^{T}{\bf V} = {\bf I}\)</span>. <!-- Like with the GEVD, the plain EVD maximizes the variance as ${\bf \Lambda} = {\bf V}^{T}\widetilde{\bf X}{\bf V}$ under the constraint of orthogonality where ${\bf V}^{T}{\bf V} = {\bf I}$.  --> The relationship between the GEVD and EVD can be explained as the relationship between the generalized and standard eigenvectors where <span class="math display">\[\begin{equation}
+{\bf Q} = {\bf W}_{\bf X}^{-\frac{1}{2}}{\bf V} \Longleftrightarrow {\bf V} = {\bf W}_{\bf X}^{\frac{1}{2}}{\bf Q}.
+\end{equation}\]</span> When <span class="math inline">\({\bf W}_{\bf X} = {\bf I}\)</span>, the GEVD produces exactly the same results as the EVD because <span class="math inline">\(\widetilde{\bf X} = {\bf X}\)</span> and thus <span class="math inline">\({\bf Q} = {\bf V}\)</span>. Analyses with the EVD and GEVD—such as PCA—typically produce component or factor scores. With the GEVD, component scores are defined as <span class="math display">\[\begin{equation}
+{\bf F}_{J} = {\bf W}_{\bf X}{\bf Q}{\bf \Delta},
+\end{equation}\]</span> where <span class="math inline">\({\bf \Delta} = {\bf \Lambda}^{\frac{1}{2}}\)</span>, which are singular values. The maximization in the GEVD can be reframed as the maximization of the component scores where <span class="math inline">\({\bf \Lambda} = {\bf F}_{J}^{T}{\bf W}_{\bf X}^{-1}{\bf F}_{J}\)</span>, still subject to <span class="math inline">\({\bf Q}^{T}{\bf W}_{\bf X}{\bf Q} = {\bf I}\)</span>.</p>
+</div>
+<div id="generalized-singular-value-decomposition" class="section level2">
+<h2>Generalized singular value decomposition</h2>
+<p>The generalized singular value decomposition (GSVD) requires three matrices: an <span class="math inline">\(I \times J\)</span> (rectangular) data matrix <span class="math inline">\({\bf X}\)</span>, an <span class="math inline">\(I \times I\)</span> row constraints matrix <span class="math inline">\({\bf M}_{\bf X}\)</span>, and a <span class="math inline">\(J \times J\)</span> columns constraints matrix <span class="math inline">\({\bf W}_{\bf X}\)</span>. For the GSVD <span class="math inline">\({\bf M}_{\bf X}\)</span> and <span class="math inline">\({\bf W}_{\bf X}\)</span> are each required to be positive semi-definite. The GSVD decomposes the data matrix <span class="math inline">\({\bf X}\)</span>—with respect to both of its constraints <span class="math inline">\({\bf M}_{\bf X}\)</span> and <span class="math inline">\({\bf W}_{\bf X}\)</span>—into three matrices as</p>
+<p><span class="math display">\[\begin{equation}
+{\bf X} = {\bf P}{\bf \Delta}{\bf Q}^{T},
+\end{equation}\]</span> where <span class="math inline">\({\bf \Delta}\)</span> is a diagonal matrix that contains the singular values, and where <span class="math inline">\({\bf P}\)</span> and <span class="math inline">\({\bf Q}\)</span> are the left and right <em>generalized</em> singular vectors, respectively. From the GSVD we can obtain eigenvalues as <span class="math inline">\({\bf \Lambda}^{2} = {\bf \Delta}\)</span>. The GSVD finds orthogonal slices of a data matrix, with respect to its constraints, where each slice explains the maximum possible <em>square root</em> of the variance. That is, the GSVD maximizes <span class="math inline">\({\bf \Delta} = {\bf P}^{T}{\bf M}_{\bf X}{\bf X}{\bf W}_{\bf X}{\bf Q}\)</span> under the constraint of orthogonality where <span class="math inline">\({\bf P}^{T}{\bf M}_{\bf X}{\bf P} = {\bf I} = {\bf Q}^{T}{\bf W}_{\bf X}{\bf Q}\)</span>. Typically, the GSVD is performed with the standard SVD as <span class="math display">\[\begin{equation}
+\widetilde{\bf X} = {\bf U}{\bf \Delta}{\bf V},
+\end{equation}\]</span> where <span class="math inline">\(\widetilde{\bf X} = {{\bf M}_{\bf X}^{\frac{1}{2}}}{\bf X}{{\bf W}^{\frac{1}{2}}_{\bf X}}\)</span>, and where <span class="math inline">\({\bf U}\)</span> and <span class="math inline">\({\bf V}\)</span> are the left and right singular vectors, respectively, which are orthonormal such that <span class="math inline">\({\bf U}^{T}{\bf U} = {\bf I} = {\bf V}^{T}{\bf V}\)</span>. The relationship between the GSVD and SVD can be explained as the relationship between the generalized and standard singular vectors where <span class="math display">\[\begin{equation}
+\begin{aligned}
+{\bf P} = {{\bf M}^{-\frac{1}{2}}_{\bf X}}{\bf U} \Longleftrightarrow {\bf U} = {{\bf M}^{\frac{1}{2}}_{\bf X}}{\bf P} \\
+{\bf Q} = {{\bf W}^{-\frac{1}{2}}_{\bf X}}{\bf V} \Longleftrightarrow {\bf V} = {{\bf W}^{\frac{1}{2}}_{\bf X}}{\bf Q}.
+\end{aligned}
+\end{equation}\]</span> When <span class="math inline">\({\bf M}_{\bf X} = {\bf I} = {\bf W}_{\bf X}\)</span>, the GSVD produces exactly the same results as the SVD because <span class="math inline">\(\widetilde{\bf X} = {\bf X}\)</span> and thus <span class="math inline">\({\bf P} = {\bf U}\)</span> and <span class="math inline">\({\bf Q} = {\bf V}\)</span>. Analyses with the SVD and GSVD—such as PCA or CA—typically produce component or factor scores. With the GSVD, component scores are defined as <span class="math display">\[\begin{equation}
+{\bf F}_{I} = {\bf M}_{\bf X}{\bf P}{\bf \Delta} \textrm{ and } {\bf F}_{J} = {\bf W}_{\bf X}{\bf Q}{\bf \Delta},
+\end{equation}\]</span> for the left (rows) and right (columns) of <span class="math inline">\({\bf X}\)</span>, respectively. The optimization in the GSVD can be reframed as the maximization of the component scores where <span class="math inline">\({\bf F}_{I}^{T}{\bf M}_{\bf X}^{-1}{\bf F}_{I} = {\bf \Lambda} = {\bf F}_{J}^{T}{\bf W}_{\bf X}^{-1}{\bf F}_{J}\)</span>, still subject to <span class="math inline">\({\bf P}^{T}{\bf M}_{\bf X}{\bf P} = {\bf I} = {\bf Q}^{T}{\bf W}_{\bf X}{\bf Q}\)</span>. Note how the optimization with respect to the component scores shows a maximization for the eigenvalues.</p>
+</div>
+<div id="generalized-partial-least-squares-singular-value-decomposition" class="section level2">
+<h2>Generalized partial least squares singular value decomposition</h2>
+<p>The GPLSSVD requires six matrices: an <span class="math inline">\(N \times I\)</span> (rectangular) data matrix <span class="math inline">\({\bf X}\)</span> with its <span class="math inline">\(N \times N\)</span> row constraints matrix <span class="math inline">\({\bf M}_{\bf X}\)</span> and its <span class="math inline">\(I \times I\)</span> columns constraints matrix <span class="math inline">\({\bf W}_{\bf X}\)</span>, and an <span class="math inline">\(N \times J\)</span> (rectangular) data matrix <span class="math inline">\({\bf Y}\)</span> with its <span class="math inline">\(N \times N\)</span> row constraints matrix <span class="math inline">\({\bf M}_{\bf Y}\)</span> and its <span class="math inline">\(J \times J\)</span> columns constraints matrix <span class="math inline">\({\bf W}_{\bf Y}\)</span>. For the GPLSSVD all constraint matrices are required to be positive semi-definite. The GPLSSVD decomposes <em>the relationship between</em> the data matrices, with respect to their constraints, and expresses the common information as the relationship between latent variables. The goal of partial least squares-SVD (PLSSVD) is to find a combination of orthogonal latent variables that maximize the relationship between two data matrices. PLS is often presented as <span class="math inline">\(\mathrm{arg max(} {\bf {l_{\bf X}}_{\ell}^{T}}{{\bf l}_{\bf Y}}_{\ell}\mathrm{)} = \mathrm{arg max}\textrm{ }\mathrm{cov(} {\bf {l_{\bf X}}_{\ell}}, {{\bf l}_{\bf Y}}_{\ell}\mathrm{)}\)</span>, under the condition that <span class="math inline">\({\bf {l_{\bf X}}_{\ell}^{T}}{{\bf l}_{\bf Y}}_{\ell&#39;} = 0\)</span> when <span class="math inline">\({\ell} \neq {\ell&#39;}\)</span>. This maximization can be framed as <span class="math display">\[\begin{equation}
+{{\bf L}_{\bf X}^{T}}{\bf L}_{\bf Y} = {\bf \Delta},
+\end{equation}\]</span> where <span class="math inline">\({\bf \Delta}\)</span> is the diagonal matrix of singular values, and so <span class="math inline">\({\bf \Delta}^{2} = {\bf \Lambda}\)</span> which are eigenvalues. Like with the GSVD, the GPLSSVD decomposes the relationship between two data matrices into three matrices as <span class="math display">\[\begin{equation}
+[({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X})^{T}({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y})] = {\bf P}{\bf \Delta}{\bf Q}^{T},
+\end{equation}\]</span> where <span class="math inline">\({\bf \Delta}\)</span> is the diagonal matrix of singular values, and where <span class="math inline">\({\bf P}\)</span> and <span class="math inline">\({\bf Q}\)</span> are the left and right <em>generalized</em> singular vectors, respectively. Like the GSVD and GEVD, the GPLSSVD finds orthogonal slices of <span class="math inline">\(({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X})^{T}({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y})\)</span> with respect to the column constraints. The GPLSSVD maximizes <span class="math inline">\({\bf \Delta} = {\bf P}^{T}{\bf W}_{\bf X}[({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X})^{T}({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y})]{\bf W}_{\bf Y}{\bf Q}\)</span> under the constraint of orthogonality where <span class="math inline">\({\bf P}^{T}{\bf W}_{\bf X}{\bf P} = {\bf I} = {\bf Q}^{T}{\bf W}_{\bf Y}{\bf Q}\)</span>. Typically, the GPLSSVD is performed with the SVD as <span class="math display">\[\begin{equation}
+\widetilde{\bf X}^{T}\widetilde{\bf Y} = {\bf U}{\bf \Delta}{\bf V},
+\end{equation}\]</span> where <span class="math inline">\(\widetilde{\bf X} = {{\bf M}_{\bf X}^{\frac{1}{2}}}{\bf X}{{\bf W}^{\frac{1}{2}}_{\bf X}}\)</span> and <span class="math inline">\(\widetilde{\bf Y} = {{\bf M}_{\bf Y}^{\frac{1}{2}}}{\bf Y}{{\bf W}^{\frac{1}{2}}_{\bf Y}}\)</span>, and where <span class="math inline">\({\bf U}\)</span> and <span class="math inline">\({\bf V}\)</span> are the left and right singular vectors, respectively, which are orthonormal such that <span class="math inline">\({\bf U}^{T}{\bf U} = {\bf I} = {\bf V}^{T}{\bf V}\)</span>. The relationship between the generalized and standard singular vectors are <span class="math display">\[\begin{equation}
+\begin{aligned}
+{\bf P} = {{\bf W}^{-\frac{1}{2}}_{\bf X}}{\bf U} \Longleftrightarrow {\bf U} = {{\bf W}^{\frac{1}{2}}_{\bf X}}{\bf P} \\
+{\bf Q} = {{\bf W}^{-\frac{1}{2}}_{\bf Y}}{\bf V} \Longleftrightarrow {\bf V} = {{\bf W}^{\frac{1}{2}}_{\bf Y}}{\bf Q}.
+\end{aligned}
+\end{equation}\]</span> When all constraint matrices are <span class="math inline">\({\bf I}\)</span>, the GPLSSVD produces exactly the same results as the PLSSVD because <span class="math inline">\(\widetilde{\bf X} = {\bf X}\)</span> and <span class="math inline">\(\widetilde{\bf Y} = {\bf Y}\)</span> and thus <span class="math inline">\({\bf P} = {\bf U}\)</span> and <span class="math inline">\({\bf Q} = {\bf V}\)</span>.</p>
+<p>The latent variables are then expressed with respect to the constraints and <em>generalized</em> singular vectors as <span class="math inline">\({\bf L}_{\bf X} = ({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X}{\bf W}_{\bf X}{\bf P})\)</span> and <span class="math inline">\({\bf L}_{\bf Y} = ({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y}{\bf W}_{\bf Y}{\bf Q})\)</span>. These latent variables maximize the weighted covariance (by way of the constraints) subject to orthogonality where <span class="math display">\[\begin{equation}
+\begin{aligned}
+{\bf L}_{\bf X}^{T}{\bf L}_{\bf Y} = \\
+({\bf M}_{\bf X}^{\frac{1}{2}}{\bf X}{\bf W}_{\bf X}{\bf P})^{T}({\bf M}_{\bf Y}^{\frac{1}{2}}{\bf Y}{\bf W}_{\bf Y}{\bf Q}) =\\
+(\widetilde{\bf X}{\bf U})^{T}(\widetilde{\bf Y}{\bf V}) =\\
+{\bf U}^{T}\widetilde{\bf X}^{T}\widetilde{\bf Y}{\bf V} = {\bf \Delta}.
+\end{aligned}
+\end{equation}\]</span></p>
+<p>We will see in the following section that the “weighted covariance” could be the correlation, which allows us to use the GPLSSVD to perform various types of “cross-decomposition” techniques. Like with the GEVD and GSVD, the GPLSSVD produces component or factor scores. The component scores are defined as <span class="math display">\[\begin{equation}
+{\bf F}_{I} = {\bf W}_{\bf X}{\bf P}{\bf \Delta} \textrm{ and } {\bf F}_{J} = {\bf W}_{\bf Y}{\bf Q}{\bf \Delta},
+\end{equation}\]</span> for the columns of <span class="math inline">\({\bf X}\)</span> and the columns of <span class="math inline">\({\bf Y}\)</span>, respectively. The optimization in the GPLSSVD can be reframed as the maximization of the component scores where <span class="math inline">\({\bf F}_{I}^{T}{\bf W}_{\bf X}^{-1}{\bf F}_{I} = {\bf \Lambda} = {\bf F}_{J}^{T}{\bf W}_{\bf Y}^{-1}{\bf F}_{J}\)</span> where <span class="math inline">\({\bf \Lambda}\)</span> are the eigenvalues, and this maximization is still subject to <span class="math inline">\({\bf P}^{T}{\bf W}_{\bf X}{\bf P} = {\bf I} = {\bf Q}^{T}{\bf W}_{\bf Y}{\bf Q}\)</span>.</p>
+</div>
+<div id="decomposition-tuples" class="section level2">
+<h2>Decomposition tuples</h2>
+<p>For simplicity, the GSVD is often referred to as a “triplet” or “the GSVD triplet” comprised of (1) the data matrix, (2) the column constraints, and (3) the row constraints. We can use the same concept to also define “tuples” for the GEVD and GPLSSVD. To note, the traditional way to present the GSVD triplet is in the above order (data, column constraints, row constraints). However, here I present a different order for the elements in the tuples so that I can (1) better harmonize the tuples across the three decompositions presented here, and (2) simplify the tuples such that the order of the elements within the tuples reflects the matrix multiplication steps. Furthermore, I present two different tuples for each decomposition—a complete and a partial—where the partial is a lower rank solution. The complete decomposition tuples are:</p>
+<ul>
+<li><p>The complete GEVD 2-tuple: <span class="math inline">\(\mathrm{GEVD(}{\bf X}, {\bf W}_{\bf X}\mathrm{)}\)</span></p></li>
+<li><p>The complete GSVD decomposition 3-tuple: <span class="math inline">\(\mathrm{GSVD(}{\bf M}_{\bf X}, {\bf X}, {\bf W}_{\bf X}\mathrm{)}\)</span></p></li>
+<li><p>The complete GPLSSVD decomposition 6-tuple: <span class="math inline">\(\mathrm{GPLSSVD(}{\bf M}_{\bf X}, {\bf X}, {\bf W}_{\bf X}, {\bf M}_{\bf Y}, {\bf Y}, {\bf W}_{\bf Y}\mathrm{)}\)</span>.</p></li>
+</ul>
+<p>Additionally, we can take the idea of tuples one step further and allow for the these tuples to also define the desired <em>returned rank</em> of the results referred to as “partial decompositions”. The partial decompositions produce (return) only the first <span class="math inline">\(C\)</span> components, and are defined as:</p>
+<ul>
+<li><p>The partial GEVD decomposition 3-tuple: <span class="math inline">\(\mathrm{GEVD(}{\bf X}, {\bf W}_{\bf X}, C\mathrm{)}\)</span></p></li>
+<li><p>The partial GSVD decomposition 4-tuple: <span class="math inline">\(\mathrm{GSVD(}{\bf M}_{\bf X}, {\bf X}, {\bf W}_{\bf X}, C\mathrm{)}\)</span></p></li>
+<li><p>The partial GPLSSVD decomposition 7-tuple: <span class="math inline">\(\mathrm{GPLSSVD(}{\bf M}_{\bf X}, {\bf X}, {\bf W}_{\bf X}, {\bf M}_{\bf Y}, {\bf Y}, {\bf W}_{\bf Y}, C\mathrm{)}\)</span>.</p></li>
+</ul>
+<p>Overall, these tuples provide short and convenient ways to express the decompositions. And as we will see in later sections, these tuples provide a simpler way to express specific techniques under the same framework (e.g., PLS and CCA via GPLSSVD).</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
