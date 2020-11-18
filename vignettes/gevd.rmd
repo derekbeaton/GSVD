@@ -118,9 +118,9 @@ mds_weighted_geigen <- geigen( matrix_to_decompose , W = row_weights, tol = NA )
 In `mds_weighted_geigen` we require the use of `tol=NA`. This is because `matrix_to_decompose` is not positive semi-definite. Recall that one of the key principles of the `GSVD` package is that we require positive semi-definite matrices for the constraints, and that the design of `geigen` also---by default---assumes positive semi-definite matrices. This is because most multivariate analyses---from the eigendecomposition perspective---require correlation or covariance matrices which are by definition positive semi-definite. If we were to run `geigen(matrix_to_decompose, diag(row_weights))` we would get an error. In fact, we are unable to set an appropriate tolerance parameter in this case because the last few eigenvalues have large *negative* values. But the use of `tol=NA` allows for a direct computation of the eigendecomposition, without dropping any of the dimensions (e.g., those below tolerance). For such an analysis, it is typical to discard dimensions with such eigenvalues (which is why it is a default in the package). However, some standard analyses do violate those assumptions. For examples: the weighted MDS here, principal axis factoring, and other approaches to factor analysis where.
 
 
-## Invariant coordinate scaling
+## Invariant coordinate selection
 
-Invariant coordinate scaling (ICS) is another multivariate tool that can obtain (a specific form) of independent components as in independent components analysis (ICA). ICS is, effectively, the decomposition of one "scatter matrix" with respect to a second "scatter matrix". A covariance matrix is the "typical" scatter matrix. In standard ICS, we would decompose a *fourth moments* covariance matrix with respect to a standard covariance matrix. Let's see how to perform ICS through the `gevd()`. For ICS, we have a few extra steps of preprocessing and data preparation than we do for PCA. We'll use the same data in ICS as we do in PCA. However, for the ICS example we'll use data that are centered *and scaled* because the measures are not necessarily on the same scale (NOTE: while they all measure time, the amount of *maximum* possible time for each varies). 
+Invariant coordinate selection (ICS) is another multivariate tool that can obtain (a specific form) of independent components as in independent components analysis (ICA). ICS is, effectively, the decomposition of one "scatter matrix" with respect to a second "scatter matrix". A covariance matrix is the "typical" scatter matrix. In standard ICS, we would decompose a *fourth moments* covariance matrix with respect to a standard covariance matrix. Let's see how to perform ICS through the `gevd()`. For ICS, we have a few extra steps of preprocessing and data preparation than we do for PCA. We'll use the same data in ICS as we do in PCA. However, for the ICS example we'll use data that are centered *and scaled* because the measures are not necessarily on the same scale (NOTE: while they all measure time, the amount of *maximum* possible time for each varies). 
 
 
 ```{r ics_prep}
@@ -129,15 +129,17 @@ Invariant coordinate scaling (ICS) is another multivariate tool that can obtain 
 continuous_data <- synthetic_ONDRI[,c("TMT_A_sec", "TMT_B_sec",
                                       "Stroop_color_sec", "Stroop_word_sec", 
                                       "Stroop_inhibit_sec", "Stroop_switch_sec")]
-scaled_data <- scale(data_for_distances, center = T, scale = T)
+scaled_data <- scale(continuous_data, center = T, scale = T)
 cov_data <- cov(scaled_data)
 
 ### the following three lines help us compute the fourth moments covariance matrix.
 sigma.data.sqrt <- GSVD::sqrt_psd_matrix(cov_data)
 radius <- sqrt(rowSums((scaled_data %*% solve(sigma.data.sqrt))^2))
-cov4_data <- crossprod(radius * scaled_data)
+cov4_data <- crossprod(radius * scaled_data) / nrow(scaled_data)
 
 ```
+
+Note that the data here (`scaled_data`) do not need to be scaled; that is we could use just centered data (`scale(continuous_data, center = T, scale = F)`) and the results of ICS are the same with and without scaling the data. Likewise here, we also scaled the `cov4_data` by `nrow(scaled_data)`, though there are other values we could use. This is a constant so it only impacts the eigenvalues (which will be scaled by a constant factor). 
 
 The above code provides us the two scatter matrices of interest: `cov4_data` which is the fourth moments covariance matrix, and `cov_data` which is the standard covariance matrix. We now use both of these in a `gevd()` to obtain the ICS solution. the GEVD provides the basis of the ICS solution, but ICS (and related methods) require a few extra steps.
 

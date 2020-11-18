@@ -12,7 +12,7 @@
 
 <meta name="author" content="Derek Beaton" />
 
-<meta name="date" content="2020-11-17" />
+<meta name="date" content="2020-11-18" />
 
 <title>Examples with the GEVD</title>
 
@@ -362,7 +362,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Examples with the GEVD</h1>
 <h4 class="author">Derek Beaton</h4>
-<h4 class="date">2020-11-17</h4>
+<h4 class="date">2020-11-18</h4>
 
 
 
@@ -459,21 +459,22 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb4-13"><a href="#cb4-13"></a>mds_weighted_geigen &lt;-<span class="st"> </span><span class="kw">geigen</span>( matrix_to_decompose , <span class="dt">W =</span> row_weights, <span class="dt">tol =</span> <span class="ot">NA</span> )</span></code></pre></div>
 <p>In <code>mds_weighted_geigen</code> we require the use of <code>tol=NA</code>. This is because <code>matrix_to_decompose</code> is not positive semi-definite. Recall that one of the key principles of the <code>GSVD</code> package is that we require positive semi-definite matrices for the constraints, and that the design of <code>geigen</code> also—by default—assumes positive semi-definite matrices. This is because most multivariate analyses—from the eigendecomposition perspective—require correlation or covariance matrices which are by definition positive semi-definite. If we were to run <code>geigen(matrix_to_decompose, diag(row_weights))</code> we would get an error. In fact, we are unable to set an appropriate tolerance parameter in this case because the last few eigenvalues have large <em>negative</em> values. But the use of <code>tol=NA</code> allows for a direct computation of the eigendecomposition, without dropping any of the dimensions (e.g., those below tolerance). For such an analysis, it is typical to discard dimensions with such eigenvalues (which is why it is a default in the package). However, some standard analyses do violate those assumptions. For examples: the weighted MDS here, principal axis factoring, and other approaches to factor analysis where.</p>
 </div>
-<div id="invariant-coordinate-scaling" class="section level2">
-<h2>Invariant coordinate scaling</h2>
-<p>Invariant coordinate scaling (ICS) is another multivariate tool that can obtain (a specific form) of independent components as in independent components analysis (ICA). ICS is, effectively, the decomposition of one “scatter matrix” with respect to a second “scatter matrix”. A covariance matrix is the “typical” scatter matrix. In standard ICS, we would decompose a <em>fourth moments</em> covariance matrix with respect to a standard covariance matrix. Let’s see how to perform ICS through the <code>gevd()</code>. For ICS, we have a few extra steps of preprocessing and data preparation than we do for PCA. We’ll use the same data in ICS as we do in PCA. However, for the ICS example we’ll use data that are centered <em>and scaled</em> because the measures are not necessarily on the same scale (NOTE: while they all measure time, the amount of <em>maximum</em> possible time for each varies).</p>
+<div id="invariant-coordinate-selection" class="section level2">
+<h2>Invariant coordinate selection</h2>
+<p>Invariant coordinate selection (ICS) is another multivariate tool that can obtain (a specific form) of independent components as in independent components analysis (ICA). ICS is, effectively, the decomposition of one “scatter matrix” with respect to a second “scatter matrix”. A covariance matrix is the “typical” scatter matrix. In standard ICS, we would decompose a <em>fourth moments</em> covariance matrix with respect to a standard covariance matrix. Let’s see how to perform ICS through the <code>gevd()</code>. For ICS, we have a few extra steps of preprocessing and data preparation than we do for PCA. We’ll use the same data in ICS as we do in PCA. However, for the ICS example we’ll use data that are centered <em>and scaled</em> because the measures are not necessarily on the same scale (NOTE: while they all measure time, the amount of <em>maximum</em> possible time for each varies).</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a></span>
 <span id="cb5-2"><a href="#cb5-2"></a></span>
 <span id="cb5-3"><a href="#cb5-3"></a>continuous_data &lt;-<span class="st"> </span>synthetic_ONDRI[,<span class="kw">c</span>(<span class="st">&quot;TMT_A_sec&quot;</span>, <span class="st">&quot;TMT_B_sec&quot;</span>,</span>
 <span id="cb5-4"><a href="#cb5-4"></a>                                      <span class="st">&quot;Stroop_color_sec&quot;</span>, <span class="st">&quot;Stroop_word_sec&quot;</span>, </span>
 <span id="cb5-5"><a href="#cb5-5"></a>                                      <span class="st">&quot;Stroop_inhibit_sec&quot;</span>, <span class="st">&quot;Stroop_switch_sec&quot;</span>)]</span>
-<span id="cb5-6"><a href="#cb5-6"></a>scaled_data &lt;-<span class="st"> </span><span class="kw">scale</span>(data_for_distances, <span class="dt">center =</span> T, <span class="dt">scale =</span> T)</span>
+<span id="cb5-6"><a href="#cb5-6"></a>scaled_data &lt;-<span class="st"> </span><span class="kw">scale</span>(continuous_data, <span class="dt">center =</span> T, <span class="dt">scale =</span> T)</span>
 <span id="cb5-7"><a href="#cb5-7"></a>cov_data &lt;-<span class="st"> </span><span class="kw">cov</span>(scaled_data)</span>
 <span id="cb5-8"><a href="#cb5-8"></a></span>
 <span id="cb5-9"><a href="#cb5-9"></a><span class="co">### the following three lines help us compute the fourth moments covariance matrix.</span></span>
 <span id="cb5-10"><a href="#cb5-10"></a>sigma.data.sqrt &lt;-<span class="st"> </span>GSVD<span class="op">::</span><span class="kw">sqrt_psd_matrix</span>(cov_data)</span>
 <span id="cb5-11"><a href="#cb5-11"></a>radius &lt;-<span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">rowSums</span>((scaled_data <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(sigma.data.sqrt))<span class="op">^</span><span class="dv">2</span>))</span>
-<span id="cb5-12"><a href="#cb5-12"></a>cov4_data &lt;-<span class="st"> </span><span class="kw">crossprod</span>(radius <span class="op">*</span><span class="st"> </span>scaled_data)</span></code></pre></div>
+<span id="cb5-12"><a href="#cb5-12"></a>cov4_data &lt;-<span class="st"> </span><span class="kw">crossprod</span>(radius <span class="op">*</span><span class="st"> </span>scaled_data) <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(scaled_data)</span></code></pre></div>
+<p>Note that the data here (<code>scaled_data</code>) do not need to be scaled; that is we could use just centered data (<code>scale(continuous_data, center = T, scale = F)</code>) and the results of ICS are the same with and without scaling the data. Likewise here, we also scaled the <code>cov4_data</code> by <code>nrow(scaled_data)</code>, though there are other values we could use. This is a constant so it only impacts the eigenvalues (which will be scaled by a constant factor).</p>
 <p>The above code provides us the two scatter matrices of interest: <code>cov4_data</code> which is the fourth moments covariance matrix, and <code>cov_data</code> which is the standard covariance matrix. We now use both of these in a <code>gevd()</code> to obtain the ICS solution. the GEVD provides the basis of the ICS solution, but ICS (and related methods) require a few extra steps.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a></span>
 <span id="cb6-2"><a href="#cb6-2"></a>ics_geigen &lt;-<span class="st"> </span>GSVD<span class="op">::</span><span class="kw">geigen</span>(cov4_data, <span class="kw">solve</span>(cov_data))</span>

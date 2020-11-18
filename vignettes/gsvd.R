@@ -98,8 +98,10 @@ sigma.data.sqrt <- GSVD::sqrt_psd_matrix(cov_data)
 radius_squared <- rowSums((scaled_data %*% solve(sigma.data.sqrt))^2)
 
 ics_gsvd <- GSVD::gsvd(scaled_data, LW = radius_squared, RW = solve(cov_data))
+
 ics_gsvd_unmix <- crossprod(ics_gsvd$q, solve(cov_data))
-ics_gsvd_components <- tcrossprod(scaled_data, ics_gsvd_unmix)
+ics_generalzied_kurtosis <- ics_gsvd$l_full / prod(ics_gsvd$l_full)^(1/ncol(scaled_data))
+ics_row_scores <- tcrossprod(scaled_data, ics_gsvd_unmix)
 
 
 ## ----rmca---------------------------------------------------------------------

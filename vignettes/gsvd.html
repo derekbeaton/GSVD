@@ -12,7 +12,7 @@
 
 <meta name="author" content="Derek Beaton" />
 
-<meta name="date" content="2020-11-17" />
+<meta name="date" content="2020-11-18" />
 
 <title>Examples with the GSVD</title>
 
@@ -362,7 +362,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Examples with the GSVD</h1>
 <h4 class="author">Derek Beaton</h4>
-<h4 class="date">2020-11-17</h4>
+<h4 class="date">2020-11-18</h4>
 
 
 
@@ -615,8 +615,11 @@ OND01_SYN_0083
 <span id="cb6-10"><a href="#cb6-10"></a>radius_squared &lt;-<span class="st"> </span><span class="kw">rowSums</span>((scaled_data <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(sigma.data.sqrt))<span class="op">^</span><span class="dv">2</span>)</span>
 <span id="cb6-11"><a href="#cb6-11"></a></span>
 <span id="cb6-12"><a href="#cb6-12"></a>ics_gsvd &lt;-<span class="st"> </span>GSVD<span class="op">::</span><span class="kw">gsvd</span>(scaled_data, <span class="dt">LW =</span> radius_squared, <span class="dt">RW =</span> <span class="kw">solve</span>(cov_data))</span>
-<span id="cb6-13"><a href="#cb6-13"></a>ics_gsvd_unmix &lt;-<span class="st"> </span><span class="kw">crossprod</span>(ics_gsvd<span class="op">$</span>q, <span class="kw">solve</span>(cov_data))</span>
-<span id="cb6-14"><a href="#cb6-14"></a>ics_gsvd_components &lt;-<span class="st"> </span><span class="kw">tcrossprod</span>(scaled_data, ics_gsvd_unmix)</span></code></pre></div>
+<span id="cb6-13"><a href="#cb6-13"></a></span>
+<span id="cb6-14"><a href="#cb6-14"></a>ics_gsvd_unmix &lt;-<span class="st"> </span><span class="kw">crossprod</span>(ics_gsvd<span class="op">$</span>q, <span class="kw">solve</span>(cov_data))</span>
+<span id="cb6-15"><a href="#cb6-15"></a>ics_generalzied_kurtosis &lt;-<span class="st"> </span>ics_gsvd<span class="op">$</span>l_full <span class="op">/</span><span class="st"> </span><span class="kw">prod</span>(ics_gsvd<span class="op">$</span>l_full)<span class="op">^</span>(<span class="dv">1</span><span class="op">/</span><span class="kw">ncol</span>(scaled_data))</span>
+<span id="cb6-16"><a href="#cb6-16"></a>ics_row_scores &lt;-<span class="st"> </span><span class="kw">tcrossprod</span>(scaled_data, ics_gsvd_unmix)</span></code></pre></div>
+<p>Note that the data here (<code>scaled_data</code>) do not need to be scaled; that is we could use just centered data (<code>scale(continuous_data, center = T, scale = F)</code>) and the results of ICS are the same with and without scaling the data.</p>
 <p>With <code>gsvd</code> we see a few big conceptual simplifications for ICS. The first is that we are directly analyzing our original data, whereas in the GEVD example we were analyzing the fourth moments covariance matrix. Another major simplification is that we can think of <code>radius_squared</code> as a set of <em>row constraints</em>, where <code>radius_squared</code> is a key step in computing the fourth moments covariance matrix. We also simplified part of the unmixing computation by using the <em>generalized</em> singular vectors for the measures (i.e., <code>ics_gsvd$q</code>).</p>
 <p>The results we have in <code>ics_gsvd</code> for this ICS approach with the <code>gsvd</code> is, clearly, a type of constrained PCA. Which means that the <code>gsvd</code> solution to ICS gives us two sets of solutions: the (constrained) PCA solution directly from <code>gsvd()</code> and the independent component/invariant coordinate solution with the unmixing matrix.</p>
 </div>

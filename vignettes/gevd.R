@@ -71,13 +71,13 @@ mds_weighted_geigen <- geigen( matrix_to_decompose , W = row_weights, tol = NA )
 continuous_data <- synthetic_ONDRI[,c("TMT_A_sec", "TMT_B_sec",
                                       "Stroop_color_sec", "Stroop_word_sec", 
                                       "Stroop_inhibit_sec", "Stroop_switch_sec")]
-scaled_data <- scale(data_for_distances, center = T, scale = T)
+scaled_data <- scale(continuous_data, center = T, scale = T)
 cov_data <- cov(scaled_data)
 
 ### the following three lines help us compute the fourth moments covariance matrix.
 sigma.data.sqrt <- GSVD::sqrt_psd_matrix(cov_data)
 radius <- sqrt(rowSums((scaled_data %*% solve(sigma.data.sqrt))^2))
-cov4_data <- crossprod(radius * scaled_data)
+cov4_data <- crossprod(radius * scaled_data) / nrow(scaled_data)
 
 
 ## ----ics----------------------------------------------------------------------

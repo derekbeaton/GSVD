@@ -164,10 +164,14 @@ sigma.data.sqrt <- GSVD::sqrt_psd_matrix(cov_data)
 radius_squared <- rowSums((scaled_data %*% solve(sigma.data.sqrt))^2)
 
 ics_gsvd <- GSVD::gsvd(scaled_data, LW = radius_squared, RW = solve(cov_data))
+
 ics_gsvd_unmix <- crossprod(ics_gsvd$q, solve(cov_data))
-ics_gsvd_components <- tcrossprod(scaled_data, ics_gsvd_unmix)
+ics_generalzied_kurtosis <- ics_gsvd$l_full / prod(ics_gsvd$l_full)^(1/ncol(scaled_data))
+ics_row_scores <- tcrossprod(scaled_data, ics_gsvd_unmix)
 
 ```
+
+Note that the data here (`scaled_data`) do not need to be scaled; that is we could use just centered data (`scale(continuous_data, center = T, scale = F)`) and the results of ICS are the same with and without scaling the data. 
 
 With `gsvd` we see a few big conceptual simplifications for ICS. The first is that we are directly analyzing our original data, whereas in the GEVD example we were analyzing the fourth moments covariance matrix. Another major simplification is that we can think of `radius_squared` as a set of *row constraints*, where `radius_squared` is a key step in computing the fourth moments covariance matrix. We also simplified part of the unmixing computation by using the *generalized* singular vectors for the measures (i.e., `ics_gsvd$q`). 
 
