@@ -55,7 +55,6 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
   if (!is.matrix(X)){
     X <- as.matrix(X)
   }
-
   # check square-ness here.
   if(X_dimensions[1] != X_dimensions[2]){
     stop("geigen: X must be square (i.e., have the same number of rows and columns)")
@@ -77,6 +76,7 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
       if(is_empty_matrix(W)){
         stop("geigen: W is empty (i.e., all 0s")
       }
+
     }
 
     if(W_is_vector){
@@ -84,32 +84,27 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
         stop("geigen: length(W) does not equal nrow(X)")
       }
 
-      # if you gave me all zeros, I'm stopping.
-      #if(all(abs(W)<=tol)){
+      # if(all(abs(W)<=tol)){
       if(!are_all_values_positive(W)){
         stop("geigen: W is not strictly positive values.")
       }
     }
   }
 
-  ## convenience checks *could* be removed* if problematic
-  # convenience checks & conversions; these are meant to minimize W's memory footprint
-  if(!W_is_missing){
-    if( !W_is_vector) {
-      # if( is_identity_matrix(W) ){
-      #   W_is_missing <- T
-      #   W <- substitute() # neat! this makes it go missing
-      # }
 
+  if(!W_is_missing){
+    if(!W_is_vector) {
+        ## I should make this appear higher... so it's already vectorized from a matrix
       if( !W_is_vector & is_diagonal_matrix(W) ){
         W <- diag(W)
         W_is_vector <- T  # now it's a vector
       }
+
     }
 
     if( W_is_vector & all(W==1) ){
       W_is_missing <- T
-      W <- substitute() # neat! this makes it go missing
+      W <- substitute()
     }
   }
 
@@ -123,12 +118,8 @@ geigen <- function(X, W, k = 0, tol= sqrt(.Machine$double.eps), symmetric){
     }else{
 
       W <- as.matrix(W)
-      # sqrt_W <- W %^% (1/2)
-      # sqrt_W <- sqrt_psd_matrix(W)
-
       ## woopsies before. my assumption previously was that W is symmetric, but I doesn't have to be. it probably should be, but that's the user's problem.
       if(isSymmetric(W)){
-          ## ok so now I also check. if it's symmetric we can just go straight for it
         sqrt_W <- sqrt_psd_matrix(W)
         X <- sqrt_W %*% X %*% sqrt_W
       }else{
