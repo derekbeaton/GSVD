@@ -61,7 +61,7 @@ tolerance_eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
 
     ## this would happen if only.values=TRUE
   if(!is.null(eigen_res$vectors)){
-    eigen_res$vectors <- eigen_res$vectors[,evs.to.keep]
+    eigen_res$vectors <- as.matrix(eigen_res$vectors[,evs.to.keep])
     rownames(eigen_res$vectors) <- colnames(x)
 
     ## new way inspired by FactoMineR but with some changes
