@@ -26,7 +26,7 @@
 #'  s_.Machine <- tolerance_eigen(cor_X, tol=.Machine$double.eps)
 #'  s_000001 <- tolerance_eigen(cor_X, tol=.000001)
 #'
-#' @author Derek Beaton
+#' @author Derek Beaton and Luke Moraglia
 #' @keywords multivariate
 
 tolerance_eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
@@ -61,7 +61,7 @@ tolerance_eigen <- function(x, tol = sqrt(.Machine$double.eps), ...) {
 
     ## this would happen if only.values=TRUE
   if(!is.null(eigen_res$vectors)){
-    eigen_res$vectors <- eigen_res$vectors[,evs.to.keep]
+    eigen_res$vectors <- eigen_res$vectors[,evs.to.keep,drop=FALSE]
     rownames(eigen_res$vectors) <- colnames(x)
 
     ## new way inspired by FactoMineR but with some changes
