@@ -38,6 +38,6 @@ A list with two elements (like \code{eigen}):
 \code{\link{eigen}}
 }
 \author{
-Derek Beaton
+Derek Beaton and Luke Moraglia
 }
 \keyword{multivariate}
