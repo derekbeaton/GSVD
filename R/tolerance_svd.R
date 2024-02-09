@@ -29,7 +29,7 @@
 #'  s_.Machine <- tolerance_svd(X, tol= .Machine$double.eps)
 #'  s_000001 <- tolerance_svd(X, tol=.000001)
 #'
-#' @author Derek Beaton
+#' @author Derek Beaton and Luke Moraglia
 #' @keywords multivariate
 
 tolerance_svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$double.eps) {
@@ -73,26 +73,42 @@ tolerance_svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$doub
 
   svd_res$d <- svd_res$d[svs.to.keep]
 
-  ## are these checks necessary? problably...
-  if(nu >= length(svs.to.keep)){
-    svd_res$u <- as.matrix(svd_res$u[,svs.to.keep])
-  }else{
-    svd_res$u <- as.matrix(svd_res$u[,1:nu])
+  if(nv > 0){
+    if(nv >= length(svs.to.keep)){
+      svd_res$v <- as.matrix(svd_res$v[,svs.to.keep])
+    }else{
+      svd_res$v <- as.matrix(svd_res$v[,1:nv])
+    }
+
+    rownames(svd_res$v) <- colnames(x)
+
+    ## new way inspired by FactoMineR but with some changes
+    vector_signs <- ifelse(colSums(svd_res$v) < 0, -1, 1)
+    svd_res$v <- t(t(svd_res$v) * vector_signs)
+  }
+  else{
+    vector_signs <- 1
   }
 
-  if(nv >= length(svs.to.keep)){
-    svd_res$v <- as.matrix(svd_res$v[,svs.to.keep])
-  }else{
-    svd_res$v <- as.matrix(svd_res$v[,1:nv])
+  if(nu > 0){
+    ## are these checks necessary? problably...
+    if(nu >= length(svs.to.keep)){
+      svd_res$u <- as.matrix(svd_res$u[,svs.to.keep])
+    }else{
+      svd_res$u <- as.matrix(svd_res$u[,1:nu])
+    }
+
+    rownames(svd_res$u) <- rownames(x)
+
+    ncolu <- ncol(svd_res$u)
+    if(length(vector_signs) > ncolu){
+      vector_signs <- vector_signs[1:ncolu]
+    }
+    else if(length(vector_signs) < ncolu){
+      vector_signs <- c(vector_signs, rep(1, ncolu - length(vector_signs)))
+    }
+    svd_res$u <- t(t(svd_res$u) * vector_signs)
   }
-
-  rownames(svd_res$u) <- rownames(x)
-  rownames(svd_res$v) <- colnames(x)
-
-  ## new way inspired by FactoMineR but with some changes
-  vector_signs <- ifelse(colSums(svd_res$v) < 0, -1, 1)
-  svd_res$v <- t(t(svd_res$v) * vector_signs)
-  svd_res$u <- t(t(svd_res$u) * vector_signs)
 
   # class(svd_res) <- c("svd", "GSVD", "list")
   # return(svd_res)
