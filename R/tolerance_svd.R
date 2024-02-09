@@ -100,6 +100,13 @@ tolerance_svd <- function(x, nu=min(dim(x)), nv=min(dim(x)), tol = .Machine$doub
 
     rownames(svd_res$u) <- rownames(x)
 
+    ncolu <- ncol(svd_res$u)
+    if(length(vector_signs) > ncolu){
+      vector_signs <- vector_signs[1:ncolu]
+    }
+    else if(length(vector_signs) < ncolu){
+      vector_signs <- c(vector_signs, rep(1, ncolu - length(vector_signs)))
+    }
     svd_res$u <- t(t(svd_res$u) * vector_signs)
   }
 
